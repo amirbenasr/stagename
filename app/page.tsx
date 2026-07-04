@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 export default function Home() {
@@ -308,6 +309,21 @@ export default function Home() {
             <div className="text-sm text-gray-400">Names Generated</div>
           </div>
         </div>
+
+        <footer className="mt-10 flex flex-wrap items-center justify-center gap-4 border-t border-purple-500/20 pt-6 text-sm text-gray-400">
+          <Link href="/pricing" className="transition hover:text-white">
+            Pricing
+          </Link>
+          <Link href="/privacy" className="transition hover:text-white">
+            Privacy Policy
+          </Link>
+          <Link href="/terms" className="transition hover:text-white">
+            Terms of Service
+          </Link>
+          <Link href="/refund" className="transition hover:text-white">
+            Refund Policy
+          </Link>
+        </footer>
       </main>
     </div>
   );
