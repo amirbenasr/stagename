@@ -2,24 +2,20 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Heart, Star } from "lucide-react";
 
 export default function Home() {
-  const [pressPhoto, setPressPhoto] = useState<File | null>(null);
-  const [audioSnippet, setAudioSnippet] = useState<File | null>(null);
-  const [culturalRoots, setCulturalRoots] = useState("");
+  const [artistName, setArtistName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isAfterView, setIsAfterView] = useState(false);
 
   const handleCheckout = async () => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/checkout', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json', // Crucial for Next.js to know it's JSON
-  },
-  body: JSON.stringify({ quantity: 1 }), // Send a valid JSON string
-});
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity: 1 }),
+      });
       const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
@@ -31,300 +27,353 @@ export default function Home() {
     }
   };
 
-  const handleDrop = (
-    e: React.DragEvent<HTMLDivElement>,
-    type: "photo" | "audio"
-  ) => {
-    e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      if (type === "photo") {
-        setPressPhoto(files[0]);
-      } else {
-        setAudioSnippet(files[0]);
-      }
-    }
-  };
-
-  // Simulated brand names for display
-  const simulatedNames = [
-    { name: "Crescendo Echo", origin: "Latin-Italian Fusion", match: "98%" },
-    { name: "Melodia Nexus", origin: "Spanish-Greek Blend", match: "96%" },
-    { name: "Harmonia Divine", origin: "French-Celtic Heritage", match: "94%" },
-    { name: "Sonic Epoch", origin: "Germanic-Nordic Mix", match: "92%" },
-  ];
+  const nameBubbles = ["Echo", "Nova", "Muse", "Riff", "Aura", "Vibe", "Flux", "Drift", "Pulse", "Shade"];
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
-      {/* Social Proof Banner */}
-      <div className="border-b border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-emerald-900/20 py-3 px-4 text-center sticky top-0 z-10">
-        <p className="text-sm font-medium text-purple-300">
-          ✨ 14,204+ Artists Rebranded | ⭐ 5-star rating
+    <div className="min-h-screen bg-beige text-foreground overflow-x-hidden">
+      {/* ===== NAVBAR ===== */}
+      <nav className="border-b border-black/10 bg-beige/90 backdrop-blur-sm sticky top-0 z-20">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Star size={14} className="text-foreground" />
+            <span className="text-lg font-serif lowercase tracking-wide">stagename.club</span>
+          </div>
+          <div className="hidden sm:flex items-center gap-6 text-sm text-foreground/70 font-serif">
+            <Link href="#how" className="hover:text-foreground transition">How it Works</Link>
+            <Link href="/pricing" className="hover:text-foreground transition">Pricing</Link>
+            <span className="hover:text-foreground transition cursor-pointer">Blog</span>
+            <span className="hover:text-foreground transition cursor-pointer">Log In</span>
+          </div>
+          <Link
+            href="/quiz"
+            className="border-2 border-foreground rounded-full px-5 py-1.5 text-sm font-serif uppercase tracking-wider hover:bg-foreground hover:text-beige transition-all duration-300"
+          >
+            Get My Name
+          </Link>
+        </div>
+      </nav>
+
+      {/* ===== HERO SECTION ===== */}
+      <section className="max-w-5xl mx-auto px-6 pt-16 sm:pt-24 pb-12">
+        {/* Headline: YOUR PERFECT ARTIST NAME IS WAITING */}
+        <h1 className="text-center text-4xl sm:text-5xl lg:text-6xl font-serif leading-tight mb-4">
+          <span className="uppercase tracking-wider">YOUR </span>
+          <span className="font-script text-pink-accent text-5xl sm:text-6xl lg:text-7xl lowercase">perfect</span>
+          <span className="uppercase tracking-wider"> ARTIST NAME IS </span>
+          <span className="font-script text-pink-accent text-5xl sm:text-6xl lg:text-7xl lowercase">waiting</span>
+        </h1>
+        <p className="text-center text-lg text-foreground/60 font-serif mb-8 max-w-xl mx-auto">
+          Stop struggling with your identity. Start building your legacy.
         </p>
-      </div>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
-        {/* Header Section */}
-        <div className="text-center mb-12 sm:mb-16">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-purple-300 to-emerald-400 bg-clip-text text-transparent">
-            Your Brand. Reborn.
-          </h1>
-          <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto">
-            AI-powered brand naming that captures your cultural essence and sonic identity
-          </p>
+        {/* Input Field + Button */}
+        <div className="flex items-center justify-center gap-3 mb-16">
+          <input
+            type="text"
+            value={artistName}
+            onChange={(e) => setArtistName(e.target.value)}
+            placeholder="e.g., Dimitri..."
+            className="w-64 sm:w-80 rounded-full border-2 border-foreground/20 bg-white px-6 py-3 text-foreground font-serif placeholder:text-foreground/40 focus:outline-none focus:border-pink-accent/50 transition"
+          />
+          <Link
+            href="/quiz"
+            className="holographic-shadow rounded-full px-6 py-3 text-white font-serif uppercase tracking-wider text-sm font-bold holographic transition-all duration-300 hover:scale-105"
+          >
+            FIND MY STAGE NAME
+          </Link>
         </div>
 
-        {/* Placeholder Visual Section */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-6 mb-12">
-          <div className="relative rounded-3xl overflow-hidden border border-purple-500/20 bg-slate-950/80 p-6 shadow-2xl shadow-purple-900/20">
-            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-purple-600/40 to-transparent" />
-            <div className="relative flex flex-col gap-5">
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm uppercase tracking-[0.3em] text-emerald-300">Artist Preview</p>
-                  <h2 className="text-2xl font-bold text-white">Casual Creator</h2>
-                  <p className="text-sm text-cyan-300 mt-1">
-                    {isAfterView ? 'After: polished identity emerging from the creative spark' : 'Before: raw creative energy with many naming paths in motion'}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsAfterView((prev) => !prev)}
-                  className="relative inline-flex items-center rounded-full bg-slate-900/90 border border-white/10 px-1.5 py-1 shadow-lg shadow-black/20 transition-transform duration-300 hover:scale-105"
-                >
-                  <span
-                    className={`absolute left-1 h-8 w-20 rounded-full bg-gradient-to-r from-purple-500 to-emerald-400 transition-all duration-300 ease-out ${
-                      isAfterView ? 'translate-x-12' : 'translate-x-0'
+        {/* ===== BEFORE / AFTER SECTION ===== */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] items-center gap-4 lg:gap-0">
+          {/* LEFT — BEFORE: dimitri */}
+          <div className="relative bg-white/60 border border-foreground/10 rounded-3xl p-6 sm:p-8 shadow-lg">
+            <div className="absolute top-4 left-6">
+              <span className="text-xs font-serif uppercase tracking-[0.4em] text-foreground/40">BEFORE:</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 pt-4">
+              {/* Status */}
+              <div className="text-center">
+                <span className="text-sm font-serif text-foreground/50 italic">Undiscovered</span>
+                <div className="text-3xl font-serif text-foreground/30 font-bold">0</div>
+              </div>
+
+              {/* Artist avatar — frustrated */}
+              <div className="relative h-40 w-40 rounded-full bg-gradient-to-br from-beige-dark to-white border-2 border-foreground/15 flex items-center justify-center">
+                {/* Singer illustration placeholder */}
+                <svg viewBox="0 0 80 80" className="w-24 h-24 text-foreground/40">
+                  <circle cx="40" cy="28" r="14" fill="currentColor" />
+                  <path d="M24 58c0-10 7-18 16-18s16 8 16 18" fill="currentColor" />
+                  <rect x="38" y="42" width="4" height="20" rx="2" fill="currentColor" />
+                  <circle cx="38" cy="62" r="6" fill="currentColor" />
+                </svg>
+              </div>
+
+              {/* Speech bubble — dimitri */}
+              <div className="relative bg-white border border-foreground/15 rounded-2xl px-4 py-2 shadow-sm">
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-foreground/15 rotate-45" />
+                <span className="text-lg font-serif text-foreground/50 lowercase">dimitri</span>
+              </div>
+
+              {/* Name caption */}
+              <div className="text-center">
+                <span className="text-xl font-serif uppercase tracking-wider text-foreground/70">DIMITRI</span>
+                <span className="text-xs font-serif text-foreground/40 block">(Real Name)</span>
+              </div>
+
+              {/* Data streams flowing right */}
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-1 h-8 rounded-full data-stream ${
+                      i % 3 === 0 ? "bg-pink-accent/30" : i % 3 === 1 ? "bg-cyan-accent/30" : "bg-purple-400/30"
                     }`}
+                    style={{ animationDelay: `${i * 0.2}s` }}
                   />
-                  <span className="relative z-10 flex items-center gap-4 text-xs uppercase tracking-[0.3em] text-white/90 font-semibold px-3">
-                    <span className={isAfterView ? 'text-white/70' : 'text-white'}>Before</span>
-                    <span className="text-white/40">•</span>
-                    <span className={isAfterView ? 'text-white' : 'text-white/70'}>After</span>
-                  </span>
-                </button>
-              </div>
-
-              <div className="relative rounded-[2rem] bg-slate-900/95 border border-white/10 p-6 overflow-hidden">
-                <div className="absolute -left-6 top-6 h-28 w-28 rounded-full bg-purple-500/20 blur-2xl" />
-                <div className="absolute right-4 top-8 h-20 w-20 rounded-full bg-emerald-400/15 blur-2xl" />
-                <div className="relative flex items-end justify-center">
-                  <div className="h-40 w-40 rounded-full bg-gradient-to-br from-slate-800 to-slate-700 border border-white/10 shadow-[0_20px_80px_rgba(15,23,42,0.6)]" />
-                </div>
-                <div className="relative mt-6 grid grid-cols-2 gap-4">
-                  {['Echo', 'Nova', 'Muse', 'Riff'].map((bubble, index) => (
-                    <span
-                      key={bubble}
-                      className={`relative py-2 px-4 rounded-full text-xs font-semibold text-white ${
-                        index % 2 === 0 ? 'bg-purple-500/90' : 'bg-emerald-500/90'
-                      } shadow-lg shadow-black/20`}>
-                      {bubble}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <p className="text-sm text-gray-400 leading-6">
-                Casual, confident, and ready to step on stage — this artist portrait captures a relaxed musician with playful name bubbles floating above, signaling the creative identity transformation.
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-emerald-500/20 bg-slate-950/90 p-6 shadow-2xl shadow-emerald-900/20">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-purple-300">Brand Identified</p>
-                <h2 className="text-2xl font-bold text-white">Stage Signature</h2>
-                <p className="text-sm text-gray-400 mt-1">
-                  {isAfterView ? 'After view: identity polished for launch' : 'Before view: creative direction still unfolding'}
-                </p>
-              </div>
-              <span className="text-2xl">✨</span>
-            </div>
-
-            <div className="rounded-[2rem] bg-gradient-to-br from-slate-900/95 via-slate-800 to-slate-950 border border-white/10 p-6">
-              <div className="h-52 rounded-3xl bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.25),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(16,185,129,0.22),transparent_35%),linear-gradient(to_bottom,#0f172a,#020617)] shadow-inner shadow-black/30 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="mb-3 text-4xl">🎙️</div>
-                  <p className="text-white text-lg font-semibold">Your curated Spotify cover art</p>
-                  <p className="mt-2 text-sm text-gray-400">Bold, melodic, and unmistakably you.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-4">
-              <div className="rounded-2xl bg-slate-900/90 border border-white/10 p-5">
-                <p className="text-xs text-gray-400 uppercase tracking-[0.25em] mb-2">Identified Brand</p>
-                <h3 className="text-xl font-semibold text-white">Aurora Pulse</h3>
-                <p className="text-sm text-gray-400 mt-1">A modern music persona built for streaming, playability, and cultural resonance.</p>
-              </div>
-              <div className="rounded-2xl bg-slate-900/90 border border-white/10 p-5">
-                <p className="text-xs text-gray-400 uppercase tracking-[0.25em] mb-2">Genre Focus</p>
-                <p className="text-sm text-gray-300">Neo-soul, alternative pop, cinematic soundscapes</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Upload Form Section */}
-        <div className="bg-gradient-to-b from-purple-900/10 to-emerald-900/10 border border-purple-500/20 rounded-xl p-8 sm:p-10 mb-12">
-          <h2 className="text-2xl font-bold mb-8 text-center">Tell Us Your Story</h2>
-
-          {/* Drag and Drop Areas */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-            {/* Press Photo Upload */}
-            <div
-              onDrop={(e) => handleDrop(e, "photo")}
-              onDragOver={(e) => e.preventDefault()}
-              className="border-2 border-dashed border-purple-400/50 hover:border-purple-300 rounded-lg p-6 text-center cursor-pointer transition-all duration-300 hover:bg-purple-900/10"
-            >
-              <div className="flex flex-col items-center gap-2">
-                <div className="text-3xl">📸</div>
-                <h3 className="font-semibold text-purple-300">Press Photo</h3>
-                <p className="text-sm text-gray-400">JPEG or PNG</p>
-                {pressPhoto && (
-                  <p className="text-sm text-emerald-400 mt-2">✓ {pressPhoto.name}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Audio Snippet Upload */}
-            <div
-              onDrop={(e) => handleDrop(e, "audio")}
-              onDragOver={(e) => e.preventDefault()}
-              className="border-2 border-dashed border-emerald-400/50 hover:border-emerald-300 rounded-lg p-6 text-center cursor-pointer transition-all duration-300 hover:bg-emerald-900/10"
-            >
-              <div className="flex flex-col items-center gap-2">
-                <div className="text-3xl">🎵</div>
-                <h3 className="font-semibold text-emerald-300">Audio Snippet</h3>
-                <p className="text-sm text-gray-400">MP3 or WAV</p>
-                {audioSnippet && (
-                  <p className="text-sm text-emerald-400 mt-2">✓ {audioSnippet.name}</p>
-                )}
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Cultural Roots Text Field */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-purple-300 mb-2">
-              Your Cultural Roots & Inspiration
-            </label>
-            <textarea
-              value={culturalRoots}
-              onChange={(e) => setCulturalRoots(e.target.value)}
-              placeholder="Share your cultural background, influences, and artistic vision..."
-              className="w-full bg-black/50 border border-purple-400/30 rounded-lg p-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
-              rows={4}
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button className="w-full bg-gradient-to-r from-purple-500 to-emerald-500 hover:from-purple-600 hover:to-emerald-600 text-white font-bold py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
-            Generate Your Brand Names
-          </button>
-        </div>
-
-        {/* Results Section - Blurred */}
-        <div className="relative mb-12">
-          {/* Blurred Results Grid */}
-          <div className="blur-md pointer-events-none">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {simulatedNames.map((item, index) => (
+          {/* CENTER — Heart Processor + "FIND MY NAME" */}
+          <div className="flex flex-col items-center gap-3 py-4 lg:py-0 lg:px-2">
+            {/* Data streams entering */}
+            <div className="flex gap-1 rotate-90 lg:rotate-0">
+              {[...Array(3)].map((_, i) => (
                 <div
-                  key={index}
-                  className="bg-gradient-to-br from-purple-600 to-emerald-600 rounded-lg p-6"
-                >
-                  <h3 className="text-xl font-bold text-white mb-2">{item.name}</h3>
-                  <p className="text-sm text-purple-100 mb-3">{item.origin}</p>
-                  <div className="flex items-center gap-2">
-                    <div className="w-full bg-purple-800 rounded-full h-2">
-                      <div
-                        className="bg-emerald-400 h-2 rounded-full"
-                        style={{
-                          width: item.match,
-                        }}
-                      />
-                    </div>
-                    <span className="text-sm font-bold text-emerald-300">
-                      {item.match}
-                    </span>
-                  </div>
-                </div>
+                  key={`in-${i}`}
+                  className={`w-1 h-6 rounded-full data-stream ${
+                    i % 2 === 0 ? "bg-pink-accent/50" : "bg-cyan-accent/50"
+                  }`}
+                  style={{ animationDelay: `${i * 0.3}s` }}
+                />
+              ))}
+            </div>
+
+            {/* Heart CTA device */}
+            <Link
+              href="/quiz"
+              className="heart-pulse relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl holographic holographic-shadow flex flex-col items-center justify-center gap-1 transition-all duration-300 hover:scale-110"
+            >
+              <Heart size={28} className="text-white fill-white" />
+              <span className="text-xs text-white font-serif uppercase tracking-wider">Find My Name</span>
+            </Link>
+
+            {/* Data streams exiting */}
+            <div className="flex gap-1 rotate-90 lg:rotate-0">
+              {[...Array(3)].map((_, i) => (
+                <div
+                  key={`out-${i}`}
+                  className={`w-1 h-6 rounded-full data-stream ${
+                    i % 2 === 0 ? "bg-cyan-accent/50" : "bg-pink-accent/50"
+                  }`}
+                  style={{ animationDelay: `${i * 0.3}s` }}
+                />
               ))}
             </div>
           </div>
 
-          {/* Payment CTA Overlay */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-gradient-to-br from-purple-900/95 to-black/95 border border-purple-500/50 backdrop-blur-md rounded-2xl p-8 max-w-sm mx-auto w-full shadow-2xl transform transition-all duration-300 hover:scale-105">
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-white mb-2">
-                  Unlock Your Complete Brand Dossier
-                </h3>
-                <p className="text-gray-300 text-sm">
-                  Get 50+ personalized brand names, cultural analysis, and sonic branding guidelines
-                </p>
+          {/* RIGHT — AFTER: Prense */}
+          <div className="relative bg-white/60 border border-foreground/10 rounded-3xl p-6 sm:p-8 shadow-lg">
+            <div className="absolute top-4 right-6">
+              <span className="text-xs font-serif uppercase tracking-[0.4em] text-pink-accent">AFTER:</span>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 pt-4">
+              {/* Status + Metrics */}
+              <div className="text-center">
+                <span className="text-sm font-serif holographic-text font-bold italic">Unstoppable</span>
               </div>
 
-              <div className="mb-6">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-bold text-emerald-400">$14.99</span>
-                  <span className="text-gray-400">one-time</span>
+              {/* Social metrics */}
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col items-center gap-1">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-green-500" fill="currentColor">
+                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.56-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-2.04-8.159-2.64-11.939-1.44-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.02.6-1.14 4.26-1.26 9.54-.66 13.2 1.56.479.301.659.84.36 1.26zm.66-3.54c-3.6-2.16-9.54-2.34-13.26-1.26-.6.18-1.2-.18-1.38-.78-.18-.6.18-1.2.78-1.38 4.32-1.32 10.8-1.08 14.94 1.32.54.3.72 1.02.42 1.56-.3.42-1.02.6-1.5.3z"/>
+                  </svg>
+                  <span className="text-xs font-serif holographic-text font-bold">56k</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-pink-accent" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.069 4.849-.149 3.227-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                  </svg>
+                  <span className="text-xs font-serif holographic-text font-bold">94k</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-foreground" fill="currentColor">
+                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.76-1.35 3.91-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.79.57-1.33 1.46-1.41 2.39-.07.89.16 1.83.75 2.53.63.75 1.59 1.17 2.53 1.14.97-.03 1.89-.49 2.49-1.23.43-.56.65-1.26.67-1.97.04-2.92.01-5.84.02-8.76.01-1.76.67-3.49 1.76-4.83C10.18.98 11.37.42 12.52.02z"/>
+                  </svg>
+                  <span className="text-xs font-serif holographic-text font-bold">160k</span>
                 </div>
               </div>
 
-              <button
-                onClick={handleCheckout}
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-purple-500 to-emerald-500 hover:from-purple-600 hover:to-emerald-600 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-3 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:cursor-not-allowed disabled:scale-100"
-              >
-                {isLoading ? "Processing..." : "Proceed to Checkout"}
-              </button>
+              {/* Artist avatar — happy with holographic aura */}
+              <div className="relative">
+                {/* Holographic glow aura */}
+                <div className="absolute inset-0 rounded-full aura-glow" />
+                <div className="relative h-40 w-40 rounded-full bg-gradient-to-br from-beige-dark to-white border-2 border-pink-accent/30 flex items-center justify-center overflow-hidden">
+                  {/* Holographic overlay */}
+                  <div className="absolute inset-0 holographic opacity-10 rounded-full" />
+                  {/* Singer illustration placeholder */}
+                  <svg viewBox="0 0 80 80" className="w-24 h-24 text-pink-accent">
+                    <circle cx="40" cy="28" r="14" fill="currentColor" />
+                    <path d="M24 58c0-10 7-18 16-18s16 8 16 18" fill="currentColor" />
+                    <rect x="38" y="42" width="4" height="20" rx="2" fill="currentColor" />
+                    <circle cx="38" cy="62" r="6" fill="currentColor" />
+                  </svg>
+                </div>
+              </div>
 
-              <p className="text-xs text-gray-500 text-center mt-4">
-                Secure payment via Stripe. No hidden fees.
-              </p>
+              {/* Speech bubble — Prense */}
+              <div className="relative holographic-shadow bg-white rounded-2xl px-4 py-2">
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-pink-accent/30 rotate-45" />
+                <span className="text-lg font-serif holographic-text font-bold lowercase">Prense</span>
+              </div>
+
+              {/* Name caption */}
+              <div className="text-center">
+                <span className="text-xl font-serif uppercase tracking-wider holographic-text font-bold">PRENSE</span>
+                <span className="text-xs font-serif text-foreground/40 block">(New Stage Name)</span>
+              </div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Trust Indicators */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-16 pt-8 border-t border-purple-500/20 text-center">
-          <div>
-            <div className="text-2xl font-bold text-emerald-400">14,204+</div>
-            <div className="text-sm text-gray-400">Artists Rebranded</div>
+      {/* ===== FEATURES — Three Columns ===== */}
+      <section id="how" className="max-w-5xl mx-auto px-6 py-12 sm:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+          {/* Tell Us Who You Are */}
+          <div className="bg-white/60 border border-foreground/10 rounded-3xl p-8 text-center shadow-sm hover:shadow-md transition">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl holographic/10 bg-beige-dark flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-pink-accent" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18" />
+                <circle cx="8" cy="15" r="2" />
+                <path d="M13 13h4M13 15h4M13 17h2" />
+              </svg>
+            </div>
+            <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-foreground/70 mb-2">TELL US WHO YOU ARE</h3>
+            <p className="text-sm font-serif text-foreground/50">Tell us about your sound and your story.</p>
           </div>
-          <div>
-            <div className="text-2xl font-bold text-purple-400">98%</div>
-            <div className="text-sm text-gray-400">Match Rate</div>
+
+          {/* Our Algorithms Work */}
+          <div className="bg-white/60 border border-foreground/10 rounded-3xl p-8 text-center shadow-sm hover:shadow-md transition">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-beige-dark flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-cyan-accent" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="5" y="2" width="14" height="20" rx="3" />
+                <path d="M12 8c-2 0-3 2-3 3s1 3 3 3 3-2 3-3-1-3-3-3z" />
+                <path d="M9 6L8 4M15 6l1-2M9 14l-1 2M15 14l1 2" />
+              </svg>
+            </div>
+            <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-foreground/70 mb-2">OUR ALGORITHMS WORK</h3>
+            <p className="text-sm font-serif text-foreground/50">We analyze millions of names and meanings.</p>
           </div>
-          <div>
-            <div className="text-2xl font-bold text-emerald-400">⭐⭐⭐⭐⭐</div>
-            <div className="text-sm text-gray-400">5-Star Rating</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-purple-400">2M+</div>
-            <div className="text-sm text-gray-400">Names Generated</div>
+
+          {/* Claim Your New Identity */}
+          <div className="bg-white/60 border border-foreground/10 rounded-3xl p-8 text-center shadow-sm hover:shadow-md transition">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-beige-dark flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 text-pink-accent" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="12" cy="8" r="5" />
+                <path d="M7 18c0-3 2-5 5-5s5 2 5 5" />
+                <circle cx="18" cy="5" r="1.5" fill="currentColor" />
+                <circle cx="6" cy="5" r="1.5" fill="currentColor" />
+                <circle cx="16" cy="19" r="1.5" fill="currentColor" />
+              </svg>
+            </div>
+            <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-foreground/70 mb-2">CLAIM YOUR NEW IDENTITY</h3>
+            <p className="text-sm font-serif text-foreground/50">Secure your name and dominate the charts.</p>
           </div>
         </div>
+      </section>
 
-        <footer className="mt-10 flex flex-wrap items-center justify-center gap-4 border-t border-purple-500/20 pt-6 text-sm text-gray-400">
-          <Link href="/pricing" className="transition hover:text-white">
-            Pricing
+      {/* ===== PRICING / CTA SECTION ===== */}
+      <section className="max-w-5xl mx-auto px-6 py-12 sm:py-16">
+        <div className="relative bg-white/60 border border-foreground/10 rounded-3xl p-8 sm:p-10 shadow-lg">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-serif uppercase tracking-wider">
+              Unlock Your <span className="font-script text-pink-accent lowercase text-3xl sm:text-4xl">Complete Brand Dossier</span>
+            </h2>
+            <p className="text-sm font-serif text-foreground/50 mt-2 max-w-lg mx-auto">
+              Get 50+ personalized brand names, cultural analysis, and sonic branding guidelines
+            </p>
+          </div>
+
+          <div className="flex items-baseline justify-center gap-2 mb-6">
+            <span className="text-4xl font-serif font-bold holographic-text">$14.99</span>
+            <span className="text-sm font-serif text-foreground/40">one-time</span>
+          </div>
+
+          <button
+            onClick={handleCheckout}
+            disabled={isLoading}
+            className="w-full max-w-md mx-auto holographic holographic-shadow rounded-full py-3 text-white font-serif uppercase tracking-wider text-sm font-bold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:scale-100"
+          >
+            {isLoading ? "Processing..." : "Proceed to Checkout"}
+          </button>
+
+          <p className="text-xs text-foreground/40 text-center mt-4 font-serif">
+            Secure payment via Stripe. No hidden fees.
+          </p>
+        </div>
+      </section>
+
+      {/* ===== TRUST INDICATORS ===== */}
+      <section className="max-w-5xl mx-auto px-6 py-12 border-t border-foreground/10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+          <div>
+            <div className="text-2xl font-serif font-bold holographic-text">14,204+</div>
+            <div className="text-xs font-serif text-foreground/50 uppercase tracking-wider">Artists Rebranded</div>
+          </div>
+          <div>
+            <div className="text-2xl font-serif font-bold holographic-text">98%</div>
+            <div className="text-xs font-serif text-foreground/50 uppercase tracking-wider">Match Rate</div>
+          </div>
+          <div>
+            <div className="text-2xl font-serif font-bold">⭐⭐⭐⭐⭐</div>
+            <div className="text-xs font-serif text-foreground/50 uppercase tracking-wider">5-Star Rating</div>
+          </div>
+          <div>
+            <div className="text-2xl font-serif font-bold holographic-text">2M+</div>
+            <div className="text-xs font-serif text-foreground/50 uppercase tracking-wider">Names Generated</div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FOOTER ===== */}
+      <footer className="max-w-5xl mx-auto px-6 py-8 border-t border-foreground/10">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+          {/* Links */}
+          <div className="flex flex-wrap gap-4 text-sm font-serif text-foreground/50">
+            <Link href="/pricing" className="hover:text-foreground transition">Pricing</Link>
+            <Link href="/privacy" className="hover:text-foreground transition">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-foreground transition">Terms of Service</Link>
+            <Link href="/refund" className="hover:text-foreground transition">Refund Policy</Link>
+          </div>
+
+          {/* Social icons */}
+          <div className="flex items-center gap-4">
+            <svg viewBox="0 0 24 24" className="w-6 h-6 text-green-500" fill="currentColor">
+              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.56-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-2.04-8.159-2.64-11.939-1.44-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.02.6-1.14 4.26-1.26 9.54-.66 13.2 1.56.479.301.659.84.36 1.26zm.66-3.54c-3.6-2.16-9.54-2.34-13.26-1.26-.6.18-1.2-.18-1.38-.78-.18-.6.18-1.2.78-1.38 4.32-1.32 10.8-1.08 14.94 1.32.54.3.72 1.02.42 1.56-.3.42-1.02.6-1.5.3z"/>
+            </svg>
+            <svg viewBox="0 0 24 24" className="w-6 h-6 text-pink-accent" fill="currentColor">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.069 4.849-.149 3.227-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+            </svg>
+            <svg viewBox="0 0 24 24" className="w-6 h-6 text-foreground" fill="currentColor">
+              <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.76-1.35 3.91-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.79.57-1.33 1.46-1.41 2.39-.07.89.16 1.83.75 2.53.63.75 1.59 1.17 2.53 1.14.97-.03 1.89-.49 2.49-1.23.43-.56.65-1.26.67-1.97.04-2.92.01-5.84.02-8.76.01-1.76.67-3.49 1.76-4.83C10.18.98 11.37.42 12.52.02z"/>
+            </svg>
+          </div>
+
+          {/* Join the Club button */}
+          <Link
+            href="/quiz"
+            className="border-2 border-foreground rounded-full px-5 py-1.5 text-sm font-serif uppercase tracking-wider hover:bg-foreground hover:text-beige transition-all duration-300"
+          >
+            JOIN THE CLUB
           </Link>
-          <Link href="/privacy" className="transition hover:text-white">
-            Privacy Policy
-          </Link>
-          <Link href="/terms" className="transition hover:text-white">
-            Terms of Service
-          </Link>
-          <Link href="/refund" className="transition hover:text-white">
-            Refund Policy
-          </Link>
-        </footer>
-      </main>
+        </div>
+      </footer>
     </div>
   );
 }

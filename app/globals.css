@@ -1,26 +1,238 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: #f5f0e8;
+  --color-foreground: #1a1a1a;
+  --color-pink-accent: #e91e8c;
+  --color-cyan-accent: #00d4ff;
+  --color-beige: #f5f0e8;
+  --color-beige-dark: #e8e0d0;
+  --font-serif: Georgia, "Times New Roman", serif;
+  --font-script: var(--font-dancing-script), "Dancing Script", cursive;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-beige);
+  color: var(--color-foreground);
+  font-family: var(--font-serif);
+}
+
+/* Holographic gradient utility */
+.holographic {
+  background: linear-gradient(
+    135deg,
+    #e91e8c 0%,
+    #ff6ec7 15%,
+    #00d4ff 35%,
+    #7b2ff7 55%,
+    #ff6ec7 75%,
+    #e91e8c 100%
+  );
+}
+
+.holographic-text {
+  background: linear-gradient(
+    135deg,
+    #e91e8c 0%,
+    #ff6ec7 20%,
+    #00d4ff 45%,
+    #7b2ff7 65%,
+    #ff6ec7 85%,
+    #e91e8c 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.holographic-shadow {
+  box-shadow:
+    0 4px 20px rgba(233, 30, 140, 0.3),
+    0 0 40px rgba(0, 212, 255, 0.15);
+}
+
+.holographic-border {
+  border-image: linear-gradient(
+    135deg,
+    #e91e8c,
+    #00d4ff,
+    #7b2ff7,
+    #e91e8c
+  ) 1;
+}
+
+/* Glow aura for the "after" artist */
+.aura-glow {
+  box-shadow:
+    0 0 30px rgba(233, 30, 140, 0.4),
+    0 0 60px rgba(0, 212, 255, 0.2),
+    0 0 90px rgba(123, 47, 247, 0.15);
+}
+
+/* Animated pulse for the heart CTA */
+.heart-pulse {
+  animation: heartPulse 2s ease-in-out infinite;
+}
+
+@keyframes heartPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* Data stream animation */
+.data-stream {
+  animation: dataStream 2s ease-in-out infinite;
+}
+
+@keyframes dataStream {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.3; }
+}
+
+/* Quiz step slide animations */
+.animate-slide-in-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.4s ease-out forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Sidebar slide-in from right */
+.animate-sidebar-in {
+  animation: sidebarIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-sidebar-out {
+  animation: sidebarOut 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+@keyframes sidebarIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sidebarOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Processing stage pulse */
+.stage-pulse {
+  animation: stagePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes stagePulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* Processing stage active glow */
+.stage-active {
+  animation: stageGlow 0.8s ease-out forwards;
+}
+
+@keyframes stageGlow {
+  from {
+    opacity: 0.4;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Blur/processing effect for blurred results */
+.processing-blur {
+  filter: blur(8px);
+  opacity: 0.6;
+  transition: filter 0.6s ease-out, opacity 0.6s ease-out;
+}
+
+.processing-blur.revealed {
+  filter: blur(0px);
+  opacity: 1;
+}
+
+/* Spinner for AI processing */
+.ai-spinner {
+  animation: aiSpin 1.2s linear infinite;
+}
+
+@keyframes aiSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== PRINT STYLES (PDF via window.print()) ===== */
+@media print {
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+
+  body {
+    background: white !important;
+    color: #1a1a1a !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+  }
+
+  .holographic {
+    background: #e91e8c !important;
+  }
+
+  .holographic-text {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #e91e8c !important;
+    background-clip: unset !important;
+    color: #e91e8c !important;
+  }
+
+  .holographic-shadow {
+    box-shadow: none !important;
+  }
+
+  img {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .bg-white\/60 {
+    background: white !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }

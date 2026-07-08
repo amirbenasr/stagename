@@ -1,0 +1,152 @@
+[
+  {
+    "id": 1,
+    "type": "text",
+    "question": "What's your first name?",
+    "placeholder": "e.g., Dimitri",
+    "description": "We'll use this as the seed for your stage name"
+  },
+  {
+    "id": 2,
+    "type": "single",
+    "question": "What genre best describes your music?",
+    "description": "Pick the one that feels most like home",
+    "options": [
+      { "label": "Hip-Hop", "emoji": "🎤" },
+      { "label": "R&B", "emoji": "💜" },
+      { "label": "Pop", "emoji": "✨" },
+      { "label": "Electronic / EDM", "emoji": "⚡" },
+      { "label": "Rock / Indie", "emoji": "🎸" },
+      { "label": "Afrobeats / Amapiano", "emoji": "🌍" },
+      { "label": "Latin / Reggaeton", "emoji": "🔥" },
+      { "label": "Jazz / Soul", "emoji": "🎷" },
+      { "label": "Experimental", "emoji": "🧪" },
+      { "label": "Country / Folk", "emoji": "🤠" }
+    ]
+  },
+  {
+    "id": 3,
+    "type": "single",
+    "question": "Where are you from?",
+    "description": "Your roots shape your name",
+    "options": [
+      { "label": "US — East Coast" },
+      { "label": "US — West Coast" },
+      { "label": "US — South" },
+      { "label": "US — Midwest" },
+      { "label": "UK" },
+      { "label": "Europe" },
+      { "label": "Africa" },
+      { "label": "Caribbean" },
+      { "label": "Latin America" },
+      { "label": "Asia / Middle East" }
+    ]
+  },
+  {
+    "id": 4,
+    "type": "multi",
+    "question": "Where do people discover your music?",
+    "description": "Select all that apply",
+    "options": [
+      { "label": "Spotify" },
+      { "label": "Apple Music" },
+      { "label": "SoundCloud" },
+      { "label": "YouTube" },
+      { "label": "TikTok" },
+      { "label": "Live Shows" },
+      { "label": "Bandcamp" },
+      { "label": "Mixtapes / DJ Sets" }
+    ]
+  },
+  {
+    "id": 5,
+    "type": "single",
+    "question": "What energy does your music give people?",
+    "description": "The vibe your name needs to match",
+    "options": [
+      { "label": "Chill & Dreamy", "emoji": "🌙" },
+      { "label": "Bold & Unapologetic", "emoji": "🔥" },
+      { "label": "Emotional & Raw", "emoji": "💔" },
+      { "label": "Energetic & Hype", "emoji": "💥" },
+      { "label": "Smooth & Sophisticated", "emoji": "🥂" },
+      { "label": "Dark & Mysterious", "emoji": "👁️" },
+      { "label": "Fun & Playful", "emoji": "🎉" },
+      { "label": "Soulful & Deep", "emoji": "🌊" }
+    ]
+  },
+  {
+    "id": 6,
+    "type": "single",
+    "question": "Which word best describes your on-stage persona?",
+    "description": "When you step on stage, who are you?",
+    "options": [
+      { "label": "Fire" },
+      { "label": "Ghost" },
+      { "label": "Velvet" },
+      { "label": "Storm" },
+      { "label": "Prism" },
+      { "label": "Shadow" },
+      { "label": "Gold" },
+      { "label": "Neon" }
+    ]
+  },
+  {
+    "id": 7,
+    "type": "single",
+    "question": "What drives your art?",
+    "description": "The force behind your sound",
+    "options": [
+      { "label": "My community", "emoji": "🤝" },
+      { "label": "My pain", "emoji": "🖤" },
+      { "label": "My joy", "emoji": "☀️" },
+      { "label": "My culture", "emoji": "🏛️" },
+      { "label": "My imagination", "emoji": "🪐" },
+      { "label": "My rebellion", "emoji": "⚔️" },
+      { "label": "My love", "emoji": "❤️" },
+      { "label": "My struggle", "emoji": "⛰️" }
+    ]
+  },
+  {
+    "id": 8,
+    "type": "single",
+    "question": "What visual world matches your music?",
+    "description": "Your name lives in a visual universe",
+    "options": [
+      { "label": "Neon city lights", "emoji": "🌃" },
+      { "label": "Sunset & warm tones", "emoji": "🌅" },
+      { "label": "Dark & moody", "emoji": "🌑" },
+      { "label": "Clean & minimal", "emoji": "⬜" },
+      { "label": "Retro & vintage", "emoji": "📼" },
+      { "label": "Bold & colorful", "emoji": "🎨" },
+      { "label": "Nature & organic", "emoji": "🌿" },
+      { "label": "Abstract & futuristic", "emoji": "🔮" }
+    ]
+  },
+  {
+    "id": 9,
+    "type": "multi",
+    "question": "What language(s) do you weave into your music?",
+    "description": "Select all that apply",
+    "options": [
+      { "label": "English" },
+      { "label": "Spanish" },
+      { "label": "French" },
+      { "label": "Patois / Dialect" },
+      { "label": "My native tongue" },
+      { "label": "I let the beat speak" }
+    ]
+  },
+  {
+    "id": "selfie",
+    "type": "selfie",
+    "question": "Drop a selfie for your brand kit",
+    "description": "This will power your visual brand identity"
+  },
+  {
+    "id": "music",
+    "type": "music",
+    "question": "Drop a snippet of your music",
+    "description": "Optional — helps us match your name to your sound",
+    "optional": true
+  }
+]

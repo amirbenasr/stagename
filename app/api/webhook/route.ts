@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { adminDb } from '../../../lib/firebase-admin';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-06-24.dahlia',
@@ -14,10 +15,7 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<WebhookResponse>> {
   try {
-    // Read the raw request body as text for signature verification
     const rawBody = await request.text();
-
-    // Get the Stripe signature from headers
     const signature = request.headers.get('stripe-signature');
 
     if (!signature) {
@@ -37,7 +35,6 @@ export async function POST(
       );
     }
 
-    // Verify the event's authenticity using Stripe's signature
     let event: Stripe.Event;
     try {
       event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
@@ -50,48 +47,43 @@ export async function POST(
       );
     }
 
-    // Handle checkout.session.completed event
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-
-      // Extract customer email and session details
-      const customerEmail = session.customer_email;
+      const submissionId = session.metadata?.submissionId;
       const sessionId = session.id;
-      const paymentStatus = session.payment_status;
-      const amountTotal = session.amount_total;
 
-      console.log('✓ Payment completed successfully!');
-      console.log(`  Session ID: ${sessionId}`);
-      console.log(`  Customer Email: ${customerEmail}`);
-      console.log(`  Payment Status: ${paymentStatus}`);
-      console.log(`  Amount: $${((amountTotal || 0) / 100).toFixed(2)}`);
+      if (!submissionId) {
+        console.error('No submissionId in Stripe session metadata');
+        return NextResponse.json(
+          { received: false, error: 'Missing submissionId in metadata' },
+          { status: 400 }
+        );
+      }
 
-      // TODO: In production, update database to flip account status to 'paid = true'
-      // Example:
-      // if (customerEmail) {
-      //   await db.users.update(
-      //     { email: customerEmail },
-      //     { paid: true, paidAt: new Date() }
-      //   );
-      // }
+      // Update Firestore submission to paid + store stripeSessionId
+      await adminDb.collection('submissions').doc(submissionId).update({
+        status: 'paid',
+        stripeSessionId: sessionId,
+      });
 
-      return NextResponse.json(
-        { received: true },
-        { status: 200 }
-      );
+      console.log(`✓ Submission ${submissionId} marked as paid (session ${sessionId})`);
+
+      // Fire-and-forget: trigger generation pipeline without blocking webhook response
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      fetch(`${siteUrl}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ submissionId }),
+      }).catch(err => console.error('Failed to trigger generation:', err));
+
+      return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    // Log other events but acknowledge receipt
     console.log(`Webhook event received: ${event.type}`);
-
-    return NextResponse.json(
-      { received: true },
-      { status: 200 }
-    );
+    return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Webhook error:', errorMessage);
-
     return NextResponse.json(
       { received: false, error: 'Internal server error' },
       { status: 500 }

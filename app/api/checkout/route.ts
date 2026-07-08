@@ -6,7 +6,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 interface CheckoutRequestBody {
-  quantity?: number;
+  submissionId: string;
+  email: string;
 }
 
 interface CheckoutResponse {
@@ -18,7 +19,7 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<CheckoutResponse>> {
   try {
-    let body: CheckoutRequestBody = {};
+    let body: CheckoutRequestBody;
 
     try {
       body = (await request.json()) as CheckoutRequestBody;
@@ -29,7 +30,12 @@ export async function POST(
       );
     }
 
-    const quantity = typeof body.quantity === 'number' ? body.quantity : 1;
+    if (!body.submissionId || !body.email) {
+      return NextResponse.json(
+        { error: 'Missing required fields: submissionId, email' },
+        { status: 400 }
+      );
+    }
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
@@ -40,14 +46,18 @@ export async function POST(
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'stagename.club - Complete Brand Dossier',
+              name: 'stagename.club - Artist Debut Kit',
             },
             unit_amount: 1499, // $14.99 in cents
           },
-          quantity,
+          quantity: 1,
         },
       ],
       mode: 'payment',
+      customer_email: body.email,
+      metadata: {
+        submissionId: body.submissionId,
+      },
       success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/`,
     });
