@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "../../../../lib/firebase-admin";
+import { submissionRepository } from "../../../../lib/repositories/submission-repository";
+import type { ClaimLookupResponse } from "../../../../lib/types";
 
 export async function GET(
   _request: NextRequest,
@@ -8,28 +9,21 @@ export async function GET(
   try {
     const { submissionId } = await params;
 
-    const doc = await adminDb.collection("submissions").doc(submissionId).get();
-
-    if (!doc.exists) {
-      return NextResponse.json(
-        { error: "Submission not found" },
-        { status: 404 }
-      );
+    const submission = await submissionRepository.findById(submissionId);
+    if (!submission) {
+      return NextResponse.json({ error: "Submission not found" }, { status: 404 });
     }
 
-    const data = doc.data()!;
-
-    return NextResponse.json({
+    const response: ClaimLookupResponse = {
       submissionId,
-      status: data.status,
-      email: data.email || null,
-      brandKitSlug: data.brandKitSlug || null,
-    });
+      status: submission.status,
+      email: submission.email,
+      brandKitSlug: submission.brandKitSlug,
+    };
+
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error("Claim lookup error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

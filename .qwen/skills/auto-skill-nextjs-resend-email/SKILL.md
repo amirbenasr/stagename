@@ -46,6 +46,77 @@ export async function sendEmail(to: string, subject: string, html: string) {
 }
 ```
 
+## Template Method Pattern to Eliminate HTML Duplication
+
+When you have multiple email templates that share a common shell (header, CTA button, footer), use the **Template Method** pattern instead of duplicating the inline HTML:
+
+```typescript
+interface EmailTemplateInput {
+  header: string;
+  subtitle: string;
+  bodyHtml: string;
+  ctaUrl: string;
+  ctaLabel: string;
+  footerHtml?: string;
+}
+
+const EMAIL_STYLES = {
+  shell: `font-family: Georgia, serif; max-width: 520px; margin: 0 auto; color: #1a1a1a;`,
+  ctaButton: `
+    display: inline-block;
+    background: linear-gradient(135deg, #e879a8, #a855f7);
+    color: white;
+    text-decoration: none;
+    padding: 16px 40px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  `,
+} as const;
+
+function buildEmailShell(input: EmailTemplateInput): string {
+  return `
+    <div style="${EMAIL_STYLES.shell}">
+      <div style="text-align: center; padding: 40px 20px 20px;">
+        <h1 style="font-size: 28px; font-weight: 600; margin-bottom: 8px;">${input.header}</h1>
+        <p style="font-size: 15px; color: #666; line-height: 1.6;">${input.subtitle}</p>
+      </div>
+      ${input.bodyHtml}
+      <div style="text-align: center; padding: 20px 0 40px;">
+        <a href="${input.ctaUrl}" style="${EMAIL_STYLES.ctaButton}">${input.ctaLabel}</a>
+        ${input.footerHtml ? `<p style="font-size: 12px; color: #999; margin-top: 16px;">${input.footerHtml}</p>` : ""}
+      </div>
+    </div>
+  `;
+}
+```
+
+Then each email becomes a thin wrapper:
+
+```typescript
+export async function sendClaimEmail(email: string, submissionId: string): Promise<void> {
+  const claimUrl = `${getSiteUrl()}/claim/${submissionId}`;
+
+  await getResend().emails.send({
+    from: `stagename.club <${getFromEmail()}>`,
+    to: email,
+    subject: "Your 3 identities are waiting to be revealed",
+    html: buildEmailShell({
+      header: "We found 3 available identities for you",
+      subtitle: "Our AI has analyzed your vibe, your look, and cross-referenced global platform availability.",
+      bodyHtml: buildBlurredCards(), // reusable component
+      ctaUrl: claimUrl,
+      ctaLabel: "Unlock Your Brand Kit — $14.99",
+      footerHtml: "Includes 3 stage names, studio portrait, logo, and platform availability report.",
+    }),
+  });
+}
+```
+
+This eliminates the 40-60 lines of duplicated HTML per email template, centralizes all styling in `EMAIL_STYLES`, and makes the actual email content easy to read and modify.
+
 ## Two-Email Pattern (Claim Link → Kit Ready)
 
 For gated payment flows, use two separate emails:

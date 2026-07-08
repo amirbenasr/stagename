@@ -1,82 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { NextRequest, NextResponse } from "next/server";
+import { paymentService } from "../../../lib/services/payment-service";
+import type { CheckoutRequest, CheckoutResponse } from "../../../lib/types";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-06-24.dahlia',
-});
-
-interface CheckoutRequestBody {
-  submissionId: string;
-  email: string;
-}
-
-interface CheckoutResponse {
-  url?: string;
-  error?: string;
-}
-
-export async function POST(
-  request: NextRequest
-): Promise<NextResponse<CheckoutResponse>> {
+export async function POST(request: NextRequest): Promise<NextResponse<CheckoutResponse>> {
   try {
-    let body: CheckoutRequestBody;
+    let body: CheckoutRequest;
 
     try {
-      body = (await request.json()) as CheckoutRequestBody;
-    } catch (parseError) {
-      return NextResponse.json(
-        { error: 'Invalid JSON body' },
-        { status: 400 }
-      );
+      body = (await request.json()) as CheckoutRequest;
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
     if (!body.submissionId || !body.email) {
       return NextResponse.json(
-        { error: 'Missing required fields: submissionId, email' },
+        { error: "Missing required fields: submissionId, email" },
         { status: 400 }
       );
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const response = await paymentService.createCheckoutSession(body);
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'stagename.club - Artist Debut Kit',
-            },
-            unit_amount: 1499, // $14.99 in cents
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      customer_email: body.email,
-      metadata: {
-        submissionId: body.submissionId,
-      },
-      success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/`,
-    });
-
-    return NextResponse.json(
-      { url: session.url || undefined },
-      { status: 200 }
-    );
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Checkout error:', error);
-
-    const errorMessage =
-      error instanceof Stripe.errors.StripeError
-        ? error.message
-        : 'Internal server error';
-
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    console.error("Checkout error:", error);
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

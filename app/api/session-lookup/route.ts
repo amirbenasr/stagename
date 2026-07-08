@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "../../../lib/firebase-admin";
+import { submissionRepository } from "../../../lib/repositories/submission-repository";
+import type { SessionLookupResponse } from "../../../lib/types";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -10,25 +11,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
     }
 
-    // Find submission by stripeSessionId
-    const snapshot = await adminDb
-      .collection("submissions")
-      .where("stripeSessionId", "==", sessionId)
-      .limit(1)
-      .get();
-
-    if (snapshot.empty) {
+    const result = await submissionRepository.findByStripeSessionId(sessionId);
+    if (!result) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
-    const submissionDoc = snapshot.docs[0];
-    const data = submissionDoc.data();
+    const response: SessionLookupResponse = {
+      submissionId: result.id,
+      status: result.data.status,
+      brandKitSlug: result.data.brandKitSlug,
+    };
 
-    return NextResponse.json({
-      submissionId: submissionDoc.id,
-      status: data.status,
-      brandKitSlug: data.brandKitSlug || null,
-    }, { status: 200 });
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error("Session lookup error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

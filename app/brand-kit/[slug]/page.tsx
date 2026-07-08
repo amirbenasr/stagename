@@ -14,45 +14,8 @@ import {
   X,
   Globe,
 } from "lucide-react";
-
-interface StageNameResult {
-  name: string;
-  reason: string;
-  model?: string;
-}
-
-interface PlatformAvailability {
-  available: boolean;
-  handle: string | null;
-}
-
-interface NameAvailability {
-  spotify: PlatformAvailability;
-  appleMusic: PlatformAvailability;
-  instagram: PlatformAvailability;
-  facebook: PlatformAvailability;
-  domainCom: PlatformAvailability;
-}
-
-interface BrandKitData {
-  slug: string;
-  submissionId: string;
-  stageNames: StageNameResult[];
-  portraitImageUrl: string;
-  logoImageUrl: string;
-  studioPhotoUrl: string;
-  availability: Record<string, NameAvailability>;
-  status: string;
-  createdAt: string;
-}
-
-const PLATFORM_LABELS: Record<string, { label: string; icon: string }> = {
-  spotify: { label: "Spotify", icon: "🎵" },
-  appleMusic: { label: "Apple Music", icon: "🍎" },
-  instagram: { label: "Instagram", icon: "📸" },
-  facebook: { label: "Facebook", icon: "👤" },
-  domainCom: { label: ".com Domain", icon: "🌐" },
-};
+import type { BrandKitData, NameAvailability } from "../../../lib/types";
+import { PLATFORM_LABELS } from "../../../lib/types";
 
 export default function BrandKitPage() {
   const params = useParams();

@@ -113,10 +113,7 @@ export default function ProcessingSidebar({
 
   return (
     <div className="fixed inset-0 z-50">
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
       <div
         className={`absolute right-0 top-0 bottom-0 w-full sm:w-[440px] bg-beige shadow-2xl flex flex-col ${
