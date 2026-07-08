@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Star, Sparkles, Loader2, ArrowRight, Lock } from "lucide-react";
+import { Sparkles, Loader2, ArrowRight, Lock } from "lucide-react";
+import Logo from "../../components/Logo";
 
 interface ClaimData {
   submissionId: string;
@@ -90,11 +91,8 @@ export default function ClaimPage() {
     <div className="min-h-screen bg-beige text-foreground flex flex-col">
       <nav className="border-b border-black/10 bg-beige/90 backdrop-blur-sm sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Star size={14} className="text-foreground" />
-            <span className="text-lg font-serif lowercase tracking-wide">
-              stagename.club
-            </span>
+          <Link href="/" className="block">
+            <Logo className="h-8 w-auto" showTagline={false} />
           </Link>
         </div>
       </nav>

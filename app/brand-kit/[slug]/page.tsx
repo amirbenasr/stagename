@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Star,
   Download,
   Eye,
   Loader2,
@@ -14,6 +13,7 @@ import {
   X,
   Globe,
 } from "lucide-react";
+import Logo from "../../components/Logo";
 import type { BrandKitData, NameAvailability } from "../../../lib/types";
 import { PLATFORM_LABELS } from "../../../lib/types";
 
@@ -100,11 +100,8 @@ export default function BrandKitPage() {
       {/* ===== NAVBAR ===== */}
       <nav className="border-b border-black/10 bg-beige/90 backdrop-blur-sm sticky top-0 z-20 print:hidden">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Star size={14} className="text-foreground" />
-            <span className="text-lg font-serif lowercase tracking-wide">
-              stagename.club
-            </span>
+          <Link href="/" className="block">
+            <Logo className="h-8 w-auto" showTagline={false} />
           </Link>
           <div className="flex items-center gap-3">
             <button

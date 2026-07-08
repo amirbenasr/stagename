@@ -1,12 +1,20 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #f5f0e8;
-  --color-foreground: #1a1a1a;
-  --color-pink-accent: #e91e8c;
-  --color-cyan-accent: #00d4ff;
-  --color-beige: #f5f0e8;
-  --color-beige-dark: #e8e0d0;
+  /* Brand palette — derived from stagename.club logo */
+  --color-background: #F7F4EF;
+  --color-foreground: #1C1D1F;
+  --color-coral: #F15A38;
+  --color-slate: #656B73;
+  --color-cream: #F7F4EF;
+  --color-cream-dark: #E8E4DF;
+
+  /* Legacy aliases — keep existing utility classes working */
+  --color-pink-accent: #F15A38;
+  --color-cyan-accent: #656B73;
+  --color-beige: #F7F4EF;
+  --color-beige-dark: #E8E4DF;
+
   --font-serif: Georgia, "Times New Roman", serif;
   --font-script: var(--font-dancing-script), "Dancing Script", cursive;
 }
@@ -17,28 +25,24 @@ body {
   font-family: var(--font-serif);
 }
 
-/* Holographic gradient utility */
+/* Coral gradient utility */
 .holographic {
   background: linear-gradient(
     135deg,
-    #e91e8c 0%,
-    #ff6ec7 15%,
-    #00d4ff 35%,
-    #7b2ff7 55%,
-    #ff6ec7 75%,
-    #e91e8c 100%
+    #F15A38 0%,
+    #f47a5f 30%,
+    #F15A38 60%,
+    #d4451f 100%
   );
 }
 
 .holographic-text {
   background: linear-gradient(
     135deg,
-    #e91e8c 0%,
-    #ff6ec7 20%,
-    #00d4ff 45%,
-    #7b2ff7 65%,
-    #ff6ec7 85%,
-    #e91e8c 100%
+    #F15A38 0%,
+    #f47a5f 40%,
+    #F15A38 70%,
+    #d4451f 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -47,26 +51,24 @@ body {
 
 .holographic-shadow {
   box-shadow:
-    0 4px 20px rgba(233, 30, 140, 0.3),
-    0 0 40px rgba(0, 212, 255, 0.15);
+    0 4px 20px rgba(241, 90, 56, 0.35),
+    0 0 40px rgba(241, 90, 56, 0.12);
 }
 
 .holographic-border {
   border-image: linear-gradient(
     135deg,
-    #e91e8c,
-    #00d4ff,
-    #7b2ff7,
-    #e91e8c
+    #F15A38,
+    #f47a5f,
+    #F15A38
   ) 1;
 }
 
-/* Glow aura for the "after" artist */
+/* Glow aura */
 .aura-glow {
   box-shadow:
-    0 0 30px rgba(233, 30, 140, 0.4),
-    0 0 60px rgba(0, 212, 255, 0.2),
-    0 0 90px rgba(123, 47, 247, 0.15);
+    0 0 30px rgba(241, 90, 56, 0.35),
+    0 0 60px rgba(241, 90, 56, 0.15);
 }
 
 /* Animated pulse for the heart CTA */
@@ -205,20 +207,20 @@ body {
 
   body {
     background: white !important;
-    color: #1a1a1a !important;
+    color: #1C1D1F !important;
     font-family: Georgia, "Times New Roman", serif !important;
   }
 
   .holographic {
-    background: #e91e8c !important;
+    background: #F15A38 !important;
   }
 
   .holographic-text {
     background: none !important;
     -webkit-background-clip: unset !important;
-    -webkit-text-fill-color: #e91e8c !important;
+    -webkit-text-fill-color: #F15A38 !important;
     background-clip: unset !important;
-    color: #e91e8c !important;
+    color: #F15A38 !important;
   }
 
   .holographic-shadow {

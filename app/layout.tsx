@@ -21,6 +21,9 @@ const dancingScript = Dancing_Script({
 export const metadata: Metadata = {
   title: "stagename.club — Find Your Perfect Artist Name",
   description: "Stop struggling with your identity. Start building your legacy.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

@@ -1,0 +1,7 @@
+# Exclude heavy dirs from agent context
+.next/**
+node_modules/**
+.git/**
+dist/**
+out/**
+*.lock

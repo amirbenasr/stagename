@@ -1,12 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Heart, Star } from "lucide-react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { Heart } from "lucide-react";
+import Logo from "./components/Logo";
 
 export default function Home() {
   const [artistName, setArtistName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [sliderPos, setSliderPos] = useState(50);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+
+  const handleMove = useCallback((clientX: number) => {
+    if (!dragging.current || !sliderRef.current) return;
+    const rect = sliderRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    setSliderPos((x / rect.width) * 100);
+  }, []);
+
+  const handleMouseDown = useCallback(() => { dragging.current = true; }, []);
+  const handleMouseUp = useCallback(() => { dragging.current = false; }, []);
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => handleMove(e.clientX);
+    const onTouch = (e: TouchEvent) => handleMove(e.touches[0].clientX);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("touchmove", onTouch);
+    window.addEventListener("touchend", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("touchmove", onTouch);
+      window.removeEventListener("touchend", handleMouseUp);
+    };
+  }, [handleMove, handleMouseUp]);
 
   const handleCheckout = async () => {
     setIsLoading(true);
@@ -34,10 +63,9 @@ export default function Home() {
       {/* ===== NAVBAR ===== */}
       <nav className="border-b border-black/10 bg-beige/90 backdrop-blur-sm sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Star size={14} className="text-foreground" />
-            <span className="text-lg font-serif lowercase tracking-wide">stagename.club</span>
-          </div>
+          <Link href="/">
+            <Logo className="h-8 w-auto" showTagline={false} />
+          </Link>
           <div className="hidden sm:flex items-center gap-6 text-sm text-foreground/70 font-serif">
             <Link href="#how" className="hover:text-foreground transition">How it Works</Link>
             <Link href="/pricing" className="hover:text-foreground transition">Pricing</Link>
@@ -83,159 +111,55 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* ===== BEFORE / AFTER SECTION ===== */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] items-center gap-4 lg:gap-0">
-          {/* LEFT — BEFORE: dimitri */}
-          <div className="relative bg-white/60 border border-foreground/10 rounded-3xl p-6 sm:p-8 shadow-lg">
-            <div className="absolute top-4 left-6">
-              <span className="text-xs font-serif uppercase tracking-[0.4em] text-foreground/40">BEFORE:</span>
-            </div>
+        {/* ===== BEFORE / AFTER — SPLIT SLIDER ===== */}
+        <div
+          ref={sliderRef}
+          className="relative w-full max-w-4xl mx-auto aspect-[16/9] rounded-3xl overflow-hidden shadow-2xl select-none cursor-col-resize border border-foreground/10"
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleMouseDown}
+        >
+          {/* AFTER image (full background) */}
+          <img
+            src="/after.png"
+            alt="After — Superstar transformation"
+            className="absolute inset-0 w-full h-full object-cover"
+            draggable={false}
+          />
 
-            <div className="flex flex-col items-center gap-4 pt-4">
-              {/* Status */}
-              <div className="text-center">
-                <span className="text-sm font-serif text-foreground/50 italic">Undiscovered</span>
-                <div className="text-3xl font-serif text-foreground/30 font-bold">0</div>
-              </div>
-
-              {/* Artist avatar — frustrated */}
-              <div className="relative h-40 w-40 rounded-full bg-gradient-to-br from-beige-dark to-white border-2 border-foreground/15 flex items-center justify-center">
-                {/* Singer illustration placeholder */}
-                <svg viewBox="0 0 80 80" className="w-24 h-24 text-foreground/40">
-                  <circle cx="40" cy="28" r="14" fill="currentColor" />
-                  <path d="M24 58c0-10 7-18 16-18s16 8 16 18" fill="currentColor" />
-                  <rect x="38" y="42" width="4" height="20" rx="2" fill="currentColor" />
-                  <circle cx="38" cy="62" r="6" fill="currentColor" />
-                </svg>
-              </div>
-
-              {/* Speech bubble — dimitri */}
-              <div className="relative bg-white border border-foreground/15 rounded-2xl px-4 py-2 shadow-sm">
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-foreground/15 rotate-45" />
-                <span className="text-lg font-serif text-foreground/50 lowercase">dimitri</span>
-              </div>
-
-              {/* Name caption */}
-              <div className="text-center">
-                <span className="text-xl font-serif uppercase tracking-wider text-foreground/70">DIMITRI</span>
-                <span className="text-xs font-serif text-foreground/40 block">(Real Name)</span>
-              </div>
-
-              {/* Data streams flowing right */}
-              <div className="flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-1 h-8 rounded-full data-stream ${
-                      i % 3 === 0 ? "bg-pink-accent/30" : i % 3 === 1 ? "bg-cyan-accent/30" : "bg-purple-400/30"
-                    }`}
-                    style={{ animationDelay: `${i * 0.2}s` }}
-                  />
-                ))}
-              </div>
-            </div>
+          {/* BEFORE image (clipped) */}
+          <div
+            className="absolute inset-0"
+            style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
+          >
+            <img
+              src="/before.png"
+              alt="Before — Original"
+              className="w-full h-full object-cover"
+              draggable={false}
+            />
           </div>
 
-          {/* CENTER — Heart Processor + "FIND MY NAME" */}
-          <div className="flex flex-col items-center gap-3 py-4 lg:py-0 lg:px-2">
-            {/* Data streams entering */}
-            <div className="flex gap-1 rotate-90 lg:rotate-0">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={`in-${i}`}
-                  className={`w-1 h-6 rounded-full data-stream ${
-                    i % 2 === 0 ? "bg-pink-accent/50" : "bg-cyan-accent/50"
-                  }`}
-                  style={{ animationDelay: `${i * 0.3}s` }}
-                />
-              ))}
-            </div>
-
-            {/* Heart CTA device */}
-            <Link
-              href="/quiz"
-              className="heart-pulse relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl holographic holographic-shadow flex flex-col items-center justify-center gap-1 transition-all duration-300 hover:scale-110"
-            >
-              <Heart size={28} className="text-white fill-white" />
-              <span className="text-xs text-white font-serif uppercase tracking-wider">Find My Name</span>
-            </Link>
-
-            {/* Data streams exiting */}
-            <div className="flex gap-1 rotate-90 lg:rotate-0">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={`out-${i}`}
-                  className={`w-1 h-6 rounded-full data-stream ${
-                    i % 2 === 0 ? "bg-cyan-accent/50" : "bg-pink-accent/50"
-                  }`}
-                  style={{ animationDelay: `${i * 0.3}s` }}
-                />
-              ))}
-            </div>
+          {/* Labels */}
+          <div className="absolute top-4 left-4 z-10">
+            <span className="bg-black/50 backdrop-blur-sm text-white text-xs font-serif uppercase tracking-[0.3em] px-3 py-1.5 rounded-full">Before</span>
+          </div>
+          <div className="absolute top-4 right-4 z-10">
+            <span className="bg-black/50 backdrop-blur-sm text-white text-xs font-serif uppercase tracking-[0.3em] px-3 py-1.5 rounded-full holographic-shadow">After</span>
           </div>
 
-          {/* RIGHT — AFTER: Prense */}
-          <div className="relative bg-white/60 border border-foreground/10 rounded-3xl p-6 sm:p-8 shadow-lg">
-            <div className="absolute top-4 right-6">
-              <span className="text-xs font-serif uppercase tracking-[0.4em] text-pink-accent">AFTER:</span>
-            </div>
-
-            <div className="flex flex-col items-center gap-4 pt-4">
-              {/* Status + Metrics */}
-              <div className="text-center">
-                <span className="text-sm font-serif holographic-text font-bold italic">Unstoppable</span>
-              </div>
-
-              {/* Social metrics */}
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center gap-1">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-green-500" fill="currentColor">
-                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.56-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-2.04-8.159-2.64-11.939-1.44-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.02.6-1.14 4.26-1.26 9.54-.66 13.2 1.56.479.301.659.84.36 1.26zm.66-3.54c-3.6-2.16-9.54-2.34-13.26-1.26-.6.18-1.2-.18-1.38-.78-.18-.6.18-1.2.78-1.38 4.32-1.32 10.8-1.08 14.94 1.32.54.3.72 1.02.42 1.56-.3.42-1.02.6-1.5.3z"/>
-                  </svg>
-                  <span className="text-xs font-serif holographic-text font-bold">56k</span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-pink-accent" fill="currentColor">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.069 4.849-.149 3.227-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-                  </svg>
-                  <span className="text-xs font-serif holographic-text font-bold">94k</span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-foreground" fill="currentColor">
-                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.76-1.35 3.91-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.79.57-1.33 1.46-1.41 2.39-.07.89.16 1.83.75 2.53.63.75 1.59 1.17 2.53 1.14.97-.03 1.89-.49 2.49-1.23.43-.56.65-1.26.67-1.97.04-2.92.01-5.84.02-8.76.01-1.76.67-3.49 1.76-4.83C10.18.98 11.37.42 12.52.02z"/>
-                  </svg>
-                  <span className="text-xs font-serif holographic-text font-bold">160k</span>
-                </div>
-              </div>
-
-              {/* Artist avatar — happy with holographic aura */}
-              <div className="relative">
-                {/* Holographic glow aura */}
-                <div className="absolute inset-0 rounded-full aura-glow" />
-                <div className="relative h-40 w-40 rounded-full bg-gradient-to-br from-beige-dark to-white border-2 border-pink-accent/30 flex items-center justify-center overflow-hidden">
-                  {/* Holographic overlay */}
-                  <div className="absolute inset-0 holographic opacity-10 rounded-full" />
-                  {/* Singer illustration placeholder */}
-                  <svg viewBox="0 0 80 80" className="w-24 h-24 text-pink-accent">
-                    <circle cx="40" cy="28" r="14" fill="currentColor" />
-                    <path d="M24 58c0-10 7-18 16-18s16 8 16 18" fill="currentColor" />
-                    <rect x="38" y="42" width="4" height="20" rx="2" fill="currentColor" />
-                    <circle cx="38" cy="62" r="6" fill="currentColor" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Speech bubble — Prense */}
-              <div className="relative holographic-shadow bg-white rounded-2xl px-4 py-2">
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-pink-accent/30 rotate-45" />
-                <span className="text-lg font-serif holographic-text font-bold lowercase">Prense</span>
-              </div>
-
-              {/* Name caption */}
-              <div className="text-center">
-                <span className="text-xl font-serif uppercase tracking-wider holographic-text font-bold">PRENSE</span>
-                <span className="text-xs font-serif text-foreground/40 block">(New Stage Name)</span>
-              </div>
+          {/* Vertical handle */}
+          <div
+            className="absolute top-0 bottom-0 z-20"
+            style={{ left: `${sliderPos}%`, transform: "translateX(-50%)" }}
+          >
+            {/* Line */}
+            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-white shadow-[0_0_8px_rgba(0,0,0,0.3)]" />
+            {/* Grip circle */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center border-2 border-white">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-foreground/60">
+                <path d="M8 5l-5 7 5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M16 5l5 7-5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
           </div>
         </div>
