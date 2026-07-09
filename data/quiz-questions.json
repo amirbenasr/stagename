@@ -26,6 +26,13 @@
   },
   {
     "id": 3,
+    "type": "influences",
+    "question": "Which artists influence your sound?",
+    "description": "Select all that resonate with you — or type your own",
+    "genreKey": "2"
+  },
+  {
+    "id": 4,
     "type": "single",
     "question": "Where are you from?",
     "description": "Your roots shape your name",
@@ -40,22 +47,6 @@
       { "label": "Caribbean" },
       { "label": "Latin America" },
       { "label": "Asia / Middle East" }
-    ]
-  },
-  {
-    "id": 4,
-    "type": "multi",
-    "question": "Where do people discover your music?",
-    "description": "Select all that apply",
-    "options": [
-      { "label": "Spotify" },
-      { "label": "Apple Music" },
-      { "label": "SoundCloud" },
-      { "label": "YouTube" },
-      { "label": "TikTok" },
-      { "label": "Live Shows" },
-      { "label": "Bandcamp" },
-      { "label": "Mixtapes / DJ Sets" }
     ]
   },
   {
@@ -76,54 +67,22 @@
   },
   {
     "id": 6,
-    "type": "single",
-    "question": "Which word best describes your on-stage persona?",
-    "description": "When you step on stage, who are you?",
+    "type": "multi",
+    "question": "Where do people discover your music?",
+    "description": "Select all that apply",
     "options": [
-      { "label": "Fire" },
-      { "label": "Ghost" },
-      { "label": "Velvet" },
-      { "label": "Storm" },
-      { "label": "Prism" },
-      { "label": "Shadow" },
-      { "label": "Gold" },
-      { "label": "Neon" }
+      { "label": "Spotify" },
+      { "label": "Apple Music" },
+      { "label": "SoundCloud" },
+      { "label": "YouTube" },
+      { "label": "TikTok" },
+      { "label": "Live Shows" },
+      { "label": "Bandcamp" },
+      { "label": "Mixtapes / DJ Sets" }
     ]
   },
   {
     "id": 7,
-    "type": "single",
-    "question": "What drives your art?",
-    "description": "The force behind your sound",
-    "options": [
-      { "label": "My community", "emoji": "🤝" },
-      { "label": "My pain", "emoji": "🖤" },
-      { "label": "My joy", "emoji": "☀️" },
-      { "label": "My culture", "emoji": "🏛️" },
-      { "label": "My imagination", "emoji": "🪐" },
-      { "label": "My rebellion", "emoji": "⚔️" },
-      { "label": "My love", "emoji": "❤️" },
-      { "label": "My struggle", "emoji": "⛰️" }
-    ]
-  },
-  {
-    "id": 8,
-    "type": "single",
-    "question": "What visual world matches your music?",
-    "description": "Your name lives in a visual universe",
-    "options": [
-      { "label": "Neon city lights", "emoji": "🌃" },
-      { "label": "Sunset & warm tones", "emoji": "🌅" },
-      { "label": "Dark & moody", "emoji": "🌑" },
-      { "label": "Clean & minimal", "emoji": "⬜" },
-      { "label": "Retro & vintage", "emoji": "📼" },
-      { "label": "Bold & colorful", "emoji": "🎨" },
-      { "label": "Nature & organic", "emoji": "🌿" },
-      { "label": "Abstract & futuristic", "emoji": "🔮" }
-    ]
-  },
-  {
-    "id": 9,
     "type": "multi",
     "question": "What language(s) do you weave into your music?",
     "description": "Select all that apply",

@@ -1,7 +1,7 @@
-import type { BrandKitData, AvailabilityReport } from "../types";
+import type { BrandKitData, NameAssetSet } from "../types";
 import { analyzeSelfieImage, generateAllStageNames } from "../ai/openrouter-client";
 import { imageGenerationProvider } from "../ai/image-provider";
-import { persistAllImages } from "./storage-service";
+import { persistAllImagesForName } from "./storage-service";
 import { simulateAvailability } from "../utils/availability";
 import { generateSlug } from "../utils/text-utils";
 import { submissionRepository } from "../repositories/submission-repository";
@@ -21,6 +21,8 @@ interface GenerationPipelineContext {
   email: string | null;
   selfieUrl: string;
   artistContext: string;
+  genre: string;
+  vibe: string;
 }
 
 export async function executeGenerationPipeline(input: GenerationPipelineInput): Promise<BrandKitData> {
@@ -34,7 +36,9 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
 
   const { answers, selfieUrl, email } = submission;
   const artistContext = buildArtistContextFromAnswers(answers);
-  const ctx: GenerationPipelineContext = { submissionId, email, selfieUrl, artistContext };
+  const genre = (answers.genre as string) || "";
+  const vibe = (answers.vibe as string) || "";
+  const ctx: GenerationPipelineContext = { submissionId, email, selfieUrl, artistContext, genre, vibe };
 
   // Step 1: Image Analysis (non-fatal)
   const imageAnalysis = await analyzeImageStep(ctx);
@@ -42,32 +46,17 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
   // Step 2: Generate 3 Stage Names (parallel via Strategy pattern)
   const stageNames = await generateStageNamesStep(ctx, imageAnalysis);
 
-  // Step 3: Generate all 3 images (parallel via Factory pattern)
-  const bestName = stageNames[0].name;
-  const generatedImages = await imageGenerationProvider.generateAll(bestName, selfieUrl);
+  // Step 3: Generate images for ALL 3 names in parallel
+  const nameAssetSets = await generateAllNameAssets(stageNames, selfieUrl, submissionId, genre, vibe);
 
-  console.log("Raw image URLs from fal.ai:", {
-    logo: generatedImages.logo.url,
-    studio: generatedImages.studio.url,
-    portrait: generatedImages.portrait.url,
-  });
-
-  // Step 4: Persist images to Firebase Storage
-  const persistedImages = await persistAllImages(generatedImages, submissionId);
-
-  // Step 5: Simulate Platform Availability
-  const availability = simulateAvailabilityForAll(stageNames);
-
-  // Step 6: Save Brand Kit to Firestore
+  // Step 4: Save Brand Kit to Firestore
   const slug = generateSlug();
   await brandKitRepository.save({
     submissionId,
     slug,
-    stageNames,
-    portraitImageUrl: persistedImages.portrait,
-    logoImageUrl: persistedImages.logo,
-    studioPhotoUrl: persistedImages.studio,
-    availability,
+    names: nameAssetSets,
+    genre,
+    vibe,
   });
 
   await submissionRepository.update(submissionId, {
@@ -75,7 +64,7 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
     brandKitSlug: slug,
   });
 
-  // Step 7: Send email (non-fatal)
+  // Step 5: Send email (non-fatal)
   if (email) {
     try {
       await sendBrandKitReadyEmail(email, slug);
@@ -87,14 +76,50 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
   return {
     submissionId,
     slug,
-    stageNames,
-    portraitImageUrl: persistedImages.portrait,
-    logoImageUrl: persistedImages.logo,
-    studioPhotoUrl: persistedImages.studio,
-    availability,
+    names: nameAssetSets,
+    genre,
+    vibe,
     status: "complete",
     createdAt: new Date().toISOString(),
   };
+}
+
+async function generateAllNameAssets(
+  stageNames: { name: string; reason: string; model: string }[],
+  selfieUrl: string,
+  submissionId: string,
+  genre: string,
+  vibe: string
+): Promise<NameAssetSet[]> {
+  // Generate all 9 images in parallel (3 names × 3 image types)
+  const imageResults = await Promise.all(
+    stageNames.map(async (sn) => {
+      const images = await imageGenerationProvider.generateAll(sn.name, selfieUrl, { genre, vibe });
+      return { name: sn.name, images };
+    })
+  );
+
+  // Persist all images to Firebase Storage with per-name filenames
+  const persistResults = await Promise.all(
+    imageResults.map(async ({ name, images }) => {
+      const persisted = await persistAllImagesForName(images, submissionId, name);
+      return { name, persisted };
+    })
+  );
+
+  // Build NameAssetSet array with per-name assets + availability
+  return stageNames.map((sn) => {
+    const persisted = persistResults.find((r) => r.name === sn.name)!.persisted;
+    return {
+      name: sn.name,
+      reason: sn.reason,
+      model: sn.model,
+      portraitImageUrl: persisted.portrait,
+      logoImageUrl: persisted.logo,
+      studioPhotoUrl: persisted.studio,
+      availability: simulateAvailability(sn.name),
+    };
+  });
 }
 
 // ============================================================
@@ -115,6 +140,7 @@ function formatKey(key: string): string {
   const labels: Record<string, string> = {
     artistName: "Artist goes by",
     genre: "Music genre",
+    influences: "Musical influences",
     origin: "From",
     platforms: "Platforms",
     vibe: "Vibe/Energy",
@@ -142,14 +168,6 @@ async function generateStageNamesStep(
   imageAnalysis: string
 ) {
   return generateAllStageNames(ctx.artistContext, imageAnalysis);
-}
-
-function simulateAvailabilityForAll(stageNames: { name: string }[]): AvailabilityReport {
-  const availability: AvailabilityReport = {};
-  for (const sn of stageNames) {
-    availability[sn.name] = simulateAvailability(sn.name);
-  }
-  return availability;
 }
 
 // ============================================================

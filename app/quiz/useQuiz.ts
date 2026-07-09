@@ -172,6 +172,7 @@ function useIsAnswered(
     case "single":
       return typeof stepAnswer === "string" && stepAnswer !== "";
     case "multi":
+    case "influences":
       return Array.isArray(stepAnswer) && stepAnswer.length > 0;
     case "selfie":
       return (

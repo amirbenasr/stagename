@@ -9,7 +9,7 @@ export interface QuizQuestionOption {
   emoji?: string;
 }
 
-export type QuizQuestionType = "text" | "single" | "multi" | "selfie" | "music";
+export type QuizQuestionType = "text" | "single" | "multi" | "influences" | "selfie" | "music";
 
 export interface QuizQuestion {
   id: string | number;
@@ -19,6 +19,7 @@ export interface QuizQuestion {
   placeholder?: string;
   optional?: boolean;
   options?: QuizQuestionOption[];
+  genreKey?: string;
 }
 
 export type QuizAnswerValue = string | string[] | { file?: File; preview?: string };
@@ -86,16 +87,24 @@ export const PLATFORM_LABELS: Record<string, PlatformMeta> = {
 
 // --- Brand Kit ---
 
-export type BrandKitStatus = "complete";
+export type BrandKitStatus = "complete" | "generating";
+
+export interface NameAssetSet {
+  name: string;
+  reason: string;
+  model: string;
+  portraitImageUrl: string;
+  logoImageUrl: string;
+  studioPhotoUrl: string;
+  availability: NameAvailability;
+}
 
 export interface BrandKitData {
   submissionId: string;
   slug: string;
-  stageNames: StageNameResult[];
-  portraitImageUrl: string;
-  logoImageUrl: string;
-  studioPhotoUrl: string;
-  availability: AvailabilityReport;
+  names: NameAssetSet[];
+  genre: string;
+  vibe: string;
   status: BrandKitStatus;
   createdAt: string;
 }
@@ -138,10 +147,17 @@ export interface GenerateRequest {
 
 export type ImageGenerationType = "logo" | "studio" | "portrait";
 
+export interface ImagePromptParams {
+  stageName: string;
+  genre?: string;
+  vibe?: string;
+}
+
 export interface ImageGenerationRequest {
   type: ImageGenerationType;
   prompt: string;
   selfieUrl?: string;
+  promptParams?: ImagePromptParams;
 }
 
 export interface ImageGenerationResult {

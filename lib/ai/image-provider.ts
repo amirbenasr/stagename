@@ -4,6 +4,7 @@ import {
   buildLogoPrompt,
   buildPortraitPrompt,
   buildStudioPhotoPrompt,
+  type ImagePromptParams,
 } from "./prompt-builders";
 
 // ============================================================
@@ -31,14 +32,14 @@ function extractImageUrl(result: unknown): string {
 type EndpointConfig = {
   endpoint: string;
   selfieRefRequired: boolean;
-  promptBuilder: (stageName: string) => string;
+  promptBuilder: (params: ImagePromptParams) => string;
 };
 
 const ENDPOINT_CONFIG: Record<ImageGenerationType, EndpointConfig> = {
   logo: {
     endpoint: "fal-ai/flux/dev",
     selfieRefRequired: false,
-    promptBuilder: buildLogoPrompt,
+    promptBuilder: (p: ImagePromptParams) => buildLogoPrompt(p.stageName, p.genre),
   },
   studio: {
     endpoint: "fal-ai/flux-2-pro/edit",
@@ -70,7 +71,7 @@ async function generateSingleImage(
   request: ImageGenerationRequest
 ): Promise<ImageGenerationResult> {
   const config = ENDPOINT_CONFIG[request.type];
-  const prompt = request.prompt || config.promptBuilder(request.prompt);
+  const prompt = request.prompt || config.promptBuilder(request.promptParams);
 
   const input = buildFalInput(config, prompt, request.selfieUrl);
 
@@ -84,49 +85,58 @@ async function generateSingleImage(
 
 function buildImageRequest(
   type: ImageGenerationType,
-  stageName: string,
+  params: ImagePromptParams,
   selfieUrl?: string
 ): ImageGenerationRequest {
   const config = ENDPOINT_CONFIG[type];
 
   return {
     type,
-    prompt: config.promptBuilder(stageName),
+    prompt: config.promptBuilder(params),
     selfieUrl: config.selfieRefRequired ? selfieUrl : undefined,
+    promptParams: params,
   };
 }
 
+export interface GenreVibeParams {
+  genre?: string;
+  vibe?: string;
+}
+
 export const imageGenerationProvider = {
-  async generateLogo(stageName: string): Promise<ImageGenerationResult> {
-    return generateSingleImage(buildImageRequest("logo", stageName));
+  async generateLogo(stageName: string, params?: GenreVibeParams): Promise<ImageGenerationResult> {
+    return generateSingleImage(buildImageRequest("logo", { stageName, ...params }));
   },
 
   async generateStudioPhoto(
     stageName: string,
-    selfieUrl: string
+    selfieUrl: string,
+    params?: GenreVibeParams
   ): Promise<ImageGenerationResult> {
-    return generateSingleImage(buildImageRequest("studio", stageName, selfieUrl));
+    return generateSingleImage(buildImageRequest("studio", { stageName, ...params }, selfieUrl));
   },
 
   async generatePortrait(
     stageName: string,
-    selfieUrl: string
+    selfieUrl: string,
+    params?: GenreVibeParams
   ): Promise<ImageGenerationResult> {
-    return generateSingleImage(buildImageRequest("portrait", stageName, selfieUrl));
+    return generateSingleImage(buildImageRequest("portrait", { stageName, ...params }, selfieUrl));
   },
 
   async generateAll(
     stageName: string,
-    selfieUrl: string
+    selfieUrl: string,
+    params?: GenreVibeParams
   ): Promise<{
     logo: ImageGenerationResult;
     studio: ImageGenerationResult;
     portrait: ImageGenerationResult;
   }> {
     const [logo, studio, portrait] = await Promise.all([
-      this.generateLogo(stageName),
-      this.generateStudioPhoto(stageName, selfieUrl),
-      this.generatePortrait(stageName, selfieUrl),
+      this.generateLogo(stageName, params),
+      this.generateStudioPhoto(stageName, selfieUrl, params),
+      this.generatePortrait(stageName, selfieUrl, params),
     ]);
 
     return { logo, studio, portrait };

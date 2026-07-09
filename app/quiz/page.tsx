@@ -8,6 +8,7 @@ import { useQuiz } from "./useQuiz";
 import QuestionRenderer from "../components/QuestionRenderer";
 import ProcessingSidebar from "../components/ProcessingSidebar";
 import questionsData from "../../data/quiz-questions.json";
+import genreInfluences from "../../data/genre-influences.json";
 import type { QuizQuestion } from "../../lib/types";
 
 const questions: QuizQuestion[] = questionsData as QuizQuestion[];
@@ -16,6 +17,11 @@ export default function QuizPage() {
   const quiz = useQuiz(questions);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [submissionId, setSubmissionId] = useState("");
+
+  const genreAnswer = quiz.answers["2"] as string | undefined;
+  const influenceOptions = genreAnswer
+    ? (genreInfluences as Record<string, string[]>)[genreAnswer] ?? []
+    : [];
 
   const handleSubmit = async () => {
     const id = await quiz.handleSubmit();
@@ -55,6 +61,7 @@ export default function QuizPage() {
             onMulti={quiz.handleMulti}
             onSelfie={quiz.handleSelfie}
             onMusic={quiz.handleMusic}
+            influenceOptions={influenceOptions}
           />
         </div>
 
@@ -242,6 +249,7 @@ function isQuestionAnswered(q: QuizQuestion, answer: unknown): boolean {
     case "single":
       return typeof answer === "string" && answer !== "";
     case "multi":
+    case "influences":
       return Array.isArray(answer) && answer.length > 0;
     case "selfie":
       return (

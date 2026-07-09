@@ -27,29 +27,33 @@ interface EmailTemplateInput {
 
 const EMAIL_STYLES = {
   shell: `
-    font-family: Georgia, serif;
+    font-family: Georgia, "Times New Roman", serif;
     max-width: 520px;
     margin: 0 auto;
-    color: #1a1a1a;
+    color: #1C1D1F;
+    background: #F7F4EF;
+    padding: 40px 20px;
   `,
   header: `
     text-align: center;
-    padding: 40px 20px 20px;
+    padding: 20px 20px 24px;
   `,
   title: `
     font-size: 28px;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin: 0 0 8px;
+    color: #1C1D1F;
   `,
   subtitle: `
     font-size: 15px;
-    color: #666;
+    color: #656B73;
     line-height: 1.6;
+    margin: 0;
   `,
   ctaButton: `
     display: inline-block;
-    background: linear-gradient(135deg, #e879a8, #a855f7);
-    color: white;
+    background: linear-gradient(135deg, #F15A38 0%, #f47a5f 30%, #F15A38 60%, #d4451f 100%);
+    color: #F7F4EF;
     text-decoration: none;
     padding: 16px 40px;
     border-radius: 50px;
@@ -57,39 +61,29 @@ const EMAIL_STYLES = {
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    box-shadow: 0 4px 20px rgba(241, 90, 56, 0.35), 0 0 40px rgba(241, 90, 56, 0.12);
   `,
   ctaWrapper: `
     text-align: center;
-    padding: 20px 0 40px;
+    padding: 24px 0 40px;
   `,
   footerNote: `
     font-size: 12px;
-    color: #999;
+    color: #656B73;
     margin-top: 16px;
   `,
   blurredCardContainer: `
-    background: #f8f6f3;
-    border: 1px solid #e5e0da;
-    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(28, 29, 31, 0.1);
+    border-radius: 24px;
     padding: 28px;
     margin: 20px 0;
-  `,
-  blurredCard: `
-    background: white;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
-    border: 1px solid #eee;
   `,
   blurredName: `
     font-size: 18px;
     font-weight: 600;
     margin: 0;
-  `,
-  blurredReason: `
-    font-size: 13px;
-    color: #999;
-    margin: 6px 0 0;
+    color: #1C1D1F;
   `,
 } as const;
 
@@ -116,13 +110,12 @@ function buildEmailShell(input: EmailTemplateInput): string {
 function buildBlurredCards(): string {
   return `
     <div style="${EMAIL_STYLES.blurredCardContainer}">
-      <div style="filter: blur(6px); pointer-events: none; user-select: none;">
+      <div style="filter: blur(16px); pointer-events: none; user-select: none;">
         ${[1, 2, 3]
           .map(
             () => `
-          <div style="${EMAIL_STYLES.blurredCard}">
+          <div style="background: white; border-radius: 24px; padding: 16px; margin-bottom: 12px; border: 1px solid rgba(28, 29, 31, 0.1);">
             <p style="${EMAIL_STYLES.blurredName}">████████ ██████</p>
-            <p style="${EMAIL_STYLES.blurredReason}">AI-generated reason...</p>
           </div>
         `
           )
@@ -165,7 +158,7 @@ export async function sendBrandKitReadyEmail(email: string, brandKitSlug: string
     html: buildEmailShell({
       header: "Your Brand Kit is Live ✨",
       subtitle:
-        "Your personalized Artist Debut Kit has been generated. It includes your 3 stage names, a studio portrait, a custom logo, and a full platform availability report.",
+        "Your personalized Artist Debut Kit has been generated. It includes 3 stage names, each with its own studio portrait, custom logo, and platform availability report — 9 unique assets total.",
       bodyHtml: "",
       ctaUrl: kitUrl,
       ctaLabel: "View Your Brand Kit",

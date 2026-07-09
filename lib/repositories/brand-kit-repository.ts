@@ -1,27 +1,23 @@
-import type { BrandKitData } from "../types";
+import type { BrandKitData, NameAssetSet } from "../types";
 
 const COLLECTION = "brandKits";
 
 export interface SaveBrandKitInput {
   submissionId: string;
   slug: string;
-  stageNames: BrandKitData["stageNames"];
-  portraitImageUrl: string;
-  logoImageUrl: string;
-  studioPhotoUrl: string;
-  availability: BrandKitData["availability"];
+  names: NameAssetSet[];
+  genre: string;
+  vibe: string;
 }
 
 function toBrandKitData(data: Record<string, unknown>): BrandKitData {
   return {
     submissionId: (data.submissionId as string) ?? "",
     slug: (data.slug as string) ?? "",
-    stageNames: (data.stageNames as BrandKitData["stageNames"]) ?? [],
-    portraitImageUrl: (data.portraitImageUrl as string) ?? "",
-    logoImageUrl: (data.logoImageUrl as string) ?? "",
-    studioPhotoUrl: (data.studioPhotoUrl as string) ?? "",
-    availability: (data.availability as BrandKitData["availability"]) ?? {},
-    status: "complete",
+    names: (data.names as NameAssetSet[]) ?? [],
+    genre: (data.genre as string) ?? "",
+    vibe: (data.vibe as string) ?? "",
+    status: (data.status as BrandKitData["status"]) ?? "complete",
     createdAt: (data.createdAt as string) ?? "",
   };
 }

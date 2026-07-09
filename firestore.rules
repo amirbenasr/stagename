@@ -16,6 +16,11 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Generation jobs — server-only (Admin SDK bypasses rules)
+    match /generationJobs/{jobId} {
+      allow read, write: if false;
+    }
+
     // Deny everything else
     match /{document=**} {
       allow read, write: if false;

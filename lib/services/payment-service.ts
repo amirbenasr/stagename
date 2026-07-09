@@ -1,5 +1,6 @@
 import { stripe, STRIPE_PRICING, getSiteUrl } from "../stripe";
 import { submissionRepository } from "../repositories/submission-repository";
+import { queueService } from "./queue-service";
 import type { CheckoutRequest, CheckoutResponse } from "../types";
 
 // ============================================================
@@ -45,11 +46,7 @@ export const paymentService = {
   },
 
   async triggerGenerationPipeline(submissionId: string): Promise<void> {
-    const siteUrl = getSiteUrl();
-    fetch(`${siteUrl}/api/generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ submissionId }),
-    }).catch((err) => console.error("Failed to trigger generation:", err));
+    await queueService.enqueue(submissionId);
+    console.log(`✓ Generation job enqueued for submission ${submissionId}`);
   },
 };

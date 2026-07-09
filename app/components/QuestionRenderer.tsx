@@ -1,6 +1,7 @@
 "use client";
 
-import { Camera, Music, Upload, Check } from "lucide-react";
+import { useState } from "react";
+import { Camera, Music, Upload, Check, Plus } from "lucide-react";
 import type { QuizQuestion, QuizAnswers, QuizAnswerValue } from "../../lib/types";
 
 interface QuestionRendererProps {
@@ -13,6 +14,8 @@ interface QuestionRendererProps {
   onMulti: (label: string) => void;
   onSelfie: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onMusic: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  /** Dynamic options for influences question (genre-specific) */
+  influenceOptions?: string[];
 }
 
 interface FileAnswer {
@@ -49,6 +52,7 @@ export default function QuestionRenderer({
   onMulti,
   onSelfie,
   onMusic,
+  influenceOptions = [],
 }: QuestionRendererProps) {
   const answer = answers[question.id as string];
 
@@ -77,6 +81,14 @@ export default function QuestionRenderer({
         {question.type === "multi" && (
           <MultiSelect
             options={question.options ?? []}
+            selected={answer}
+            onToggle={onMulti}
+          />
+        )}
+
+        {question.type === "influences" && (
+          <InfluencesSelect
+            options={influenceOptions}
             selected={answer}
             onToggle={onMulti}
           />
@@ -193,6 +205,80 @@ function MultiSelect({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function InfluencesSelect({
+  options,
+  selected,
+  onToggle,
+}: {
+  options: string[];
+  selected: QuizAnswerValue;
+  onToggle: (label: string) => void;
+}) {
+  const [customValue, setCustomValue] = useState("");
+  const selectedList = (Array.isArray(selected) ? selected : []) as string[];
+
+  const handleAddCustom = () => {
+    const trimmed = customValue.trim();
+    if (trimmed && !selectedList.includes(trimmed)) {
+      onToggle(trimmed);
+      setCustomValue("");
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddCustom();
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {options.map((artist) => {
+          const isSelected = selectedList.includes(artist);
+          return (
+            <button
+              key={artist}
+              onClick={() => onToggle(artist)}
+              className={`py-3 px-4 rounded-xl border-2 font-serif transition-all duration-300 flex items-center justify-center gap-2 ${
+                isSelected
+                  ? "border-cyan-accent bg-cyan-accent/10 text-cyan-accent shadow-md"
+                  : "border-foreground/10 bg-white/50 text-foreground/60 hover:border-cyan-accent/30 hover:bg-cyan-accent/5"
+              }`}
+            >
+              <span className="text-sm">{artist}</span>
+              {isSelected && <Check size={14} className="ml-1" />}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center gap-2 justify-center">
+        <input
+          type="text"
+          value={customValue}
+          onChange={(e) => setCustomValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Or type an artist name..."
+          className="w-56 rounded-full border-2 border-foreground/20 bg-white px-5 py-2.5 text-foreground font-serif placeholder:text-foreground/40 focus:outline-none focus:border-cyan-accent/50 transition text-sm text-center"
+        />
+        <button
+          onClick={handleAddCustom}
+          disabled={!customValue.trim()}
+          className={`rounded-full p-2.5 border-2 transition-all duration-300 ${
+            customValue.trim()
+              ? "border-cyan-accent bg-cyan-accent/10 text-cyan-accent hover:bg-cyan-accent hover:text-white"
+              : "border-foreground/10 text-foreground/20 cursor-not-allowed"
+          }`}
+        >
+          <Plus size={16} />
+        </button>
+      </div>
     </div>
   );
 }

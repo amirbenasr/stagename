@@ -54,24 +54,24 @@ export interface PersistedImageUrls {
   portrait: string;
 }
 
-const FILENAME_MAP = {
-  logo: "logo.jpg",
-  studio: "studio.jpg",
-  portrait: "portrait.jpg",
-} as const;
+function sanitizeName(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
 
-export async function persistAllImages(
+export async function persistAllImagesForName(
   images: {
     logo: ImageGenerationResult;
     studio: ImageGenerationResult;
     portrait: ImageGenerationResult;
   },
-  submissionId: string
+  submissionId: string,
+  stageName: string
 ): Promise<PersistedImageUrls> {
+  const prefix = sanitizeName(stageName);
   const [logoImageUrl, studioPhotoUrl, portraitImageUrl] = await Promise.all([
-    persistImage(images.logo.url, submissionId, FILENAME_MAP.logo),
-    persistImage(images.studio.url, submissionId, FILENAME_MAP.studio),
-    persistImage(images.portrait.url, submissionId, FILENAME_MAP.portrait),
+    persistImage(images.logo.url, submissionId, `${prefix}-logo.jpg`),
+    persistImage(images.studio.url, submissionId, `${prefix}-studio.jpg`),
+    persistImage(images.portrait.url, submissionId, `${prefix}-portrait.jpg`),
   ]);
 
   return { logo: logoImageUrl, studio: studioPhotoUrl, portrait: portraitImageUrl };
