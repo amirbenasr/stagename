@@ -71,7 +71,12 @@ async function generateSingleImage(
   request: ImageGenerationRequest
 ): Promise<ImageGenerationResult> {
   const config = ENDPOINT_CONFIG[request.type];
-  const prompt = request.prompt || config.promptBuilder(request.promptParams);
+  const prompt = request.prompt
+    || (request.promptParams ? config.promptBuilder(request.promptParams) : undefined);
+
+  if (!prompt) {
+    throw new Error(`No prompt provided and no promptParams to build one for ${request.type}`);
+  }
 
   const input = buildFalInput(config, prompt, request.selfieUrl);
 
