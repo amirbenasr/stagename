@@ -24,11 +24,12 @@ export function useQuiz(questions: QuizQuestion[]) {
   const canProceed = isAnswered || (current.type === "music" && !!current.optional);
 
   const goNext = useCallback(() => {
+    if (!canProceed) return;
     if (step < totalSteps - 1) {
       setDirection("forward");
       setStep((s) => s + 1);
     }
-  }, [step, totalSteps]);
+  }, [step, totalSteps, canProceed]);
 
   const goBack = useCallback(() => {
     if (step > 0) {
@@ -39,10 +40,12 @@ export function useQuiz(questions: QuizQuestion[]) {
 
   const goToStep = useCallback(
     (index: number) => {
+      // Prevent jumping to another question unless current one is answered
+      if (!canProceed) return;
       setDirection(index > step ? "forward" : "back");
       setStep(index);
     },
-    [step]
+    [step, canProceed]
   );
 
   const setAnswer = useCallback(

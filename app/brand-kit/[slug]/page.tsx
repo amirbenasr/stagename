@@ -12,6 +12,7 @@ import {
   Check,
   X,
   Globe,
+  Star,
 } from "lucide-react";
 import Logo from "../../components/Logo";
 import type { BrandKitData, NameAvailability } from "../../../lib/types";
@@ -24,6 +25,11 @@ export default function BrandKitPage() {
   const [brandKit, setBrandKit] = useState<BrandKitData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedNameIndex, setSelectedNameIndex] = useState(0);
+  const [previewImage, setPreviewImage] = useState<{
+    url: string;
+    label: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!slug) {
@@ -58,6 +64,20 @@ export default function BrandKitPage() {
 
   const handleDownloadPDF = () => {
     window.print();
+  };
+
+  const handleNameClick = (index: number) => {
+    setSelectedNameIndex(index);
+    const anchor = document.getElementById(`name-${index}`);
+    anchor?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handlePreview = (url: string, label: string) => {
+    setPreviewImage({ url, label });
+  };
+
+  const closePreview = () => {
+    setPreviewImage(null);
   };
 
   if (loading) {
@@ -150,55 +170,280 @@ export default function BrandKitPage() {
         </div>
       </div>
 
-      {/* ===== STAGE NAMES ===== */}
-      <div className="max-w-4xl mx-auto px-6 py-8 print:py-4">
-        <h2 className="text-xs font-serif uppercase tracking-[0.3em] text-pink-accent mb-6 print:text-gray-500">
-          Your Stage Names
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 print:gap-4">
-          {brandKit.stageNames.map((sn, i) => (
-            <div
-              key={i}
-              className={`bg-white/60 border border-foreground/10 rounded-2xl p-6 print:p-4 print:border print:border-gray-300 print:bg-white transition-all duration-500 hover:shadow-xl hover:border-pink-accent/20 ${
-                i === 0
-                  ? "ring-2 ring-pink-accent/30 print:ring-2 print:ring-gray-400"
-                  : ""
-              }`}
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <span
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-serif font-bold ${
-                    i === 0
-                      ? "holographic text-white"
-                      : "bg-foreground/10 text-foreground/60"
-                  } print:bg-gray-200 print:text-gray-600`}
-                >
-                  {i + 1}
-                </span>
-                {i === 0 && (
-                  <span className="text-xs font-serif uppercase tracking-wider text-pink-accent print:text-gray-500">
-                    Top Pick
-                  </span>
-                )}
-              </div>
-              <h3 className="text-xl sm:text-2xl font-serif font-bold text-foreground mb-2 print:text-lg">
-                {sn.name}
-              </h3>
-              <p className="font-serif text-sm text-foreground/50 leading-relaxed print:text-xs print:text-gray-600 mb-3">
-                {sn.reason}
+      {/* ===== OVERVIEW ===== */}
+      <div className="max-w-5xl mx-auto px-6 py-8 print:py-4">
+        <div className="grid grid-cols-1 xl:grid-cols-[0.9fr_0.6fr] gap-8">
+          <div className="space-y-6">
+            <div className="rounded-[2rem] bg-white/70 border border-foreground/10 p-8 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.12)] backdrop-blur-xl">
+              <p className="text-xs font-serif uppercase tracking-[0.3em] text-pink-accent mb-3 print:text-gray-500">
+                Artist Debut Brand Kit
               </p>
-              {sn.model && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-serif uppercase tracking-wider text-foreground/30 bg-foreground/5 rounded-full px-2 py-0.5">
-                  <Globe size={8} />
-                  {sn.model}
-                </span>
-              )}
+              <h1 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mb-3">
+                {brandKit.stageNames[0]?.name || "Your Artist"}
+              </h1>
+              <p className="text-sm font-serif text-foreground/60 max-w-2xl">
+                A refined launch kit with three stage name concepts, visual assets, and platform availability so you can start building your identity immediately.
+              </p>
             </div>
-          ))}
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {brandKit.stageNames.map((sn, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => handleNameClick(i)}
+                  className={`group text-left rounded-3xl border p-5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-accent/40 ${
+                    selectedNameIndex === i
+                      ? "border-pink-accent/30 bg-pink-accent/5 shadow-[0_20px_60px_-28px_rgba(236,72,153,0.6)]"
+                      : "border-foreground/10 bg-white/70 hover:border-pink-accent/20 hover:shadow-lg"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-serif font-bold text-white bg-foreground/90">
+                      {i + 1}
+                    </span>
+                    {i === 0 && (
+                      <span className="rounded-full bg-pink-accent/10 px-3 py-1 text-[10px] uppercase tracking-[0.4em] text-pink-accent">
+                        Top Pick
+                      </span>
+                    )}
+                  </div>
+                  <p className="font-serif text-lg font-semibold text-foreground mb-2 group-hover:text-pink-accent">
+                    {sn.name}
+                  </p>
+                  <p className="text-sm font-serif leading-relaxed text-foreground/60 line-clamp-4">
+                    {sn.reason}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <aside className="space-y-6 rounded-[2rem] bg-white/70 border border-foreground/10 p-6 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.12)]">
+            <div>
+              <p className="text-xs font-serif uppercase tracking-[0.3em] text-pink-accent mb-3">
+                Highlight
+              </p>
+              <h2 className="text-2xl font-serif font-bold text-foreground mb-2">
+                {brandKit.stageNames[selectedNameIndex]?.name}
+              </h2>
+              <p className="text-sm font-serif text-foreground/60">
+                Select any generated name above to reveal its visuals and availability in the kit below.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-3xl bg-foreground/5 p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-foreground/40">Logo</p>
+                <p className="text-base font-semibold text-foreground mt-2">Visual mark for brand identity</p>
+              </div>
+              <div className="rounded-3xl bg-foreground/5 p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-foreground/40">Portrait</p>
+                <p className="text-base font-semibold text-foreground mt-2">Character imagery for socials</p>
+              </div>
+              <div className="rounded-3xl bg-foreground/5 p-4 md:col-span-2">
+                <p className="text-xs uppercase tracking-[0.3em] text-foreground/40">Studio shoot</p>
+                <p className="text-base font-semibold text-foreground mt-2">Showcase-ready photography</p>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
 
-      {/* ===== STUDIO PHOTO ===== */}
+      {/* ===== NAME DETAIL + GALLERY ===== */}
+      <div className="max-w-5xl mx-auto px-6 pb-8 print:pb-4">
+        <div
+          id={`name-${selectedNameIndex}`}
+          className="grid grid-cols-1 lg:grid-cols-[0.9fr_0.6fr] gap-8 rounded-[2rem] bg-white/70 border border-foreground/10 p-8 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.12)]"
+        >
+          <div className="space-y-6">
+            <div className="flex flex-col gap-2 mb-4">
+              <span className="text-xs font-serif uppercase tracking-[0.3em] text-pink-accent">
+                Why we chose this name
+              </span>
+              <h2 className="text-3xl font-serif font-bold text-foreground">
+                {brandKit.stageNames[selectedNameIndex]?.name}
+              </h2>
+              <p className="text-sm font-serif text-foreground/60 leading-relaxed">
+                {brandKit.stageNames[selectedNameIndex]?.reason}
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <span className="text-xs uppercase tracking-[0.3em] text-foreground/40">
+                Cover photos
+              </span>
+              <div className="grid grid-cols-3 gap-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <button
+                    key={`cover-${index}`}
+                    type="button"
+                    onClick={() => handlePreview(brandKit.studioPhotoUrl, "Studio Session")}
+                    className="overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/5 transition-all hover:border-pink-accent/30"
+                  >
+                    <div className="aspect-[4/3] relative">
+                      <Image
+                        src={brandKit.studioPhotoUrl}
+                        alt="Studio shot"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <span className="text-xs uppercase tracking-[0.3em] text-foreground/40">
+                Studio session photos
+              </span>
+              <div className="grid grid-cols-3 gap-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <button
+                    key={`session-${index}`}
+                    type="button"
+                    onClick={() => handlePreview(brandKit.portraitImageUrl, "Portrait")}
+                    className="overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/5 transition-all hover:border-pink-accent/30"
+                  >
+                    <div className="aspect-[4/5] relative">
+                      <Image
+                        src={brandKit.portraitImageUrl}
+                        alt="Portrait shot"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <aside className="space-y-6 rounded-[2rem] bg-foreground/5 p-6">
+            <div className="rounded-[1.75rem] bg-white p-6 shadow-sm border border-foreground/10">
+              <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-pink-accent mb-3">
+                Availability
+              </h3>
+              <div className="space-y-3">
+                {Object.entries(PLATFORM_LABELS).map(([key, { label, icon }]) => {
+                  const status = brandKit.availability[brandKit.stageNames[selectedNameIndex]?.name]?.[key as keyof NameAvailability];
+                  return (
+                    <div key={key} className="flex items-center justify-between rounded-3xl border border-foreground/10 bg-foreground/10 px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">{icon}</span>
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{label}</p>
+                          {status?.available && status.handle ? (
+                            <p className="text-[11px] text-foreground/60">{status.handle}</p>
+                          ) : null}
+                        </div>
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${status?.available ? "bg-green-500/10 text-green-700" : "bg-red-500/10 text-red-700"}`}>
+                        {status?.available ? "Available" : "Taken"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-[1.75rem] bg-white p-6 shadow-sm border border-foreground/10">
+              <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-pink-accent mb-3">
+                Metrics
+              </h3>
+              <ul className="space-y-2 text-sm font-serif text-foreground/70">
+                <li>Memorable and unique</li>
+                <li>Brand-ready for social impact</li>
+                <li>Easy to spell, search, and say</li>
+              </ul>
+            </div>
+
+            <div className="rounded-[1.75rem] bg-white p-6 shadow-sm border border-foreground/10">
+              <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-pink-accent mb-3">
+                Music Style
+              </h3>
+              <p className="text-sm font-serif text-foreground/70 leading-relaxed">
+                A look and feel built to match your artist personality, stage presence, and melodic vibe.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      {/* ===== FULL IMAGE GALLERY ===== */}
+      <div className="max-w-5xl mx-auto px-6 pb-8 print:hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <button
+            type="button"
+            onClick={() => handlePreview(brandKit.studioPhotoUrl, "Studio Photo")}
+            className="group overflow-hidden rounded-[2rem] border border-foreground/10 bg-white/70 transition-all hover:border-pink-accent/30 hover:shadow-xl"
+          >
+            <div className="aspect-[4/3] relative">
+              <Image
+                src={brandKit.studioPhotoUrl}
+                alt="Studio photo"
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+            <div className="p-5">
+              <p className="text-xs uppercase tracking-[0.3em] text-foreground/40 mb-2">
+                Studio Photo
+              </p>
+              <p className="font-serif text-lg font-semibold text-foreground">Full gallery view</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handlePreview(brandKit.portraitImageUrl, "Portrait")}
+            className="group overflow-hidden rounded-[2rem] border border-foreground/10 bg-white/70 transition-all hover:border-pink-accent/30 hover:shadow-xl"
+          >
+            <div className="aspect-[4/5] relative">
+              <Image
+                src={brandKit.portraitImageUrl}
+                alt="Portrait photo"
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+            <div className="p-5">
+              <p className="text-xs uppercase tracking-[0.3em] text-foreground/40 mb-2">
+                Portrait
+              </p>
+              <p className="font-serif text-lg font-semibold text-foreground">Open full preview</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handlePreview(brandKit.logoImageUrl, "Logo")}
+            className="group overflow-hidden rounded-[2rem] border border-foreground/10 bg-white/70 transition-all hover:border-pink-accent/30 hover:shadow-xl"
+          >
+            <div className="aspect-square relative">
+              <Image
+                src={brandKit.logoImageUrl}
+                alt="Logo"
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+            <div className="p-5">
+              <p className="text-xs uppercase tracking-[0.3em] text-foreground/40 mb-2">
+                Logo
+              </p>
+              <p className="font-serif text-lg font-semibold text-foreground">Brand mark preview</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* ===== PLATFORM AVAILABILITY ===== */}
       {brandKit.studioPhotoUrl && (
         <div className="max-w-4xl mx-auto px-6 py-8 print:py-4">
           <h2 className="text-xs font-serif uppercase tracking-[0.3em] text-pink-accent mb-6 print:text-gray-500">
@@ -355,7 +600,7 @@ export default function BrandKitPage() {
       )}
 
       {/* ===== FOOTER ===== */}
-      <div className="max-w-4xl mx-auto px-6 py-12 print:hidden">
+      <div className="max-w-5xl mx-auto px-6 py-12 print:hidden">
         <div className="border-t border-foreground/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link
             href="/"
@@ -373,6 +618,36 @@ export default function BrandKitPage() {
           </button>
         </div>
       </div>
+
+      {previewImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6">
+          <div className="relative w-full max-w-5xl overflow-hidden rounded-[2rem] bg-neutral-950 shadow-2xl">
+            <button
+              onClick={closePreview}
+              className="absolute right-4 top-4 z-10 rounded-full border border-white/20 bg-black/50 p-2 text-white transition hover:bg-black/70"
+            >
+              <X size={18} />
+            </button>
+            <div className="px-6 py-5 border-b border-white/10">
+              <p className="text-sm font-serif uppercase tracking-[0.3em] text-white/60">
+                Preview
+              </p>
+              <h2 className="mt-2 text-2xl font-serif font-bold text-white">
+                {previewImage.label}
+              </h2>
+            </div>
+            <div className="aspect-[16/9] relative bg-black">
+              <Image
+                src={previewImage.url}
+                alt={previewImage.label}
+                fill
+                className="object-contain"
+                unoptimized
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ===== PRINT FOOTER ===== */}
       <div className="hidden print:block print:mt-8 print:text-center print:text-xs print:text-gray-400">

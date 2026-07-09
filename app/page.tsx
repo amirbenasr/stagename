@@ -5,6 +5,46 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Heart } from "lucide-react";
 import Logo from "./components/Logo";
 
+const ARTIST_NAME = "@Luna Ray";
+
+interface PlatformInfo {
+  key: string;
+  label: string;
+  famousCount: string;
+  logo: React.ReactNode;
+}
+
+const SpotifyLogo = () => (
+  <svg viewBox="0 0 24 24" className="w-7 h-7" fill="white">
+    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.56-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-2.04-8.159-2.64-11.939-1.44-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.02.6-1.14 4.26-1.26 9.54-.66 13.2 1.56.479.301.659.84.36 1.26zm.18-3.42c-3.6-2.16-9.54-2.34-13.26-1.26-.6.18-1.2-.18-1.38-.78-.18-.6.18-1.2.78-1.38 4.32-1.32 10.8-1.08 14.94 1.32.54.3.72 1.02.42 1.56-.3.54-1.02.72-1.5.54z"/>
+  </svg>
+);
+
+const InstagramLogo = () => (
+  <svg viewBox="0 0 24 24" className="w-7 h-7" fill="white">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.069 4.849-.149 3.227-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+  </svg>
+);
+
+const TikTokLogo = () => (
+  <svg viewBox="0 0 24 24" className="w-7 h-7" fill="white">
+    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.76-1.35 3.91-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.79.57-1.33 1.46-1.41 2.39-.07.89.16 1.83.75 2.53.63.75 1.59 1.17 2.53 1.14.97-.03 1.89-.49 2.49-1.23.43-.56.65-1.26.67-1.97.04-2.92.01-5.84.02-8.76.01-1.76.67-3.49 1.76-4.83C10.18.98 11.37.42 12.52.02z"/>
+  </svg>
+);
+
+const FacebookLogo = () => (
+  <svg viewBox="0 0 24 24" className="w-7 h-7" fill="white">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
+
+const PLATFORMS: PlatformInfo[] = [
+  { key: "spotify", label: "Spotify", famousCount: "1.2M", logo: <SpotifyLogo /> },
+  { key: "instagram", label: "Instagram", famousCount: "2.5M", logo: <InstagramLogo /> },
+  { key: "tiktok", label: "TikTok", famousCount: "3.8M", logo: <TikTokLogo /> },
+  { key: "facebook", label: "Facebook", famousCount: "800K", logo: <FacebookLogo /> },
+];
+
 export default function Home() {
   const [artistName, setArtistName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -100,6 +140,9 @@ export default function Home() {
             type="text"
             value={artistName}
             onChange={(e) => setArtistName(e.target.value)}
+            onClick={(e) =>  {
+              window.location.href = "/quiz";
+            }}
             placeholder="e.g., Dimitri..."
             className="w-64 sm:w-80 rounded-full border-2 border-foreground/20 bg-white px-6 py-3 text-foreground font-serif placeholder:text-foreground/40 focus:outline-none focus:border-pink-accent/50 transition"
           />
@@ -112,57 +155,7 @@ export default function Home() {
         </div>
 
         {/* ===== BEFORE / AFTER — SPLIT SLIDER ===== */}
-        <div
-          ref={sliderRef}
-          className="relative w-full max-w-4xl mx-auto aspect-[16/9] rounded-3xl overflow-hidden shadow-2xl select-none cursor-col-resize border border-foreground/10"
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleMouseDown}
-        >
-          {/* AFTER image (full background) */}
-          <img
-            src="/after.png"
-            alt="After — Superstar transformation"
-            className="absolute inset-0 w-full h-full object-cover"
-            draggable={false}
-          />
-
-          {/* BEFORE image (clipped) */}
-          <div
-            className="absolute inset-0"
-            style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
-          >
-            <img
-              src="/before.png"
-              alt="Before — Original"
-              className="w-full h-full object-cover"
-              draggable={false}
-            />
-          </div>
-
-          {/* Labels */}
-          <div className="absolute top-4 left-4 z-10">
-            <span className="bg-black/50 backdrop-blur-sm text-white text-xs font-serif uppercase tracking-[0.3em] px-3 py-1.5 rounded-full">Before</span>
-          </div>
-          <div className="absolute top-4 right-4 z-10">
-            <span className="bg-black/50 backdrop-blur-sm text-white text-xs font-serif uppercase tracking-[0.3em] px-3 py-1.5 rounded-full holographic-shadow">After</span>
-          </div>
-
-          {/* Vertical handle */}
-          <div
-            className="absolute top-0 bottom-0 z-20"
-            style={{ left: `${sliderPos}%`, transform: "translateX(-50%)" }}
-          >
-            {/* Line */}
-            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-white shadow-[0_0_8px_rgba(0,0,0,0.3)]" />
-            {/* Grip circle */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center border-2 border-white">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-foreground/60">
-                <path d="M8 5l-5 7 5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M16 5l5 7-5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-        </div>
+        
       </section>
 
       {/* ===== FEATURES — Three Columns ===== */}
@@ -217,10 +210,10 @@ export default function Home() {
         <div className="relative bg-white/60 border border-foreground/10 rounded-3xl p-8 sm:p-10 shadow-lg">
           <div className="text-center mb-6">
             <h2 className="text-2xl sm:text-3xl font-serif uppercase tracking-wider">
-              Unlock Your <span className="font-script text-pink-accent lowercase text-3xl sm:text-4xl">Complete Brand Dossier</span>
+              Unlock Your <span className="font-script text-pink-accent lowercase text-3xl sm:text-4xl">Debut Artist Kit</span>
             </h2>
             <p className="text-sm font-serif text-foreground/50 mt-2 max-w-lg mx-auto">
-              Get 50+ personalized brand names, cultural analysis, and sonic branding guidelines
+              Get 3 personalized brand names, cultural analysis, and sonic branding guidelines
             </p>
           </div>
 
@@ -230,11 +223,13 @@ export default function Home() {
           </div>
 
           <button
-            onClick={handleCheckout}
+            onClick={()=>{
+              window.location.href = "/quiz";
+            }}
             disabled={isLoading}
             className="w-full max-w-md mx-auto holographic holographic-shadow rounded-full py-3 text-white font-serif uppercase tracking-wider text-sm font-bold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:scale-100"
           >
-            {isLoading ? "Processing..." : "Proceed to Checkout"}
+            {isLoading ? "Processing..." : "Find my stagename"}
           </button>
 
           <p className="text-xs text-foreground/40 text-center mt-4 font-serif">
@@ -247,7 +242,7 @@ export default function Home() {
       <section className="max-w-5xl mx-auto px-6 py-12 border-t border-foreground/10">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           <div>
-            <div className="text-2xl font-serif font-bold holographic-text">14,204+</div>
+            <div className="text-2xl font-serif font-bold holographic-text">204+</div>
             <div className="text-xs font-serif text-foreground/50 uppercase tracking-wider">Artists Rebranded</div>
           </div>
           <div>
@@ -259,7 +254,7 @@ export default function Home() {
             <div className="text-xs font-serif text-foreground/50 uppercase tracking-wider">5-Star Rating</div>
           </div>
           <div>
-            <div className="text-2xl font-serif font-bold holographic-text">2M+</div>
+            <div className="text-2xl font-serif font-bold holographic-text">1k+</div>
             <div className="text-xs font-serif text-foreground/50 uppercase tracking-wider">Names Generated</div>
           </div>
         </div>
