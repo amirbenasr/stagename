@@ -1,0 +1,13 @@
+{
+  "name": "stagename-club-functions",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.4.0",
+    "node-fetch": "^2.7.0"
+  }
+}

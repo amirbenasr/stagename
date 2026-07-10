@@ -6,10 +6,8 @@ import { executeGenerationPipeline, SubmissionNotFoundError } from "../../../lib
 // Queue Worker — Processes one pending generation job at a time
 // ============================================================
 //
-// Usage:
-//   - Manual: GET /api/queue-worker
-//   - Cron: Set up a cron job (e.g. Vercel Cron, GitHub Actions) to hit this endpoint
-//   - Local: curl http://localhost:3000/api/queue-worker
+// Triggered by GCP Cloud Function when a new job is written to Firestore.
+// Can also be called manually: POST /api/queue-worker
 //
 // The worker dequeues one "pending" job, executes the generation pipeline,
 // and marks it as "complete" or "failed" (with retry up to 3 attempts).

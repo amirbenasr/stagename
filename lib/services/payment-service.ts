@@ -1,6 +1,6 @@
 import { stripe, STRIPE_PRICING, getSiteUrl } from "../stripe";
 import { submissionRepository } from "../repositories/submission-repository";
-import { cloudTasksService } from "./cloud-tasks-service";
+import { queueService } from "./queue-service";
 import type { CheckoutRequest, CheckoutResponse } from "../types";
 
 // ============================================================
@@ -46,7 +46,7 @@ export const paymentService = {
   },
 
   async triggerGenerationPipeline(submissionId: string): Promise<void> {
-    await cloudTasksService.enqueueGenerationJob(submissionId);
-    console.log(`✓ Generation job enqueued via Cloud Tasks for submission ${submissionId}`);
+    await queueService.enqueue(submissionId);
+    console.log(`✓ Generation job enqueued to Firestore queue for submission ${submissionId}`);
   },
 };

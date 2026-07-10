@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: ["firebase-admin", "firebase-admin/firestore", "firebase-admin/storage", "@google-cloud/tasks"],
+  serverExternalPackages: ["firebase-admin", "firebase-admin/firestore", "firebase-admin/storage"],
 };
 
 export default nextConfig;
