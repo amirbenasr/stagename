@@ -1,5 +1,6 @@
 import { stripe, STRIPE_PRICING, getSiteUrl } from "../stripe";
 import { submissionRepository } from "../repositories/submission-repository";
+import { cloudTasksService } from "./cloud-tasks-service";
 import type { CheckoutRequest, CheckoutResponse } from "../types";
 
 // ============================================================
@@ -45,8 +46,6 @@ export const paymentService = {
   },
 
   async triggerGenerationPipeline(submissionId: string): Promise<void> {
-    // Dynamic import to avoid Turbopack build-time resolution issues with @google-cloud/tasks
-    const { cloudTasksService } = await import("./cloud-tasks-service");
     await cloudTasksService.enqueueGenerationJob(submissionId);
     console.log(`✓ Generation job enqueued via Cloud Tasks for submission ${submissionId}`);
   },
