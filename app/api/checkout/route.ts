@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { paymentService } from "../../../lib/services/payment-service";
+import { getPaymentProvider } from "../../../lib/payments";
 import type { CheckoutRequest, CheckoutResponse } from "../../../lib/types";
 
 export async function POST(request: NextRequest): Promise<NextResponse<CheckoutResponse>> {
@@ -19,7 +19,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<CheckoutR
       );
     }
 
-    const response = await paymentService.createCheckoutSession(body);
+    const provider = getPaymentProvider();
+    const response = await provider.createCheckoutSession(body);
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { submissionRepository } from "../../../lib/repositories/submission-repository";
+import { getPaymentProvider } from "../../../lib/payments";
 import type { SessionLookupResponse } from "../../../lib/types";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -11,15 +11,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
     }
 
-    const result = await submissionRepository.findByStripeSessionId(sessionId);
+    const provider = getPaymentProvider();
+    const result = await provider.lookupSession(sessionId);
+
     if (!result) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
     const response: SessionLookupResponse = {
-      submissionId: result.id,
-      status: result.data.status,
-      brandKitSlug: result.data.brandKitSlug,
+      submissionId: result.submissionId,
+      status: result.status,
+      brandKitSlug: result.brandKitSlug,
     };
 
     return NextResponse.json(response, { status: 200 });

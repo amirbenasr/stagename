@@ -79,7 +79,7 @@ export default function PricingPage() {
             {[
               { title: "Fast & focused", desc: "No subscriptions, no upsells. One clear package." },
               { title: "Built for launch", desc: "Everything you need to start your artist identity." },
-              { title: "Secure checkout", desc: "Payments processed safely through Stripe." },
+              { title: "Secure checkout", desc: "Payments processed safely and securely." },
             ].map((item) => (
               <div key={item.title} className="bg-white/60 border border-foreground/10 rounded-3xl p-6 text-center">
                 <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-foreground/70 mb-2">{item.title}</h3>

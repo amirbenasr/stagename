@@ -233,7 +233,7 @@ export default function Home() {
           </button>
 
           <p className="text-xs text-foreground/40 text-center mt-4 font-serif">
-            Secure payment via Stripe. No hidden fees.
+            Secure payment. No hidden fees.
           </p>
         </div>
       </section>

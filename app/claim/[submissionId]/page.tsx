@@ -181,7 +181,7 @@ export default function ClaimPage() {
           )}
 
           <p className="text-center font-serif text-xs text-foreground/30 mt-6">
-            Secure payment via Stripe. One-time charge. Instant delivery.
+            Secure payment. One-time charge. Instant delivery.
           </p>
         </div>
       </div>

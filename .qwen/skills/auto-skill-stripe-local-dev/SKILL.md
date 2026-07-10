@@ -1,48 +1,62 @@
 ---
 name: stripe-local-dev
-description: Stripe webhook forwarding for local development + React polling pattern for async result pages (useRef counter, not useState)
+description: Payment provider local dev (Stripe CLI / Paddle webhook testing) + provider abstraction pattern + React polling with useRef
 source: auto-skill
 extracted_at: '2026-07-07T19:53:10.536Z'
 ---
 
-# Stripe Local Development & Async Result Polling
+# Payment Provider Local Dev & Async Result Polling
 
-## Stripe Webhook Forwarding for Localhost
+## Provider Abstraction Layer
 
-Stripe **cannot** send webhooks to `localhost` directly. During local development, you must use the **Stripe CLI** to forward webhook events to your dev server.
+Payments use a **provider-agnostic abstraction** in `lib/payments/`:
+- `types.ts` — `PaymentProvider` interface (`createCheckoutSession`, `handleWebhook`, `lookupSession`)
+- `index.ts` — `getPaymentProvider()` factory, reads `PAYMENT_PROVIDER` env var (default: `"paddle"`)
+- `paddle.ts` — Paddle Billing implementation (active)
+- `stripe.ts` — Stripe implementation (preserved for easy swap-back)
+
+**Swap providers** by changing `PAYMENT_PROVIDER` env var + uncommenting/commenting relevant keys in `.env.local`. No code changes needed.
+
+**Firestore field**: `paymentSessionId` (provider-agnostic, replaces old `stripeSessionId`).
+
+## Stripe Local Development
+
+Stripe **cannot** send webhooks to `localhost` directly. Use the **Stripe CLI** to forward events.
 
 ### Setup
 
-1. **Install Stripe CLI**: download from https://stripe.com/docs/stripe-cli or use a package manager (`winget install stripe` on Windows, `brew install stripe` on macOS).
-
-2. **Start forwarding** in a separate terminal:
-   ```bash
-   stripe listen --forward-to localhost:3000/api/webhook
-   ```
-
-3. **Copy the signing secret** (`whsec_...`) from the CLI output and set it as `STRIPE_WEBHOOK_SECRET` in `.env.local`:
-   ```
-   STRIPE_WEBHOOK_SECRET=whsec_from_cli_output_here
-   ```
-
-4. **Restart the dev server** after updating the env var.
+1. **Install Stripe CLI**: `winget install stripe` (Windows) or `brew install stripe` (macOS).
+2. **Start forwarding**: `stripe listen --forward-to localhost:3000/api/webhook`
+3. **Copy the `whsec_...` secret** from CLI output → set as `STRIPE_WEBHOOK_SECRET` in `.env.local`
+4. **Restart dev server** after updating env var.
 
 ### Critical: CLI Secret ≠ Dashboard Secret
 
-The `whsec_` from `stripe listen` is **different** from the webhook signing secret shown in the Stripe Dashboard. The dashboard secret only works for webhooks sent to a publicly reachable URL (production). The CLI secret only works for locally forwarded events. Using the wrong one causes signature verification to fail silently — the webhook endpoint returns 401 and the event is dropped.
+The `whsec_` from `stripe listen` is **different** from the Stripe Dashboard webhook secret. Dashboard secret only works for production URLs. CLI secret only works for local forwarding. Wrong secret = silent 401 failures.
 
-### Symptoms of Missing/Incorrect Webhook Forwarding
+## Paddle Local Development
 
-- Payment succeeds on Stripe's side (user gets redirected to success page)
-- Success page polls forever showing "Processing..." because the webhook never updated Firestore
-- No server-side logs appear when webhook events should have fired
-- `stripeSessionId` or `status: "paid"` is never written to the database
+Paddle sandbox webhooks also can't reach `localhost`. Two options:
 
-### Diagnosis Checklist
+1. **Use ngrok** to expose localhost: `ngrok http 3000` → set the ngrok URL as notification destination in Paddle Dashboard
+2. **Use Paddle's webhook simulator** in the Dashboard to send test events to a production URL
 
-1. Is `stripe listen` running in a separate terminal?
-2. Does the `whsec_` in `.env.local` match the one from `stripe listen` output (not the dashboard)?
-3. Did you restart the dev server after changing the env var?
+### Paddle Webhook Signature Verification
+
+Paddle sends `Paddle-Signature` header: `ts={timestamp};h1={signature}` (HMAC-SHA256). The `handleWebhook` method in `paddle.ts` verifies this automatically. Requires `PADDLE_WEBHOOK_SECRET` env var (generated when creating notification destination in Dashboard).
+
+### Paddle Checkout Prerequisites
+
+- **Default Payment Link** must be set in Paddle Dashboard → Checkout → Settings (required before transactions can be created)
+- **Notification destination** must be created for `transaction.completed` events
+
+## Diagnosis Checklist (Any Provider)
+
+- Payment succeeds but success page polls forever → webhook not reaching server
+- Check: Is the webhook forwarding tool running? (stripe listen / ngrok)
+- Check: Does the webhook secret in `.env.local` match the forwarding tool's secret?
+- Check: Did you restart the dev server after changing env vars?
+- Check: Is `paymentSessionId` being written to Firestore? (was `stripeSessionId` before migration)
 
 ## React Polling Pattern: useRef Counter (Not useState)
 

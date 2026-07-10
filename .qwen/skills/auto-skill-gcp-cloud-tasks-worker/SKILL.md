@@ -1,109 +1,167 @@
 ---
-name: gcp-cloud-tasks-worker
-description: Replace Vercel Cron + Firestore queue with GCP Cloud Tasks for event-driven async job execution — OIDC auth, error classification, and deployment sequence
+name: firestore-queue-cloud-function
+description: Firestore queue + GCP Cloud Function trigger pattern — webhook writes to Firestore, Cloud Function watches for writes and calls Vercel queue worker
 source: auto-skill
-extracted_at: '2026-07-09T19:35:38.573Z'
+extracted_at: '2026-07-10T11:29:24.339Z'
 ---
 
-# GCP Cloud Tasks Worker Pattern
+# Firestore Queue + GCP Cloud Function Trigger Pattern
 
-Replace polling-based cron + Firestore queue with event-driven GCP Cloud Tasks. Zero recurring cost (100K tasks/month free), immediate execution, built-in retries.
+Replace direct Cloud Tasks API calls (which fail on Vercel due to proto file bundling issues) with a Firestore queue + GCP Cloud Function trigger. The webhook writes to Firestore, and a Cloud Function watches for new documents and calls the queue worker endpoint.
 
 ## Architecture
 
 ```
-Stripe webhook → cloudTasksService.enqueueGenerationJob()
-  → Cloud Tasks queue → HTTP POST /api/cloud-tasks-worker (with OIDC token)
-    → executeGenerationPipeline() → 200 (success) or 500 (retry)
+Stripe webhook → Vercel /api/webhook
+  ↓
+queueService.enqueue() → Firestore "generationJobs" collection
+  ↓ (document write triggers Eventarc)
+GCP Cloud Function (functions/index.js)
+  ↓
+POST /api/queue-worker (Vercel) → processes job
 ```
+
+## Why This Pattern?
+
+- **Vercel can't bundle `@google-cloud/tasks`** — the package has proto/binary files that Vercel's bundler strips out
+- **Firestore writes are reliable** — no external dependencies needed in Vercel
+- **Eventarc triggers are instant** — no polling delay
+- **Queue worker stays in Vercel** — no need to move generation logic to GCP
 
 ## Files
 
-### Enqueue Service (`lib/services/cloud-tasks-service.ts`)
-- Uses `@google-cloud/tasks` `CloudTasksClient`
-- Auth: `credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON)`
-- Creates task with `httpRequest.oidcToken: { serviceAccountEmail, audience }`
-- Queue path: `projects/{GCP_PROJECT_ID}/locations/{CLOUD_TASKS_LOCATION}/queues/{QUEUE_NAME}`
+### Queue Service (`lib/services/queue-service.ts`)
+- `enqueue(submissionId)` — writes job document to `generationJobs` collection
+- `dequeueOne()` — atomically marks job as "processing" and returns it
+- `complete(jobId, brandKitSlug)` — marks job as "complete"
+- `fail(jobId, error)` — marks as "failed" after 3 attempts, otherwise resets to "pending"
 
-### Worker Endpoint (`app/api/cloud-tasks-worker/route.ts`)
-- Verifies OIDC token via `google-auth-library` `OAuth2Client.verifyIdToken()`
-- Validates: `iss` (accounts.google.com), `aud` (worker URL), `exp` (not expired), `email` (matching SA)
-- **Error classification:**
-  - Permanent (`SubmissionNotFoundError`, "not found", "invalid") → return **200** (no retry)
-  - Transient (network, timeouts, rate limits) → return **500** (Cloud Tasks retries up to max-attempts)
+### Queue Worker (`app/api/queue-worker/route.ts`)
+- Accepts POST requests (triggered by Cloud Function)
+- Dequeues one job, runs generation pipeline
+- Returns 200 on success, 500 on failure (Cloud Function will retry)
+
+### Cloud Function (`functions/index.js`)
+- Uses `firebase-functions` v2 SDK with `onDocumentWritten` trigger
+- Triggered by Firestore write to `generationJobs/{jobId}`
+- Checks if job status is "pending"
+- Calls `QUEUE_WORKER_URL` env var (defaults to `https://stagename.club/api/queue-worker`)
+- Retries on failure (GCP handles retry automatically)
 
 ## Env Vars
 
+### Vercel
 | Variable | Example | Purpose |
 |----------|---------|---------|
-| `GCP_PROJECT_ID` | `stagenameclub` | GCP project |
-| `CLOUD_TASKS_LOCATION` | `us-central1` | Queue region |
-| `CLOUD_TASKS_SA_EMAIL` | `cloud-tasks-enqueuer@...` | Service account for OIDC signing |
-| `CLOUD_TASKS_WORKER_URL` | `https://.../api/cloud-tasks-worker` | Full HTTPS URL for task dispatch |
-| `GOOGLE_APPLICATION_CREDENTIALS_JSON` | `{...}` (single-line) | SA key for CloudTasksClient auth |
+| `GCP_PROJECT_ID` | `stagenameclub` | GCP project (for Firestore Admin SDK) |
 
-**Vercel note:** Store `GOOGLE_APPLICATION_CREDENTIALS_JSON` as a single-line JSON string (Vercel env vars are single-line). Use `JSON.stringify(keyObject)` or remove all newlines.
+### GCP Cloud Function
+| Variable | Example | Purpose |
+|----------|---------|---------|
+| `QUEUE_WORKER_URL` | `https://stagename.club/api/queue-worker` | Full HTTPS URL to queue worker |
+
+**Note:** No `@google-cloud/tasks` or `google-auth-library` needed in Vercel dependencies.
 
 ## GCP Setup (one-time)
 
-Run `scripts/create-cloud-tasks-queue.sh` or manually:
+### 1. Deploy the Cloud Function
 
 ```bash
-# Enable Cloud Tasks API first (required before any other commands)
-gcloud services enable cloudtasks.googleapis.com --project=stagenameclub
-
-# Service account with two roles
-gcloud iam service-accounts create cloud-tasks-enqueuer --project=stagenameclub
-gcloud projects add-iam-policy-binding stagenameclub \
-  --member="serviceAccount:cloud-tasks-enqueuer@stagenameclub.iam.gserviceaccount.com" \
-  --role="roles/cloudtasks.enqueuer"
-gcloud projects add-iam-policy-binding stagenameclub \
-  --member="serviceAccount:cloud-tasks-enqueuer@stagenameclub.iam.gserviceaccount.com" \
-  --role="roles/iam.serviceAccountTokenCreator"
-
-# Queue — use seconds for durations (NOT "1h" or "5m", use "3600s" and "300s")
-gcloud tasks queues create generation-jobs \
-  --project=stagenameclub --location=us-central1 \
-  --max-dispatches-per-second=5 --max-concurrent-dispatches=3 \
-  --max-retry-duration=3600s --max-attempts=3 \
-  --min-backoff=30s --max-backoff=300s
+cd functions && npm install
+cd .. && npx firebase deploy --only functions
 ```
 
-Generate JSON key:
+The function uses `firebase-functions` v2 SDK with `onDocumentWritten` trigger defined in code. No separate Eventarc trigger creation needed — Firebase handles it automatically.
+
+### 2. Required IAM Roles
+
+If deployment fails with permission errors, add these roles to the compute service account:
+
 ```bash
-gcloud iam service-accounts keys create sa-key.json \
-  --iam-account=cloud-tasks-enqueuer@stagenameclub.iam.gserviceaccount.com \
-  --project=stagenameclub
+# For Eventarc triggers
+gcloud projects add-iam-policy-binding stagenameclub \
+  --member=serviceAccount:714751050242-compute@developer.gserviceaccount.com \
+  --role=roles/eventarc.eventReceiver
+
+# For Cloud Run invocation
+gcloud projects add-iam-policy-binding stagenameclub \
+  --member=serviceAccount:714751050242-compute@developer.gserviceaccount.com \
+  --role=roles/run.invoker
+
+# For Cloud Build
+gcloud projects add-iam-policy-binding stagenameclub \
+  --member=serviceAccount:714751050242-compute@developer.gserviceaccount.com \
+  --role=roles/cloudbuild.builds.builder
+
+# For Artifact Registry
+gcloud projects add-iam-policy-binding stagenameclub \
+  --member=serviceAccount:714751050242-compute@developer.gserviceaccount.com \
+  --role=roles/artifactregistry.writer
 ```
 
-**Gotchas:**
-- **Cloud Tasks API must be enabled first** — `gcloud services enable cloudtasks.googleapis.com` or queue creation will fail.
-- **Duration format** — `gcloud tasks queues create` requires durations ending in `s` (e.g. `3600s`, `300s`), NOT `1h` or `5m`.
-- **Service account may not exist** — if IAM bindings were applied to a non-existent SA, `gcloud iam service-accounts keys create` will fail with `NOT_FOUND`. Always `create` the SA first, then bind roles, then generate the key.
-- **Vercel env var `GOOGLE_APPLICATION_CREDENTIALS_JSON`** — set via Vercel Dashboard (CLI `vercel env add` is interactive). Paste the JSON key as a single-line string, keeping `\n` inside the private key as literal escape sequences.
-- **`CLOUD_TASKS_WORKER_URL`** — set to your production URL after the first deploy (e.g. `https://stagename-club.vercel.app/api/cloud-tasks-worker`). Local dev can use `http://localhost:3000/api/cloud-tasks-worker`.
+### 3. Environment Variables
 
-## Migration Sequence
+The worker URL is hardcoded as a fallback in `functions/index.js`:
+```javascript
+const workerUrl = process.env.QUEUE_WORKER_URL || "https://stagename.club/api/queue-worker";
+```
 
-1. Create SA + queue (script above)
-2. Generate JSON key
-3. Deploy code (new cloud-tasks-service, cloud-tasks-worker, modified payment-service)
-4. Add env vars to Vercel
-5. Test: complete payment → verify via `gcloud tasks list --queue=generation-jobs --location=us-central1`
-6. Drain existing Firestore queue (hit old `/api/queue-worker` until empty)
-7. Disable Vercel Cron in dashboard (Project → Settings → Cron Jobs)
+To override (e.g., for staging):
+```bash
+gcloud functions deploy onGenerationJobCreated \
+  --region=us-central1 \
+  --update-env-vars=QUEUE_WORKER_URL=https://staging.stagename.club/api/queue-worker
+```
 
-## Keep Old Queue for Safety
+## Firestore Queue Schema
 
-Keep `app/api/queue-worker/route.ts` and `lib/services/queue-service.ts` for:
-- Local development (Cloud Tasks requires GCP auth, not ideal for local)
-- Manual re-runs of failed jobs
-- Drain period during migration
+```javascript
+// generationJobs/{jobId}
+{
+  submissionId: string,
+  status: "pending" | "processing" | "complete" | "failed",
+  attempts: number,           // incremented on retry
+  error?: string,             // last error message
+  brandKitSlug?: string,      // set on completion
+  createdAt: string,          // ISO timestamp
+  updatedAt: string           // ISO timestamp
+}
+```
+
+## Gotchas
+
+1. **Vercel can't bundle `@google-cloud/tasks`** — the package has proto files that get stripped. Use Firestore queue + Cloud Function instead.
+2. **Dynamic imports fail on Vercel** — `await import("./cloud-tasks-service")` throws "Cannot find module as expression is too dynamic". Use static imports or move the logic outside Vercel.
+3. **Cloud Function must check status** — only process jobs with `status === "pending"` to avoid duplicate processing.
+4. **Queue worker must be public** — Cloud Function calls it via HTTPS, so it needs to be accessible (no auth middleware blocking it).
+5. **Firestore composite index** — first time `dequeueOne()` runs, Firestore will reject the query and provide a URL to create the required index. Click that link once.
+6. **Stripe webhook 308 redirect** — if webhook URL has `www.` prefix but Vercel redirects to bare domain, Stripe gets 308. Use the exact URL without `www.`.
+7. **firebase-functions vs Functions Framework** — use `firebase-functions` v2 SDK (`onDocumentWritten`) not `@google-cloud/functions-framework`. The latter causes "function.js does not exist" build errors.
+8. **IAM propagation delay** — after adding IAM roles, wait 1-2 minutes before retrying deployment.
 
 ## Verification Commands
 
 ```bash
-gcloud tasks queues describe generation-jobs --project=stagenameclub --location=us-central1
-gcloud tasks list --queue=generation-jobs --location=us-central1 --project=stagenameclub
-gcloud logging read 'resource.type="cloud_task" AND resource.labels.queue_id="generation-jobs"' --project=stagenameclub --limit=10
+# Check Firestore queue
+gcloud firestore indexes list --project=stagenameclub
+
+# View Cloud Function logs
+gcloud functions logs read on-generation-job-created --region=us-central1
+
+# View Eventarc triggers
+gcloud eventarc triggers list --location=us-central1 --project=stagenameclub
+
+# Manually trigger queue worker (for testing)
+curl -X POST https://stagename.club/api/queue-worker
 ```
+
+## Migration from Cloud Tasks
+
+If you previously used `@google-cloud/tasks` directly:
+
+1. Remove `@google-cloud/tasks` and `google-auth-library` from `package.json`
+2. Delete `lib/services/cloud-tasks-service.ts`
+3. Delete `app/api/cloud-tasks-worker/route.ts`
+4. Update payment webhook to use `queueService.enqueue()` instead of `cloudTasksService.enqueueGenerationJob()`
+5. Deploy Cloud Function and set up Eventarc trigger
+6. Remove Cloud Tasks env vars from Vercel (`CLOUD_TASKS_LOCATION`, `CLOUD_TASKS_SA_EMAIL`, `CLOUD_TASKS_WORKER_URL`)

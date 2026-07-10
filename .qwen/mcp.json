@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "paddle-sandbox": {
+      "type": "http",
+      "url": "https://sandbox-mcp.paddle.com/mcp",
+      "headers": {
+        "Authorization": "Bearer pdl_sdbx_apikey_01kx5yp15ms2vd16yh3qtq1gkr_ZxCDFHNzHYH1cAJ862NE1Z_AjG"
+      }
+    }
+  }
+}

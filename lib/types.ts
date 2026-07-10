@@ -36,7 +36,7 @@ export interface Submission {
   musicUrl: string;
   email: string | null;
   status: SubmissionStatus;
-  stripeSessionId: string | null;
+  paymentSessionId: string | null;
   brandKitSlug: string | null;
   createdAt: string;
 }

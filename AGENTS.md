@@ -7,7 +7,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 # stagename.club — Project Context for Qwen Code
 
 ## Overview
-AI-powered stage name generator for musicians. Users take a quiz about their identity/vibe, upload a selfie + optional music snippet, pay $14.99 via Stripe, and receive a Brand Kit with 3 AI-generated stage names, studio portrait, logo, and platform availability report.
+AI-powered stage name generator for musicians. Users take a quiz about their identity/vibe, upload a selfie + optional music snippet, pay $14.99, and receive a Brand Kit with 3 AI-generated stage names, studio portrait, logo, and platform availability report.
 
 ## Tech Stack
 - **Framework:** Next.js 16 (App Router, Turbopack)
@@ -15,7 +15,7 @@ AI-powered stage name generator for musicians. Users take a quiz about their ide
 - **Storage:** Firebase Storage (bucket: `stagenameclub.firebasestorage.app`)
 - **AI Provider:** fal.ai (NOT OpenAI directly — `openai` dep is unused)
 - **Email:** Resend (`lib/email.ts`)
-- **Payments:** Stripe ($14.99 one-time)
+- **Payments:** Paddle Billing ($14.99 one-time) — provider-agnostic via `lib/payments/` abstraction (Stripe preserved for easy swap-back)
 - **Image Gen:** `fal-ai/flux-2-pro/edit` (portrait/studio, uses selfie as reference), `fal-ai/flux/dev` (logo)
 - **Text Gen:** fal.ai OpenRouter proxy (`openrouter/router/vision`)
 - **Styling:** Tailwind v4, holographic/gradient utilities in `globals.css`
@@ -36,11 +36,11 @@ app/
     ProcessingSidebar.tsx           — Slide-in sidebar with fake animation + email gate
 
   api/
-    checkout/route.ts               — POST: creates Stripe checkout session
-    webhook/route.ts                — POST: Stripe webhook → triggers /api/generate
+    checkout/route.ts               — POST: creates checkout session via active payment provider
+    webhook/route.ts                — POST: payment webhook → triggers generation pipeline
     generate/route.ts               — POST: full AI pipeline (image analysis, 3 names, images, availability)
     send-link/route.ts              — POST: sends claim email via Resend
-    session-lookup/route.ts         — GET: polls Firestore by stripeSessionId
+    session-lookup/route.ts         — GET: polls Firestore by paymentSessionId
     claim/[submissionId]/route.ts   — GET: submission lookup for claim page
     brand-kit/[slug]/route.ts       — GET: brand kit data fetch
 
@@ -48,6 +48,11 @@ lib/
   firebase.ts                       — Client-side Firebase SDK (browser uploads)
   firebase-admin.ts                 — Server-side Admin SDK (Firestore + Storage)
   email.ts                          — Resend client + HTML email templates
+  payments/
+    types.ts                        — PaymentProvider interface (createCheckoutSession, handleWebhook, lookupSession)
+    index.ts                        — Factory: getPaymentProvider() returns active provider based on PAYMENT_PROVIDER env
+    stripe.ts                       — Stripe implementation (preserved for easy swap-back)
+    paddle.ts                       — Paddle Billing implementation (active)
 
 data/
   quiz-questions.json               — 11 quiz questions (IDs: "1"–"9", "selfie", "music")
@@ -59,8 +64,8 @@ Quiz → Submit (selfie to Storage, answers to Firestore)
   → ProcessingSidebar (fake 8s animation)
   → Email gate → POST /api/send-link → Resend email with /claim link
   → User clicks email → /claim/{submissionId} page
-  → Pay $14.99 → Stripe Checkout → /success?session_id=...
-  → Stripe webhook → POST /api/generate (fire-and-forget)
+  → Pay $14.99 → Payment Provider Checkout (Paddle/Stripe) → /success?session_id=...
+  → Payment webhook → POST /api/webhook → enqueue generation job
   → /api/generate pipeline:
       1. Image analysis (selfie → text description via vision model)
       2. 3 stage names (3 separate model calls in parallel)
@@ -134,7 +139,7 @@ const pollRef = useRef(0);
   musicUrl: string,        // Firebase Storage download URL (optional)
   email: string,           // Set by /api/send-link
   status: string,          // "pending" → "paid" → "complete"
-  stripeSessionId: string, // Set by webhook
+  paymentSessionId: string, // Set by webhook (Paddle transaction ID or Stripe session ID)
   brandKitSlug: string,    // Set after generation
   createdAt: string
 }
@@ -157,8 +162,10 @@ const pollRef = useRef(0);
 
 ## Environment Variables
 See `.env.local` for all vars. Key ones:
+- `PAYMENT_PROVIDER` — `"paddle"` or `"stripe"` (default: paddle)
+- `PADDLE_API_KEY`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRICE_ID`, `PADDLE_ENVIRONMENT` — Paddle Billing
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` — Stripe (commented out by default, uncomment to swap back)
 - `FAL_KEY` — fal.ai API key
-- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` — Stripe
 - `RESEND_API_KEY` — Resend email
 - `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` — Firebase Admin SDK
 - `NEXT_PUBLIC_FIREBASE_*` — Firebase client SDK
@@ -186,3 +193,6 @@ See `.env.local` for all vars. Key ones:
 4. **Resend**: Domain must be verified in Resend dashboard before sending from custom domain.
 5. **Quiz `handleSubmit`**: Must call `setSubmitting(false)` on BOTH success and error paths.
 6. **Firestore rules**: Must be deployed (`npx firebase deploy --only firestore:rules`) or client-side writes fail silently.
+7. **Paddle checkout**: Requires "Default Payment Link" set in Paddle Dashboard → Checkout → Settings before transactions can be created.
+8. **Paddle webhook**: Webhook secret is generated when creating a notification destination in Paddle Dashboard. Set it as `PADDLE_WEBHOOK_SECRET`.
+9. **Payment provider swap**: Change `PAYMENT_PROVIDER` env var + uncomment/comment the relevant provider keys. No code changes needed.

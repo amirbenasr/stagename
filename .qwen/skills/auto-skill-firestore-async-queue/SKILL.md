@@ -79,21 +79,31 @@ export const queueService = {
 
   async dequeueOne(): Promise<GenerationJob | null> {
     const db = await getDb();
-    const snapshot = await db
-      .collection(COLLECTION)
-      .where("status", "==", "pending")
-      .orderBy("createdAt", "asc")
-      .limit(1)
-      .get();
 
-    if (snapshot.empty) return null;
+    // Use transaction to prevent race conditions with concurrent workers
+    return db.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(
+        db
+          .collection(COLLECTION)
+          .where("status", "==", "pending")
+          .orderBy("createdAt", "asc")
+          .limit(1)
+      );
 
-    const doc = snapshot.docs[0];
-    const job = jobFromDoc(doc.data(), doc.id);
+      if (snapshot.empty) return null;
 
-    // Atomic: mark as processing immediately so no other worker picks it up
-    await doc.ref.update({ status: "processing", updatedAt: new Date().toISOString() });
-    return { ...job, status: "processing" };
+      const doc = snapshot.docs[0];
+      const data = doc.data();
+      const job = jobFromDoc(data, doc.id);
+
+      // Mark as processing atomically within the transaction
+      transaction.update(doc.ref, {
+        status: "processing",
+        updatedAt: new Date().toISOString(),
+      });
+
+      return { ...job, status: "processing" };
+    });
   },
 
   async complete(jobId: string, resultRef: string): Promise<void> {
@@ -221,6 +231,7 @@ The `fail` method resets the job to `"pending"` if attempts < max, so the next `
 
 ### Pitfalls
 
-- **No atomic compare-and-swap in Firestore** — two workers could theoretically dequeue the same job. The `dequeueOne` pattern mitigates this by updating to `"processing"` immediately after reading, but there's a tiny race window. For most use cases (low concurrency, one worker at a time), this is fine. For high-concurrency scenarios, use Cloud Tasks or a proper queue service.
+- **Race condition with concurrent workers** — two workers could theoretically dequeue the same job if they read before either writes. **Fix:** Use `db.runTransaction()` to make the read+update atomic. Without a transaction, concurrent workers will process the same job twice.
 - **Serverless timeout** — if the worker runs on Vercel serverless functions, it has a max timeout (10s on hobby, 60s on pro). For long-running jobs (AI generation can take 2-5 minutes), this won't work on serverless. Use a dedicated worker server, Vercel Cron with longer timeout, or split the work into smaller chunks.
 - **Polling the result, not the queue** — the client should poll the result endpoint (e.g. `/api/brand-kit/{slug}`) rather than the queue status endpoint. The result endpoint returning data is the true signal that work is complete.
+- **Parallel execution** — Vercel serverless auto-scales, so multiple workers can run concurrently. With the transaction-based dequeue, each worker gets a unique job. Hobby plan allows 10 concurrent, Pro allows 100. Requests beyond the limit queue briefly, not fail.

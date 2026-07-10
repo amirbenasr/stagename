@@ -12,7 +12,7 @@ export interface CreateSubmissionInput {
 export interface UpdateSubmissionInput {
   email?: string;
   status?: SubmissionStatus;
-  stripeSessionId?: string;
+  paymentSessionId?: string;
   brandKitSlug?: string;
 }
 
@@ -23,7 +23,7 @@ function toSubmission(docId: string, data: Record<string, unknown>): Submission 
     musicUrl: (data.musicUrl as string) ?? "",
     email: (data.email as string) ?? null,
     status: (data.status as SubmissionStatus) ?? "pending",
-    stripeSessionId: (data.stripeSessionId as string) ?? null,
+    paymentSessionId: (data.paymentSessionId as string) ?? null,
     brandKitSlug: (data.brandKitSlug as string) ?? null,
     createdAt: (data.createdAt as string) ?? "",
   };
@@ -40,7 +40,7 @@ export const submissionRepository = {
       musicUrl: input.musicUrl,
       email: null,
       status: "pending" as SubmissionStatus,
-      stripeSessionId: null,
+      paymentSessionId: null,
       brandKitSlug: null,
       createdAt: new Date().toISOString(),
     });
@@ -58,13 +58,13 @@ export const submissionRepository = {
     return toSubmission(doc.id, doc.data()!);
   },
 
-  async findByStripeSessionId(stripeSessionId: string): Promise<{ id: string; data: Submission } | null> {
+  async findByPaymentSessionId(paymentSessionId: string): Promise<{ id: string; data: Submission } | null> {
     const { requireDb } = await import("../firebase-admin");
     const db = requireDb();
 
     const snapshot = await db
       .collection(COLLECTION)
-      .where("stripeSessionId", "==", stripeSessionId)
+      .where("paymentSessionId", "==", paymentSessionId)
       .limit(1)
       .get();
 
