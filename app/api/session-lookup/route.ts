@@ -5,10 +5,10 @@ import type { SessionLookupResponse } from "../../../lib/types";
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);
-    const sessionId = searchParams.get("order_id");
+    const sessionId = searchParams.get("_ptxn");
 
     if (!sessionId) {
-      return NextResponse.json({ error: "Missing order_id" }, { status: 400 });
+      return NextResponse.json({ error: "Missing transaction id" }, { status: 400 });
     }
 
     const provider = getPaymentProvider();
