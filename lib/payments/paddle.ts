@@ -52,10 +52,7 @@ export const paddleProvider: PaymentProvider = {
       },
     });
 
-    const checkoutUrl = transaction.checkout?.url;
-    if (!checkoutUrl) throw new Error("Paddle did return a checkout URL");
-
-    return { url: checkoutUrl };
+    return { transactionId: transaction.id };
   },
 
   async handleWebhook(rawBody: string, signature: string | null): Promise<WebhookResult | null> {

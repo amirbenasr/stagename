@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Heart } from "lucide-react";
 import Logo from "./components/Logo";
+import { usePaddleCheckout } from "./hooks/usePaddleCheckout";
 
 const ARTIST_NAME = "@Luna Ray";
 
@@ -51,6 +52,7 @@ export default function Home() {
   const [sliderPos, setSliderPos] = useState(50);
   const sliderRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
+  const { openCheckout } = usePaddleCheckout();
 
   const handleMove = useCallback((clientX: number) => {
     if (!dragging.current || !sliderRef.current) return;
@@ -86,7 +88,9 @@ export default function Home() {
         body: JSON.stringify({ quantity: 1 }),
       });
       const data = await response.json();
-      if (data.url) {
+      if (data.transactionId) {
+        openCheckout(data.transactionId);
+      } else if (data.url) {
         window.location.href = data.url;
       }
     } catch (error) {

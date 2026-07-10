@@ -118,6 +118,7 @@ export interface CheckoutRequest {
 
 export interface CheckoutResponse {
   url?: string;
+  transactionId?: string;
   error?: string;
 }
 

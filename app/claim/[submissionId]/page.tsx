@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Sparkles, Loader2, ArrowRight, Lock } from "lucide-react";
 import Logo from "../../components/Logo";
+import { usePaddleCheckout } from "../../hooks/usePaddleCheckout";
 
 interface ClaimData {
   submissionId: string;
@@ -21,6 +22,7 @@ export default function ClaimPage() {
   const [data, setData] = useState<ClaimData | null>(null);
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState("");
+  const { ready, openCheckout } = usePaddleCheckout();
 
   useEffect(() => {
     if (!submissionId) return;
@@ -56,7 +58,9 @@ export default function ClaimPage() {
       });
 
       const json = await res.json();
-      if (json.url) {
+      if (json.transactionId) {
+        openCheckout(json.transactionId);
+      } else if (json.url) {
         window.location.href = json.url;
       } else {
         setPaying(false);

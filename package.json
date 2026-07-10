@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fal-ai/client": "^1.10.1",
+    "@paddle/paddle-js": "^1.6.4",
     "@paddle/paddle-node-sdk": "^3.8.0",
     "@stripe/stripe-js": "^9.9.0",
     "firebase": "^12.15.0",

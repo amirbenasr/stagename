@@ -1,6 +1,6 @@
 ---
 name: stripe-local-dev
-description: Payment provider local dev (Stripe CLI / Paddle webhook testing) + provider abstraction pattern + React polling with useRef
+description: Payment provider integration (Stripe redirect vs Paddle.js overlay), local dev, provider abstraction pattern, and React polling with useRef
 source: auto-skill
 extracted_at: '2026-07-07T19:53:10.536Z'
 ---
@@ -45,10 +45,52 @@ Paddle sandbox webhooks also can't reach `localhost`. Two options:
 
 Paddle sends `Paddle-Signature` header: `ts={timestamp};h1={signature}` (HMAC-SHA256). The `handleWebhook` method in `paddle.ts` verifies this automatically. Requires `PADDLE_WEBHOOK_SECRET` env var (generated when creating notification destination in Dashboard).
 
+### Paddle Checkout — CRITICAL: No Hosted Checkout URL from API
+
+Unlike Stripe (where `checkout.sessions.create` returns a `url` to redirect to), Paddle's `transactions.create` **does NOT return a hosted checkout page URL**. The `transaction.checkout.url` field in the response just echoes back the redirect URL you sent (with `_ptxn` appended) — it is NOT a payment form.
+
+**Correct pattern — Paddle.js client-side overlay:**
+
+1. Server creates transaction → returns `{ transactionId }` (NOT `{ url }`)
+2. Client initializes `@paddle/paddle-js` with `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`
+3. Client calls `Paddle.Checkout.open({ transactionId })` → opens overlay
+4. On `checkout.completed` event → `event.data.transaction_id` → redirect to `/success?_ptxn={id}`
+
+```tsx
+// Hook pattern (app/hooks/usePaddleCheckout.ts)
+import { initializePaddle, type Paddle } from "@paddle/paddle-js";
+
+const paddle = await initializePaddle({
+  token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN!,
+  environment: "sandbox", // or "production"
+  eventCallback: (event) => {
+    if (event.name === "checkout.completed") {
+      window.location.href = `/success?_ptxn=${event.data?.transaction_id}`;
+    }
+  },
+});
+
+paddle.Checkout.open({ transactionId: "txn_..." });
+```
+
+**Env vars needed:**
+- `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` — from Paddle Dashboard → Developer Tools → Authentication (different from API key!)
+- `NEXT_PUBLIC_PADDLE_ENVIRONMENT` — `"sandbox"` or `"production"`
+
+**Frontend must handle both providers:**
+```tsx
+if (json.transactionId) {
+  openCheckout(json.transactionId);  // Paddle overlay
+} else if (json.url) {
+  window.location.href = json.url;   // Stripe redirect
+}
+```
+
 ### Paddle Checkout Prerequisites
 
 - **Default Payment Link** must be set in Paddle Dashboard → Checkout → Settings (required before transactions can be created)
 - **Notification destination** must be created for `transaction.completed` events
+- **Client-side token** must be set as `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` (Developer Tools → Authentication)
 
 ## Diagnosis Checklist (Any Provider)
 
