@@ -21,7 +21,7 @@ export default function SuccessPage() {
 
 function SuccessPageContent() {
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
+  const sessionId = searchParams.get("order_id");
 
   const [brandKitSlug, setBrandKitSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
