@@ -41,12 +41,12 @@ export const paddleProvider: PaymentProvider = {
     const transaction = await paddle.transactions.create({
       items: [
         {
-          price_id: priceId,
+          priceId: priceId,
           quantity: 1,
         },
       ],
       customerId,
-      custom_data: { submissionId },
+      customData: { submissionId },
       checkout: {
         url: `${siteUrl}/success`,
       },
