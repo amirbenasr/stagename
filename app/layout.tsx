@@ -19,7 +19,7 @@ const dancingScript = Dancing_Script({
 });
 
 export const metadata: Metadata = {
-  title: "stagename.club — Find Your Perfect Artist Name",
+  title: "StageName.Club — Find Your Perfect Artist Name",
   description: "Stop struggling with your identity. Start building your legacy.",
   icons: {
     icon: "/icon.svg",
