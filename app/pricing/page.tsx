@@ -11,17 +11,22 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-beige text-foreground">
       {/* Navbar */}
-      <nav className="border-b border-foreground/10 bg-beige/90 backdrop-blur-sm sticky top-0 z-20">
+      <nav className="border-b border-black/10 bg-beige/90 backdrop-blur-sm sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Logo className="w-8 h-8" />
-            <span className="font-serif text-sm uppercase tracking-wider text-foreground/70">StageName Club</span>
+          <Link href="/">
+            <Logo className="h-10 w-auto" showTagline={false} />
           </Link>
+          <div className="hidden sm:flex items-center gap-6 text-sm text-foreground/70 font-serif">
+            <Link href="/#how" className="hover:text-foreground transition">How it Works</Link>
+            <Link href="/pricing" className="hover:text-foreground transition">Pricing</Link>
+            <span className="hover:text-foreground transition cursor-pointer">Blog</span>
+            <span className="hover:text-foreground transition cursor-pointer">Log In</span>
+          </div>
           <Link
-            href="/"
-            className="font-serif text-sm uppercase tracking-wider text-foreground/70 hover:text-coral transition-colors"
+            href="/quiz"
+            className="border-2 border-foreground rounded-full px-5 py-1.5 text-sm font-serif uppercase tracking-wider hover:bg-foreground hover:text-beige transition-all duration-300"
           >
-            ← Back
+            Get My Name
           </Link>
         </div>
       </nav>
@@ -87,9 +92,20 @@ export default function PricingPage() {
 
       {/* Footer */}
       <footer className="max-w-5xl mx-auto px-6 py-8 border-t border-foreground/10">
-        <p className="text-xs font-serif text-foreground/40 text-center">
-          © 2026 StageName Club. All rights reserved.
-        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex flex-wrap gap-4 text-sm font-serif text-foreground/50">
+            <Link href="/pricing" className="hover:text-foreground transition">Pricing</Link>
+            <Link href="/privacy" className="hover:text-foreground transition">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-foreground transition">Terms of Service</Link>
+            <Link href="/refund" className="hover:text-foreground transition">Refund Policy</Link>
+          </div>
+          <Link
+            href="/quiz"
+            className="border-2 border-foreground rounded-full px-5 py-1.5 text-sm font-serif uppercase tracking-wider hover:bg-foreground hover:text-beige transition-all duration-300"
+          >
+            JOIN THE CLUB
+          </Link>
+        </div>
       </footer>
     </div>
   );
