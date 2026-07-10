@@ -28,11 +28,16 @@ function initializeFirebaseAdmin(): App | null {
   if (!config) return null;
 
   if (config.clientEmail && config.privateKey) {
+    const privateKey = config.privateKey
+      .replace(/^"|"$/g, "")
+      .replace(/\\n/g, "\n")
+      .trim();
+
     return initializeApp({
       credential: cert({
         projectId: config.projectId,
         clientEmail: config.clientEmail,
-        privateKey: config.privateKey.replace(/\\n/g, "\n"),
+        privateKey,
       }),
     });
   }
