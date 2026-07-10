@@ -51,22 +51,31 @@ export const queueService = {
 
   async dequeueOne(): Promise<GenerationJob | null> {
     const db = await getDb();
-    const snapshot = await db
-      .collection(COLLECTION)
-      .where("status", "==", "pending")
-      .orderBy("createdAt", "asc")
-      .limit(1)
-      .get();
 
-    if (snapshot.empty) return null;
+    // Use transaction to prevent race conditions with concurrent workers
+    return db.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(
+        db
+          .collection(COLLECTION)
+          .where("status", "==", "pending")
+          .orderBy("createdAt", "asc")
+          .limit(1)
+      );
 
-    const doc = snapshot.docs[0];
-    const data = doc.data();
-    const job = jobFromDoc(data, doc.id);
+      if (snapshot.empty) return null;
 
-    // Mark as processing atomically
-    await doc.ref.update({ status: "processing", updatedAt: new Date().toISOString() });
-    return { ...job, status: "processing" };
+      const doc = snapshot.docs[0];
+      const data = doc.data();
+      const job = jobFromDoc(data, doc.id);
+
+      // Mark as processing atomically within the transaction
+      transaction.update(doc.ref, {
+        status: "processing",
+        updatedAt: new Date().toISOString(),
+      });
+
+      return { ...job, status: "processing" };
+    });
   },
 
   async complete(jobId: string, brandKitSlug: string): Promise<void> {
