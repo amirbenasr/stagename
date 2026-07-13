@@ -5,7 +5,7 @@ import type { SessionLookupResponse } from "../../../lib/types";
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);
-    const sessionId = searchParams.get("_ptxn");
+    const sessionId = searchParams.get("session_id") || searchParams.get("_ptxn");
 
     if (!sessionId) {
       return NextResponse.json({ error: "Missing transaction id" }, { status: 400 });
