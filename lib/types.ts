@@ -64,10 +64,11 @@ export interface PlatformAvailability {
 
 export interface NameAvailability {
   spotify: PlatformAvailability;
-  appleMusic: PlatformAvailability;
   instagram: PlatformAvailability;
-  facebook: PlatformAvailability;
-  domainCom: PlatformAvailability;
+  soundcloud: PlatformAvailability;
+  // appleMusic: PlatformAvailability;
+  // facebook: PlatformAvailability;
+  // domainCom: PlatformAvailability;
 }
 
 export type AvailabilityReport = Record<string, NameAvailability>;
@@ -79,10 +80,11 @@ export interface PlatformMeta {
 
 export const PLATFORM_LABELS: Record<string, PlatformMeta> = {
   spotify: { label: "Spotify", icon: "🎵" },
-  appleMusic: { label: "Apple Music", icon: "🍎" },
   instagram: { label: "Instagram", icon: "📸" },
-  facebook: { label: "Facebook", icon: "👤" },
-  domainCom: { label: ".com Domain", icon: "🌐" },
+  soundcloud: { label: "SoundCloud", icon: "🎧" },
+  // appleMusic: { label: "Apple Music", icon: "🍎" },
+  // facebook: { label: "Facebook", icon: "👤" },
+  // domainCom: { label: ".com Domain", icon: "🌐" },
 };
 
 // --- Brand Kit ---

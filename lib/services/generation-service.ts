@@ -2,7 +2,7 @@ import type { BrandKitData, NameAssetSet } from "../types";
 import { analyzeSelfieImage, generateAllStageNames } from "../ai/openrouter-client";
 import { imageGenerationProvider } from "../ai/image-provider";
 import { persistAllImagesForName } from "./storage-service";
-import { simulateAvailability } from "../utils/availability";
+import { checkAvailability } from "../utils/availability";
 import { generateSlug } from "../utils/text-utils";
 import { submissionRepository } from "../repositories/submission-repository";
 import { brandKitRepository } from "../repositories/brand-kit-repository";
@@ -23,6 +23,8 @@ interface GenerationPipelineContext {
   artistContext: string;
   genre: string;
   vibe: string;
+  realName: string;
+  culturePreference: string;
 }
 
 export async function executeGenerationPipeline(input: GenerationPipelineInput): Promise<BrandKitData> {
@@ -38,7 +40,9 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
   const artistContext = buildArtistContextFromAnswers(answers);
   const genre = (answers.genre as string) || "";
   const vibe = (answers.vibe as string) || "";
-  const ctx: GenerationPipelineContext = { submissionId, email, selfieUrl, artistContext, genre, vibe };
+  const realName = (answers.realName as string) || "";
+  const culturePreference = (answers.culturePreference as string) || "";
+  const ctx: GenerationPipelineContext = { submissionId, email, selfieUrl, artistContext, genre, vibe, realName, culturePreference };
 
   // Step 1: Image Analysis (non-fatal)
   const imageAnalysis = await analyzeImageStep(ctx);
@@ -117,7 +121,7 @@ async function generateAllNameAssets(
       portraitImageUrl: persisted.portrait,
       logoImageUrl: persisted.logo,
       studioPhotoUrl: persisted.studio,
-      availability: simulateAvailability(sn.name),
+      availability: await checkAvailability(sn.name),
     };
   });
 }
@@ -138,7 +142,8 @@ function buildArtistContextFromAnswers(answers: Record<string, string | string[]
 
 function formatKey(key: string): string {
   const labels: Record<string, string> = {
-    artistName: "Artist goes by",
+    realName: "Real name",
+    culturePreference: "Culture preference",
     genre: "Music genre",
     influences: "Musical influences",
     origin: "From",
@@ -167,7 +172,7 @@ async function generateStageNamesStep(
   ctx: GenerationPipelineContext,
   imageAnalysis: string
 ) {
-  return generateAllStageNames(ctx.artistContext, imageAnalysis);
+  return generateAllStageNames(ctx.artistContext, imageAnalysis, ctx.realName, ctx.culturePreference);
 }
 
 // ============================================================
