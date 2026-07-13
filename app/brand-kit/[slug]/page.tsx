@@ -14,6 +14,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import Logo from "../../components/Logo";
+import SpeakButton from "../../components/SpeakButton";
 import type { BrandKitData, NameAssetSet } from "../../../lib/types";
 import { PLATFORM_LABELS } from "../../../lib/types";
 
@@ -253,9 +254,12 @@ export default function BrandKitPage() {
                   </span>
                 )}
               </div>
-              <p className="font-serif text-lg font-semibold text-foreground mb-2 group-hover:text-pink-accent">
-                {nameData.name}
-              </p>
+              <div className="flex items-center gap-2 mb-2">
+                <p className="font-serif text-lg font-semibold text-foreground group-hover:text-pink-accent">
+                  {nameData.name}
+                </p>
+                <SpeakButton text={nameData.name} size={14} />
+              </div>
               <p className="text-sm font-serif leading-relaxed text-foreground/60 line-clamp-3">
                 {nameData.reason}
               </p>
@@ -364,9 +368,12 @@ function NameSection({
               </span>
             )}
           </div>
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-foreground">
-            {nameData.name}
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-foreground">
+              {nameData.name}
+            </h2>
+            <SpeakButton text={nameData.name} size={20} />
+          </div>
           <p className="text-sm font-serif text-foreground/60 leading-relaxed max-w-2xl">
             {nameData.reason}
           </p>
