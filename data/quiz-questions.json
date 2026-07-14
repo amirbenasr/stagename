@@ -2,12 +2,24 @@
   {
     "id": 1,
     "type": "text",
-    "question": "What's your first name?",
-    "placeholder": "e.g., Dimitri",
-    "description": "We'll use this as the seed for your stage name"
+    "question": "What's your full real name?",
+    "placeholder": "e.g., Amir Ben Nasr",
+    "description": "We'll use this as raw material for your stage name"
   },
   {
     "id": 2,
+    "type": "single",
+    "question": "How do you want your culture in your name?",
+    "description": "This shapes how we weave your roots into your identity",
+    "options": [
+      { "label": "Deep — weave my heritage into the DNA of my name", "emoji": "🏛️" },
+      { "label": "Subtle — a nod to my roots, but globally fluent", "emoji": "🌍" },
+      { "label": "None — keep it universal, no cultural markers", "emoji": "🌐" },
+      { "label": "Surprise me — find the connection I can't see", "emoji": "✨" }
+    ]
+  },
+  {
+    "id": 3,
     "type": "single",
     "question": "What genre best describes your music?",
     "description": "Pick the one that feels most like home",
@@ -25,14 +37,14 @@
     ]
   },
   {
-    "id": 3,
+    "id": 4,
     "type": "influences",
     "question": "Which artists influence your sound?",
     "description": "Select all that resonate with you — or type your own",
-    "genreKey": "2"
+    "genreKey": "3"
   },
   {
-    "id": 4,
+    "id": 5,
     "type": "single",
     "question": "Where are you from?",
     "description": "Your roots shape your name",
@@ -50,7 +62,7 @@
     ]
   },
   {
-    "id": 5,
+    "id": 6,
     "type": "single",
     "question": "What energy does your music give people?",
     "description": "The vibe your name needs to match",
@@ -66,7 +78,7 @@
     ]
   },
   {
-    "id": 6,
+    "id": 7,
     "type": "multi",
     "question": "Where do people discover your music?",
     "description": "Select all that apply",
@@ -82,7 +94,7 @@
     ]
   },
   {
-    "id": 7,
+    "id": 8,
     "type": "multi",
     "question": "What language(s) do you weave into your music?",
     "description": "Select all that apply",

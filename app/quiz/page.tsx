@@ -18,7 +18,7 @@ export default function QuizPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [submissionId, setSubmissionId] = useState("");
 
-  const genreAnswer = quiz.answers["2"] as string | undefined;
+  const genreAnswer = quiz.answers["3"] as string | undefined;
   const influenceOptions = genreAnswer
     ? (genreInfluences as Record<string, string[]>)[genreAnswer] ?? []
     : [];

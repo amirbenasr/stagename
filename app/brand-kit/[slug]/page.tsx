@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Logo from "../../components/Logo";
 import SpeakButton from "../../components/SpeakButton";
+import PodcastPlayer from "../../components/PodcastPlayer";
 import type { BrandKitData, NameAssetSet } from "../../../lib/types";
 import { PLATFORM_LABELS } from "../../../lib/types";
 
@@ -259,6 +260,18 @@ export default function BrandKitPage() {
                   {nameData.name}
                 </p>
                 <SpeakButton text={nameData.name} size={14} />
+                {nameData.logoImageUrl && (
+                  <div className="w-8 h-8 rounded-lg overflow-hidden border border-foreground/10 bg-white flex-shrink-0 ml-auto">
+                    <Image
+                      src={nameData.logoImageUrl}
+                      alt={`Logo — ${nameData.name}`}
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-cover"
+                      unoptimized
+                    />
+                  </div>
+                )}
               </div>
               <p className="text-sm font-serif leading-relaxed text-foreground/60 line-clamp-3">
                 {nameData.reason}
@@ -266,6 +279,16 @@ export default function BrandKitPage() {
             </a>
           ))}
         </div>
+      </div>
+
+      {/* ===== PODCAST INTERVIEW ===== */}
+      <div className="max-w-4xl mx-auto px-6 py-8 print:hidden">
+        <PodcastPlayer
+          artistName={brandKit.names[0]?.name || ""}
+          nameReason={brandKit.names[0]?.reason || ""}
+          genre={brandKit.genre}
+          vibe={brandKit.vibe}
+        />
       </div>
 
       {/* ===== VERTICAL SECTIONS — One per name ===== */}
@@ -368,19 +391,35 @@ function NameSection({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-foreground">
               {nameData.name}
             </h2>
             <SpeakButton text={nameData.name} size={20} />
+            {nameData.logoImageUrl && (
+              <button
+                type="button"
+                onClick={() => onPreview(nameData.logoImageUrl, `Logo — ${nameData.name}`)}
+                className="ml-2 w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 border-foreground/10 bg-white flex-shrink-0 hover:border-pink-accent/30 transition-all"
+              >
+                <Image
+                  src={nameData.logoImageUrl}
+                  alt={`Logo — ${nameData.name}`}
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-cover"
+                  unoptimized
+                />
+              </button>
+            )}
           </div>
           <p className="text-sm font-serif text-foreground/60 leading-relaxed max-w-2xl">
             {nameData.reason}
           </p>
         </div>
 
-        {/* Image Gallery */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {/* Image Gallery — Studio + Portrait */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
           {/* Studio Photo */}
           <button
             type="button"
@@ -432,33 +471,6 @@ function NameSection({
             <div className="p-3 text-left">
               <p className="text-[10px] uppercase tracking-[0.3em] text-foreground/40">Portrait</p>
               <p className="text-xs font-serif font-semibold text-foreground">Artist portrait</p>
-            </div>
-          </button>
-
-          {/* Logo */}
-          <button
-            type="button"
-            onClick={() => onPreview(nameData.logoImageUrl, `Logo — ${nameData.name}`)}
-            className="group overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/5 transition-all hover:border-pink-accent/30"
-          >
-            <div className="aspect-square relative">
-              {nameData.logoImageUrl ? (
-                <Image
-                  src={nameData.logoImageUrl}
-                  alt="Logo"
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-foreground/5">
-                  <Loader2 size={24} className="text-foreground/30 animate-spin" />
-                </div>
-              )}
-            </div>
-            <div className="p-3 text-left">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-foreground/40">Logo</p>
-              <p className="text-xs font-serif font-semibold text-foreground">Brand mark</p>
             </div>
           </button>
         </div>

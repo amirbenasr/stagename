@@ -49,14 +49,27 @@ interface QuizQuestion {
 
 ### 4. Compute dynamic options in the quiz page
 
+**IMPORTANT**: The answer lookup uses the question's numeric ID as a string key. If you insert/remove questions and renumber IDs, you MUST update this lookup too.
+
 ```typescript
-const genreAnswer = quiz.answers["2"] as string | undefined;
+// Genre is question ID "3" (was "2" before culture question was inserted as Q2)
+const genreAnswer = quiz.answers["3"] as string | undefined;
 const influenceOptions = genreAnswer
   ? genreInfluences[genreAnswer] ?? []
   : [];
 
 <QuestionRenderer influenceOptions={influenceOptions} />
 ```
+
+### Cascading updates when inserting/removing quiz questions
+
+When you add or remove a question from `quiz-questions.json`, you MUST update ALL of these:
+1. **`data/quiz-questions.json`** — renumber IDs sequentially
+2. **`lib/utils/quiz-utils.ts`** — update `QUIZ_KEY_MAP` (ID → semantic key mapping)
+3. **`app/quiz/page.tsx`** — update any hardcoded answer lookups (e.g., `quiz.answers["3"]` for genre)
+4. **`genreKey` field** — update the influences question's `genreKey` to match the new genre question ID
+5. **`lib/services/generation-service.ts`** — update `formatKey` labels if semantic keys changed
+6. **`lib/ai/prompt-builders.ts`** — update prompts if new semantic data needs to be referenced
 
 ### 5. Render with a custom component that supports both selection and custom input
 

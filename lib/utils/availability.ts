@@ -24,7 +24,7 @@ export async function checkAvailability(name: string): Promise<NameAvailability>
 
   try {
     const res = await fetch(`${API_URL}?username=${encodeURIComponent(slug)}`, {
-      signal: AbortSignal.timeout(30_000),
+      signal: AbortSignal.timeout(50_000),
     });
 
     if (!res.ok) return base;
@@ -66,9 +66,7 @@ function computePlatformAvailability(
   return {
     available,
     handle: available
-      ? platform === "domainCom"
-        ? `${slug}.com`
-        : `@${slug}`
+      ? `@${slug}`
       : null,
   };
 }

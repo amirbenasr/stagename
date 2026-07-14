@@ -1,13 +1,14 @@
 import type { QuizAnswers, SemanticQuizAnswers } from "../types";
 
 const QUIZ_KEY_MAP: Record<string, string> = {
-  "1": "artistName",
-  "2": "genre",
-  "3": "influences",
-  "4": "origin",
-  "5": "vibe",
-  "6": "platforms",
-  "7": "languages",
+  "1": "realName",
+  "2": "culturePreference",
+  "3": "genre",
+  "4": "influences",
+  "5": "origin",
+  "6": "vibe",
+  "7": "platforms",
+  "8": "languages",
 };
 
 export function mapQuizAnswers(answers: QuizAnswers): SemanticQuizAnswers {
@@ -29,7 +30,8 @@ export function mapQuizAnswers(answers: QuizAnswers): SemanticQuizAnswers {
 export function buildArtistContext(answers: SemanticQuizAnswers): string {
   const parts: string[] = [];
 
-  if (answers.artistName) parts.push(`Artist goes by: ${answers.artistName}`);
+  if (answers.realName) parts.push(`Real name: ${answers.realName}`);
+  if (answers.culturePreference) parts.push(`Culture in name: ${answers.culturePreference}`);
   if (answers.genre) parts.push(`Music genre: ${answers.genre}`);
   if (answers.influences) {
     const influences = Array.isArray(answers.influences)

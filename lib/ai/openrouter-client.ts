@@ -129,19 +129,28 @@ export const NAME_GENERATION_STRATEGIES: NameGenerationStrategyConfig[] = [
   {
     model: "deepseek/deepseek-v4-flash",
     creativeAngle:
-      "Linguistic creativity — wordplay, portmanteaus, phonetic impact, unique letter combinations",
+      "Linguistic alchemist — you specialize in phonetic transformations of real names and cultural words. " +
+      "You find hidden syllables, anagrams, and letter patterns within the artist's real name and heritage language, " +
+      "then recombine them into something short, punchy, and sonically iconic. " +
+      "Think: how would a linguist remix this name into 1-2 syllables that sound like music themselves?",
     label: "DeepSeek (Linguistic)",
   },
   {
     model: "openai/gpt-5.5",
     creativeAngle:
-      "Cultural depth — meaning, origin, identity resonance, names that carry weight and story",
+      "Cultural archaeologist — you dig deep into the artist's heritage to find a word, concept, or term " +
+      "that carries profound meaning in their culture (like a word for a traditional art form, a historical concept, " +
+      "a term from their dialect). Then you transform it into a globally pronounceable stage name. " +
+      "The name must have a story — when the artist explains its origin, people should feel something.",
     label: "GPT-5.5 (Cultural)",
   },
   {
     model: "google/gemini-3-flash-preview",
     creativeAngle:
-      "Marketability — memorability, SEO-friendliness, platform search uniqueness, brand recall",
+      "Brand visionary — you think about the name as a complete visual and commercial identity. " +
+      "How does it look as a logo? Can it become a visual motif on merch, stage design, music videos? " +
+      "Is it short enough to be iconic, unique enough to own completely, memorable enough to spread by word of mouth? " +
+      "You prioritize names with strong visual branding potential — where the word itself suggests a creative universe.",
     label: "Gemini 3 (Market)",
   },
 ];
@@ -149,13 +158,15 @@ export const NAME_GENERATION_STRATEGIES: NameGenerationStrategyConfig[] = [
 export async function generateStageName(
   strategy: NameGenerationStrategyConfig,
   artistContext: string,
-  imageAnalysis: string
+  imageAnalysis: string,
+  realName: string,
+  culturePreference: string
 ): Promise<StageNameResult> {
   try {
     const raw = await callOpenRouter(
       strategy.model,
-      buildNameSystemPrompt(strategy.creativeAngle),
-      buildNameUserPrompt(artistContext, imageAnalysis)
+      buildNameSystemPrompt(strategy.creativeAngle, realName, culturePreference),
+      buildNameUserPrompt(artistContext, imageAnalysis, realName, culturePreference)
     );
 
     const parsed = parseNameResponse(raw);
@@ -173,11 +184,13 @@ export async function generateStageName(
 
 export async function generateAllStageNames(
   artistContext: string,
-  imageAnalysis: string
+  imageAnalysis: string,
+  realName: string,
+  culturePreference: string
 ): Promise<StageNameResult[]> {
   return Promise.all(
     NAME_GENERATION_STRATEGIES.map((strategy) =>
-      generateStageName(strategy, artistContext, imageAnalysis)
+      generateStageName(strategy, artistContext, imageAnalysis, realName, culturePreference)
     )
   );
 }

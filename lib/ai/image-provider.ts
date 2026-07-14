@@ -33,13 +33,15 @@ type EndpointConfig = {
   endpoint: string;
   selfieRefRequired: boolean;
   promptBuilder: (params: ImagePromptParams) => string;
+  extraInput?: Record<string, unknown>;
 };
 
 const ENDPOINT_CONFIG: Record<ImageGenerationType, EndpointConfig> = {
   logo: {
-    endpoint: "fal-ai/flux/dev",
+    endpoint: "fal-ai/flux-pro",
     selfieRefRequired: false,
     promptBuilder: (p: ImagePromptParams) => buildLogoPrompt(p.stageName, p.genre),
+    extraInput: { image_size: "1536x1536" },
   },
   studio: {
     endpoint: "fal-ai/flux-2-pro/edit",
@@ -58,7 +60,10 @@ function buildFalInput(
   prompt: string,
   selfieUrl?: string
 ): Record<string, unknown> {
-  const input: Record<string, unknown> = { prompt };
+  const input: Record<string, unknown> = {
+    prompt,
+    ...config.extraInput,
+  };
 
   if (config.selfieRefRequired && selfieUrl) {
     input.image_urls = [selfieUrl];

@@ -63,6 +63,26 @@ Quiz Answers (genre, vibe)
 - `lib/services/generation-service.ts` — Orchestrator, passes genre/vibe from quiz answers through pipeline
 - `lib/types.ts` — `BrandKitData` includes `genre` and `vibe` fields for UI display
 
+### Logo Generation — Sharp Text Rendering
+
+**Problem**: `fal-ai/flux/dev` produces blurry logos with illegible text. AI image models struggle with text rendering.
+
+**Solution**:
+- Use `fal-ai/flux-pro` (higher quality) instead of `fal-ai/flux/dev`
+- Set `image_size: "1536x1536"` via the `extraInput` config pattern for high-res output
+- Prompt MUST emphasize text clarity: `The text "{name}" must be rendered in bold, crisp, perfectly legible letterforms — every letter sharp and clearly defined`
+- Include: `Clean vector aesthetic, flat design with strong geometric shapes, pure white background, high contrast, ultra-sharp rendering, no blur, no artifacts, print-quality resolution`
+
+**`extraInput` pattern** in `image-provider.ts` — endpoint-specific params merged into fal input:
+```typescript
+type EndpointConfig = {
+  endpoint: string;
+  selfieRefRequired: boolean;
+  promptBuilder: (params: ImagePromptParams) => string;
+  extraInput?: Record<string, unknown>;  // merged into fal.subscribe input
+};
+```
+
 ### fal.ai Model Notes
 - **Portrait/Studio**: `fal-ai/flux-2-pro/edit` — uses `image_urls` array param (NOT `image_url`), NO `strength` param (causes 422)
-- **Logo**: `fal-ai/flux/dev` — text-to-image only, no selfie reference needed
+- **Logo**: `fal-ai/flux-pro` — text-to-image, `image_size: "1536x1536"` for sharp text. No selfie reference needed

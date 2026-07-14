@@ -112,7 +112,7 @@ async function generateAllNameAssets(
   );
 
   // Build NameAssetSet array with per-name assets + availability
-  return stageNames.map((sn) => {
+  return Promise.all(stageNames.map(async (sn) => {
     const persisted = persistResults.find((r) => r.name === sn.name)!.persisted;
     return {
       name: sn.name,
@@ -123,7 +123,7 @@ async function generateAllNameAssets(
       studioPhotoUrl: persisted.studio,
       availability: await checkAvailability(sn.name),
     };
-  });
+  }));
 }
 
 // ============================================================
