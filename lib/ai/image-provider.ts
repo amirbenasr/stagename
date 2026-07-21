@@ -38,10 +38,10 @@ type EndpointConfig = {
 
 const ENDPOINT_CONFIG: Record<ImageGenerationType, EndpointConfig> = {
   logo: {
-    endpoint: "fal-ai/flux-pro",
+    endpoint: "fal-ai/flux-pro/v1.1",
     selfieRefRequired: false,
     promptBuilder: (p: ImagePromptParams) => buildLogoPrompt(p.stageName, p.genre),
-    extraInput: { image_size: "1536x1536" },
+    extraInput: { image_size: "square_hd" },
   },
   studio: {
     endpoint: "fal-ai/flux-2-pro/edit",
