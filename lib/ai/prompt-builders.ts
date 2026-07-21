@@ -2,20 +2,39 @@
 // Prompt Builders — Centralized AI prompt construction
 // ============================================================
 
+import type { SubjectAnalysis } from "./creative-engine/types";
+import { buildCreativeDirection, composePortraitPrompt, composeStudioPrompt } from "./creative-engine";
+
 export function buildImageAnalysisSystemPrompt(): string {
   return (
-    "You are a visual analyst. Describe the person in the image in detail for an " +
-    "artist branding context. Focus on: face shape, skin tone, hair style and color, " +
-    "notable accessories, clothing style, and overall aesthetic vibe. " +
-    "Be specific and concise — max 150 words."
+    "You are a visual analyst. Analyze the person in the image and return structured JSON. " +
+    "You MUST respond ONLY with valid JSON — no markdown, no extra text.\n\n" +
+    "Return this exact structure:\n" +
+    "{\n" +
+    '  "face": {\n' +
+    '    "shape": "oval|round|square|heart|oblong",\n' +
+    '    "jaw": "sharp|soft|angular|rounded",\n' +
+    '    "skinTone": "specific skin tone description",\n' +
+    '    "undertone": "warm|cool|neutral",\n' +
+    '    "hair": "hair style, length, color, texture",\n' +
+    '    "facialHair": "beard/mustache description or null"\n' +
+    "  },\n" +
+    '  "body": {\n' +
+    '    "build": "slim|athletic|muscular|average|stocky",\n' +
+    '    "shoulders": "narrow|average|broad",\n' +
+    '    "height": "short|average|tall"\n' +
+    "  },\n" +
+    '  "vibe": {\n' +
+    '    "confidence": 0.0-1.0,\n' +
+    '    "expression": "description of facial expression",\n' +
+    '    "perceivedAge": 0\n' +
+    "  }\n" +
+    "}"
   );
 }
 
 export function buildImageAnalysisUserPrompt(): string {
-  return (
-    "Describe this person's look in detail for creating a consistent " +
-    "AI-generated portrait of them."
-  );
+  return "Analyze this person and return the structured JSON.";
 }
 
 export function buildNameSystemPrompt(
@@ -127,6 +146,7 @@ export interface ImagePromptParams {
   stageName: string;
   genre?: string;
   vibe?: string;
+  subjectAnalysis?: SubjectAnalysis;
 }
 
 export function buildLogoPrompt(stageName: string, genre?: string): string {
@@ -143,7 +163,23 @@ export function buildLogoPrompt(stageName: string, genre?: string): string {
   );
 }
 
-export function buildStudioPhotoPrompt({ stageName, genre, vibe }: ImagePromptParams): string {
+export function buildStudioPhotoPrompt(params: ImagePromptParams): string {
+  if (params.subjectAnalysis && params.genre) {
+    const direction = buildCreativeDirection(params.subjectAnalysis, params.genre);
+    return composeStudioPrompt(direction, params.stageName);
+  }
+  return buildStudioPhotoFallback(params);
+}
+
+export function buildPortraitPrompt(params: ImagePromptParams): string {
+  if (params.subjectAnalysis && params.genre) {
+    const direction = buildCreativeDirection(params.subjectAnalysis, params.genre);
+    return composePortraitPrompt(direction, params.stageName);
+  }
+  return buildPortraitFallback(params);
+}
+
+function buildStudioPhotoFallback({ stageName, genre, vibe }: ImagePromptParams): string {
   const genreDirection = genre ? genreGenreDirection(genre) : "";
   const vibeDirection = vibe ? ` mood: ${vibe}` : "";
 
@@ -159,7 +195,7 @@ export function buildStudioPhotoPrompt({ stageName, genre, vibe }: ImagePromptPa
   );
 }
 
-export function buildPortraitPrompt({ stageName, genre, vibe }: ImagePromptParams): string {
+function buildPortraitFallback({ stageName, genre, vibe }: ImagePromptParams): string {
   const genreDirection = genre ? genreGenreDirection(genre) : "";
   const vibeDirection = vibe ? ` mood: ${vibe}` : "";
 
@@ -175,7 +211,7 @@ export function buildPortraitPrompt({ stageName, genre, vibe }: ImagePromptParam
   );
 }
 
-// Genre-specific visual direction tokens for image generation
+// Genre-specific visual direction tokens — fallback only, creative engine is primary
 function genreGenreDirection(genre: string): string {
   const directions: Record<string, string> = {
     "Hip-Hop": ", urban street aesthetic, gold chain accents, confident swagger pose, warm amber and deep purple color grading, hip-hop magazine editorial style",

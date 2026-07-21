@@ -1,5 +1,6 @@
 import type { BrandKitData, NameAssetSet } from "../types";
-import { analyzeSelfieImage, generateAllStageNames } from "../ai/openrouter-client";
+import type { SubjectAnalysis } from "../ai/creative-engine/types";
+import { analyzeSelfieImage, generateAllStageNames, subjectAnalysisToText } from "../ai/openrouter-client";
 import { imageGenerationProvider } from "../ai/image-provider";
 import { persistAllImagesForName } from "./storage-service";
 import { checkAvailability } from "../utils/availability";
@@ -44,14 +45,15 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
   const culturePreference = (answers.culturePreference as string) || "";
   const ctx: GenerationPipelineContext = { submissionId, email, selfieUrl, artistContext, genre, vibe, realName, culturePreference };
 
-  // Step 1: Image Analysis (non-fatal)
-  const imageAnalysis = await analyzeImageStep(ctx);
+  // Step 1: Image Analysis — structured JSON (non-fatal)
+  const subjectAnalysis = await analyzeImageStep(ctx);
+  const imageAnalysisText = subjectAnalysis ? subjectAnalysisToText(subjectAnalysis) : "";
 
   // Step 2: Generate 3 Stage Names (parallel via Strategy pattern)
-  const stageNames = await generateStageNamesStep(ctx, imageAnalysis);
+  const stageNames = await generateStageNamesStep(ctx, imageAnalysisText);
 
   // Step 3: Generate images for ALL 3 names in parallel
-  const nameAssetSets = await generateAllNameAssets(stageNames, selfieUrl, submissionId, genre, vibe);
+  const nameAssetSets = await generateAllNameAssets(stageNames, selfieUrl, submissionId, genre, vibe, subjectAnalysis);
 
   // Step 4: Save Brand Kit to Firestore
   const slug = generateSlug();
@@ -93,12 +95,13 @@ async function generateAllNameAssets(
   selfieUrl: string,
   submissionId: string,
   genre: string,
-  vibe: string
+  vibe: string,
+  subjectAnalysis: SubjectAnalysis | null
 ): Promise<NameAssetSet[]> {
   // Generate all 9 images in parallel (3 names × 3 image types)
   const imageResults = await Promise.all(
     stageNames.map(async (sn) => {
-      const images = await imageGenerationProvider.generateAll(sn.name, selfieUrl, { genre, vibe });
+      const images = await imageGenerationProvider.generateAll(sn.name, selfieUrl, { genre, vibe, subjectAnalysis: subjectAnalysis ?? undefined });
       return { name: sn.name, images };
     })
   );
@@ -157,14 +160,14 @@ function formatKey(key: string): string {
   return labels[key] ?? key;
 }
 
-async function analyzeImageStep(ctx: GenerationPipelineContext): Promise<string> {
-  if (!ctx.selfieUrl) return "";
+async function analyzeImageStep(ctx: GenerationPipelineContext): Promise<SubjectAnalysis | null> {
+  if (!ctx.selfieUrl) return null;
 
   try {
     return await analyzeSelfieImage(ctx.selfieUrl);
   } catch (err) {
     console.error("Image analysis failed, continuing without it:", err);
-    return "";
+    return null;
   }
 }
 

@@ -1,5 +1,6 @@
 import { fal } from "@fal-ai/client";
 import type { ImageGenerationRequest, ImageGenerationResult, ImageGenerationType } from "../types";
+import type { SubjectAnalysis } from "./creative-engine/types";
 import {
   buildLogoPrompt,
   buildPortraitPrompt,
@@ -44,12 +45,12 @@ const ENDPOINT_CONFIG: Record<ImageGenerationType, EndpointConfig> = {
     extraInput: { image_size: "square_hd" },
   },
   studio: {
-    endpoint: "fal-ai/flux-2-pro/edit",
+    endpoint: "bytedance/seedream/v5/pro/edit",
     selfieRefRequired: true,
     promptBuilder: buildStudioPhotoPrompt,
   },
   portrait: {
-    endpoint: "fal-ai/flux-2-pro/edit",
+    endpoint: "bytedance/seedream/v5/pro/edit",
     selfieRefRequired: true,
     promptBuilder: buildPortraitPrompt,
   },
@@ -108,20 +109,21 @@ function buildImageRequest(
   };
 }
 
-export interface GenreVibeParams {
+export interface ImageGenerationParams {
   genre?: string;
   vibe?: string;
+  subjectAnalysis?: SubjectAnalysis;
 }
 
 export const imageGenerationProvider = {
-  async generateLogo(stageName: string, params?: GenreVibeParams): Promise<ImageGenerationResult> {
+  async generateLogo(stageName: string, params?: ImageGenerationParams): Promise<ImageGenerationResult> {
     return generateSingleImage(buildImageRequest("logo", { stageName, ...params }));
   },
 
   async generateStudioPhoto(
     stageName: string,
     selfieUrl: string,
-    params?: GenreVibeParams
+    params?: ImageGenerationParams
   ): Promise<ImageGenerationResult> {
     return generateSingleImage(buildImageRequest("studio", { stageName, ...params }, selfieUrl));
   },
@@ -129,7 +131,7 @@ export const imageGenerationProvider = {
   async generatePortrait(
     stageName: string,
     selfieUrl: string,
-    params?: GenreVibeParams
+    params?: ImageGenerationParams
   ): Promise<ImageGenerationResult> {
     return generateSingleImage(buildImageRequest("portrait", { stageName, ...params }, selfieUrl));
   },
@@ -137,7 +139,7 @@ export const imageGenerationProvider = {
   async generateAll(
     stageName: string,
     selfieUrl: string,
-    params?: GenreVibeParams
+    params?: ImageGenerationParams
   ): Promise<{
     logo: ImageGenerationResult;
     studio: ImageGenerationResult;

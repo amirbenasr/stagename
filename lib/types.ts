@@ -154,6 +154,7 @@ export interface ImagePromptParams {
   stageName: string;
   genre?: string;
   vibe?: string;
+  subjectAnalysis?: import("./ai/creative-engine/types").SubjectAnalysis;
 }
 
 export interface ImageGenerationRequest {

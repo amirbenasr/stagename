@@ -199,9 +199,11 @@ export async function generateAllStageNames(
 // Image Analysis
 // ============================================================
 
+import type { SubjectAnalysis } from "./creative-engine/types";
+
 export async function analyzeSelfieImage(
   selfieUrl: string
-): Promise<string> {
+): Promise<SubjectAnalysis | null> {
   const { buildImageAnalysisSystemPrompt, buildImageAnalysisUserPrompt } = await import("./prompt-builders");
   const output = await callOpenRouter(
     "google/gemini-2.5-flash",
@@ -209,5 +211,23 @@ export async function analyzeSelfieImage(
     buildImageAnalysisUserPrompt(),
     selfieUrl
   );
-  return output.trim();
+
+  try {
+    const parsed = JSON.parse(output.trim());
+    return parsed as SubjectAnalysis;
+  } catch {
+    console.error("Failed to parse image analysis JSON:", output.slice(0, 200));
+    return null;
+  }
+}
+
+export function subjectAnalysisToText(analysis: SubjectAnalysis): string {
+  const { face, body, vibe } = analysis;
+  return [
+    `Face: ${face.shape} shape, ${face.jaw} jaw, ${face.skinTone} skin with ${face.undertone} undertone`,
+    `Hair: ${face.hair}`,
+    face.facialHair ? `Facial hair: ${face.facialHair}` : null,
+    `Build: ${body.build}, ${body.shoulders} shoulders, ${body.height} height`,
+    `Vibe: confidence ${vibe.confidence}/1, ${vibe.expression}, appears ${vibe.perceivedAge} years old`,
+  ].filter(Boolean).join(". ");
 }
