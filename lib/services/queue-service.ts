@@ -93,9 +93,11 @@ export const queueService = {
     if (!doc.exists) return;
 
     const currentAttempts = (doc.data()?.attempts as number) ?? 0;
-    const maxAttempts = 3;
+    //TODO update this when we're rich
+    const maxAttempts = 0;
 
     if (currentAttempts >= maxAttempts) {
+
       await doc.ref.update({
         status: "failed",
         error,
