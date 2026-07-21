@@ -213,7 +213,8 @@ export async function analyzeSelfieImage(
   );
 
   try {
-    const parsed = JSON.parse(output.trim());
+    const cleaned = output.trim().replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "");
+    const parsed = JSON.parse(cleaned);
     return parsed as SubjectAnalysis;
   } catch {
     console.error("Failed to parse image analysis JSON:", output.slice(0, 200));

@@ -21,17 +21,17 @@ const COOL_UNDERTONE_JEWELRY: FashionRule = {
 
 const BROAD_SHOULDERS: FashionRule = {
   condition: (s) => s.body.shoulders.toLowerCase().includes("broad") || s.body.build.toLowerCase().includes("athletic"),
-  apply: () => ({ top: "cropped leather jacket", notes: "structured shoulder emphasis" }),
+  apply: () => ({ notes: "structured silhouette, cropped or tailored jacket to balance proportions" }),
 };
 
 const SLIM_BUILD: FashionRule = {
   condition: (s) => s.body.build.toLowerCase().includes("slim") || s.body.build.toLowerCase().includes("lean"),
-  apply: () => ({ top: "tailored overshirt", bottom: "relaxed wide-leg trousers" }),
+  apply: () => ({ notes: "layered fit, relaxed trousers to add volume" }),
 };
 
 const ATHLETIC_BUILD: FashionRule = {
   condition: (s) => s.body.build.toLowerCase().includes("athletic") || s.body.build.toLowerCase().includes("muscular"),
-  apply: () => ({ top: "fitted heavyweight tee", bottom: "tailored straight-leg trousers" }),
+  apply: () => ({ notes: "fitted tops to frame physique, structured trousers" }),
 };
 
 const SQUARE_FACE: FashionRule = {
@@ -47,9 +47,9 @@ const OVAL_FACE: FashionRule = {
 const ALL_RULES: FashionRule[] = [
   UNDERTONE_JEWELRY,
   COOL_UNDERTONE_JEWELRY,
-  BROAD_SHOULDERS,
   SLIM_BUILD,
   ATHLETIC_BUILD,
+  BROAD_SHOULDERS,
   SQUARE_FACE,
   OVAL_FACE,
 ];
