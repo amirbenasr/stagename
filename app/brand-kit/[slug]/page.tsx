@@ -284,10 +284,12 @@ export default function BrandKitPage() {
       {/* ===== PODCAST INTERVIEW ===== */}
       <div className="max-w-4xl mx-auto px-6 py-8 print:hidden">
         <PodcastPlayer
+          slug={slug}
           artistName={brandKit.names[0]?.name || ""}
           nameReason={brandKit.names[0]?.reason || ""}
           genre={brandKit.genre}
           vibe={brandKit.vibe}
+          musicUrl={brandKit.musicUrl}
         />
       </div>
 

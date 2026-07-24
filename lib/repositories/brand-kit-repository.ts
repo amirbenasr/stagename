@@ -8,6 +8,7 @@ export interface SaveBrandKitInput {
   names: NameAssetSet[];
   genre: string;
   vibe: string;
+  musicUrl?: string;
 }
 
 function toBrandKitData(data: Record<string, unknown>): BrandKitData {
@@ -17,6 +18,7 @@ function toBrandKitData(data: Record<string, unknown>): BrandKitData {
     names: (data.names as NameAssetSet[]) ?? [],
     genre: (data.genre as string) ?? "",
     vibe: (data.vibe as string) ?? "",
+    musicUrl: (data.musicUrl as string) || undefined,
     status: (data.status as BrandKitData["status"]) ?? "complete",
     createdAt: (data.createdAt as string) ?? "",
   };

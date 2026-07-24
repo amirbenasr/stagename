@@ -1,6 +1,8 @@
 import { fal } from "@fal-ai/client";
 import type { NameGenerationStrategyConfig, StageNameResult } from "../types";
 import { buildNameSystemPrompt, buildNameUserPrompt } from "./prompt-builders";
+import { buildPodcastSystemPrompt, buildPodcastUserPrompt } from "./podcast-prompts";
+import type { PodcastContext, PodcastSegment } from "./podcast-prompts";
 
 // ============================================================
 // OpenRouter Client — Adapter for fal.ai's OpenRouter proxy
@@ -231,4 +233,28 @@ export function subjectAnalysisToText(analysis: SubjectAnalysis): string {
     `Build: ${body.build}, ${body.shoulders} shoulders, ${body.height} height`,
     `Vibe: confidence ${vibe.confidence}/1, ${vibe.expression}, appears ${vibe.perceivedAge} years old`,
   ].filter(Boolean).join(". ");
+}
+
+// ============================================================
+// Podcast Script Generation
+// ============================================================
+
+export async function generatePodcastScript(
+  ctx: PodcastContext
+): Promise<PodcastSegment[]> {
+  const output = await callOpenRouter(
+    "google/gemini-3-flash-preview",
+    buildPodcastSystemPrompt(),
+    buildPodcastUserPrompt(ctx),
+  );
+
+  const cleaned = output.trim().replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "");
+  const parsed = JSON.parse(cleaned);
+
+  const segments = Array.isArray(parsed) ? parsed : parsed.segments;
+  if (!Array.isArray(segments) || segments.length === 0) {
+    throw new Error("Invalid podcast script format");
+  }
+
+  return segments as PodcastSegment[];
 }

@@ -107,6 +107,7 @@ export interface BrandKitData {
   names: NameAssetSet[];
   genre: string;
   vibe: string;
+  musicUrl?: string;
   status: BrandKitStatus;
   createdAt: string;
 }

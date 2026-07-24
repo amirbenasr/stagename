@@ -37,7 +37,7 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
     throw new SubmissionNotFoundError(submissionId);
   }
 
-  const { answers, selfieUrl, email } = submission;
+  const { answers, selfieUrl, musicUrl, email } = submission;
   const artistContext = buildArtistContextFromAnswers(answers);
   const genre = (answers.genre as string) || "";
   const vibe = (answers.vibe as string) || "";
@@ -64,6 +64,7 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
     names: nameAssetSets,
     genre,
     vibe,
+    musicUrl: musicUrl || undefined,
   });
 
   await submissionRepository.update(submissionId, {
