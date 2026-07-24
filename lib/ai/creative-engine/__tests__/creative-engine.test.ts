@@ -8,7 +8,7 @@ import { getLightingForScene, lightingToPromptText } from "../lighting";
 import { qualityToPromptText } from "../quality";
 import { IDENTITY_DIRECTIVE } from "../identity";
 import { PromptComposer, composePortraitPrompt, composeStudioPrompt } from "../prompt-composer";
-import { buildCreativeDirection } from "../index";
+import { buildCreativeDirection, buildCreativeDirections } from "../index";
 import type { SubjectAnalysis } from "../types";
 
 // ============================================================
@@ -429,5 +429,213 @@ describe("Scene Independence", () => {
     // Different archetypes drive different base wardrobes
     expect(dir1.fashion.top).not.toBe(dir2.fashion.top);
     expect(dir1.fashion.footwear).not.toBe(dir2.fashion.footwear);
+  });
+});
+
+// ============================================================
+// Variant Index — Fashion Diversity
+// ============================================================
+
+describe("Fashion Variants", () => {
+  it("different variantIndex produces different wardrobes for same archetype", () => {
+    const fashion0 = determineFashion(warmOvalSubject, DARK_LUXURY, 0);
+    const fashion1 = determineFashion(warmOvalSubject, DARK_LUXURY, 1);
+    const fashion2 = determineFashion(warmOvalSubject, DARK_LUXURY, 2);
+
+    expect(fashion0.top).not.toBe(fashion1.top);
+    expect(fashion1.top).not.toBe(fashion2.top);
+    expect(fashion0.footwear).not.toBe(fashion2.footwear);
+  });
+
+  it("variantIndex wraps around when exceeding available wardrobes", () => {
+    const fashion0 = determineFashion(warmOvalSubject, DARK_LUXURY, 0);
+    const fashion3 = determineFashion(warmOvalSubject, DARK_LUXURY, 3);
+
+    expect(fashion3.top).toBe(fashion0.top);
+    expect(fashion3.bottom).toBe(fashion0.bottom);
+  });
+
+  it("each archetype has 3 distinct wardrobes", () => {
+    const archetypes = [DARK_LUXURY, LUXURY_RAP, RETRO_SOUL];
+    for (const archetype of archetypes) {
+      const f0 = determineFashion(neutralSubject, archetype, 0);
+      const f1 = determineFashion(neutralSubject, archetype, 1);
+      const f2 = determineFashion(neutralSubject, archetype, 2);
+
+      expect(f0.top).not.toBe(f1.top);
+      expect(f1.top).not.toBe(f2.top);
+      expect(f0.footwear).not.toBe(f2.footwear);
+    }
+  });
+
+  it("subject-based rules still apply across all variants", () => {
+    const fashion0 = determineFashion(warmOvalSubject, DARK_LUXURY, 0);
+    const fashion1 = determineFashion(warmOvalSubject, DARK_LUXURY, 1);
+    const fashion2 = determineFashion(warmOvalSubject, DARK_LUXURY, 2);
+
+    for (const f of [fashion0, fashion1, fashion2]) {
+      expect(f.accessories.some((a) => a.includes("gold"))).toBe(true);
+      expect(f.accessories.some((a) => a.includes("necklace"))).toBe(true);
+    }
+  });
+});
+
+// ============================================================
+// Variant Index — Scene Diversity
+// ============================================================
+
+describe("Scene Variants", () => {
+  it("different variantIndex produces different scenes for same archetype", () => {
+    const scene0 = getSceneForArchetype("dark-luxury", 0);
+    const scene1 = getSceneForArchetype("dark-luxury", 1);
+    const scene2 = getSceneForArchetype("dark-luxury", 2);
+
+    expect(scene0.name).not.toBe(scene1.name);
+    expect(scene1.name).not.toBe(scene2.name);
+    expect(scene0.name).not.toBe(scene2.name);
+  });
+
+  it("variantIndex wraps around for scenes", () => {
+    const scene0 = getSceneForArchetype("luxury-rap", 0);
+    const scene3 = getSceneForArchetype("luxury-rap", 3);
+
+    expect(scene3.name).toBe(scene0.name);
+  });
+
+  it("each archetype maps to 3 distinct scenes", () => {
+    const archetypeIds = [
+      "dark-luxury", "luxury-rap", "street-avant", "minimal-pop",
+      "retro-soul", "cyber-future", "experimental-editorial", "roots-ridim", "desert-noir",
+    ];
+    for (const id of archetypeIds) {
+      const s0 = getSceneForArchetype(id, 0);
+      const s1 = getSceneForArchetype(id, 1);
+      const s2 = getSceneForArchetype(id, 2);
+
+      expect(s0.name).not.toBe(s1.name);
+      expect(s1.name).not.toBe(s2.name);
+    }
+  });
+});
+
+// ============================================================
+// Variant Index — Pose Diversity
+// ============================================================
+
+describe("Pose Variants", () => {
+  it("different variantIndex produces different poses for same archetype", () => {
+    const pose0 = getPoseForArchetype("luxury-rap", 0);
+    const pose1 = getPoseForArchetype("luxury-rap", 1);
+    const pose2 = getPoseForArchetype("luxury-rap", 2);
+
+    expect(pose0.name).not.toBe(pose1.name);
+    expect(pose1.name).not.toBe(pose2.name);
+  });
+
+  it("variantIndex wraps around for poses", () => {
+    const pose0 = getPoseForArchetype("cyber-future", 0);
+    const pose3 = getPoseForArchetype("cyber-future", 3);
+
+    expect(pose3.name).toBe(pose0.name);
+  });
+});
+
+// ============================================================
+// buildCreativeDirection with variantIndex
+// ============================================================
+
+describe("buildCreativeDirection with variantIndex", () => {
+  it("variantIndex 0 is the default", () => {
+    const defaultDir = buildCreativeDirection(warmOvalSubject, "Hip-Hop");
+    const explicitDir = buildCreativeDirection(warmOvalSubject, "Hip-Hop", 0);
+
+    expect(defaultDir.scene.name).toBe(explicitDir.scene.name);
+    expect(defaultDir.fashion.top).toBe(explicitDir.fashion.top);
+    expect(defaultDir.pose.name).toBe(explicitDir.pose.name);
+  });
+
+  it("different variantIndex produces completely different directions", () => {
+    const dir0 = buildCreativeDirection(warmOvalSubject, "Hip-Hop", 0);
+    const dir1 = buildCreativeDirection(warmOvalSubject, "Hip-Hop", 1);
+    const dir2 = buildCreativeDirection(warmOvalSubject, "Hip-Hop", 2);
+
+    // Same archetype
+    expect(dir0.archetype.id).toBe(dir1.archetype.id);
+    expect(dir1.archetype.id).toBe(dir2.archetype.id);
+
+    // Different scene
+    expect(dir0.scene.name).not.toBe(dir1.scene.name);
+    expect(dir1.scene.name).not.toBe(dir2.scene.name);
+
+    // Different fashion
+    expect(dir0.fashion.top).not.toBe(dir1.fashion.top);
+    expect(dir1.fashion.top).not.toBe(dir2.fashion.top);
+
+    // Different pose
+    expect(dir0.pose.name).not.toBe(dir1.pose.name);
+    expect(dir1.pose.name).not.toBe(dir2.pose.name);
+
+    // Photographer and lighting follow scene, so they should also differ
+    expect(dir0.photographer.name).not.toBe(dir1.photographer.name);
+    expect(dir0.lighting.name).not.toBe(dir1.lighting.name);
+  });
+
+  it("all 3 variants share the same archetype identity", () => {
+    const dirs = [0, 1, 2].map((i) => buildCreativeDirection(coolBroadSubject, "R&B", i));
+
+    for (const dir of dirs) {
+      expect(dir.archetype.id).toBe("retro-soul");
+      expect(dir.archetype.name).toBe("Retro Soul");
+    }
+  });
+});
+
+// ============================================================
+// buildCreativeDirections — batch helper
+// ============================================================
+
+describe("buildCreativeDirections", () => {
+  it("returns 3 distinct directions by default", () => {
+    const directions = buildCreativeDirections(warmOvalSubject, "Hip-Hop");
+
+    expect(directions).toHaveLength(3);
+
+    const sceneNames = directions.map((d) => d.scene.name);
+    const fashionTops = directions.map((d) => d.fashion.top);
+    const poseNames = directions.map((d) => d.pose.name);
+
+    expect(new Set(sceneNames).size).toBe(3);
+    expect(new Set(fashionTops).size).toBe(3);
+    expect(new Set(poseNames).size).toBe(3);
+  });
+
+  it("all directions share the same archetype", () => {
+    const directions = buildCreativeDirections(coolBroadSubject, "Electronic / EDM");
+
+    for (const dir of directions) {
+      expect(dir.archetype.id).toBe("cyber-future");
+    }
+  });
+
+  it("respects custom count", () => {
+    const directions = buildCreativeDirections(warmOvalSubject, "Pop", 2);
+    expect(directions).toHaveLength(2);
+    expect(directions[0]!.scene.name).not.toBe(directions[1]!.scene.name);
+  });
+
+  it("each direction produces a unique portrait prompt", () => {
+    const directions = buildCreativeDirections(warmOvalSubject, "Hip-Hop");
+    const prompts = directions.map((d) => composePortraitPrompt(d, "TEST"));
+
+    expect(prompts[0]).not.toBe(prompts[1]);
+    expect(prompts[1]).not.toBe(prompts[2]);
+  });
+
+  it("each direction produces a unique studio prompt", () => {
+    const directions = buildCreativeDirections(warmOvalSubject, "Hip-Hop");
+    const prompts = directions.map((d) => composeStudioPrompt(d, "TEST"));
+
+    expect(prompts[0]).not.toBe(prompts[1]);
+    expect(prompts[1]).not.toBe(prompts[2]);
   });
 });

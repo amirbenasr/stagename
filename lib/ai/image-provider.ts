@@ -113,6 +113,7 @@ export interface ImageGenerationParams {
   genre?: string;
   vibe?: string;
   subjectAnalysis?: SubjectAnalysis;
+  variantIndex?: number;
 }
 
 export const imageGenerationProvider = {

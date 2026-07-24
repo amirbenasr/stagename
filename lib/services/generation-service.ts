@@ -102,8 +102,8 @@ async function generateAllNameAssets(
 ): Promise<NameAssetSet[]> {
   // Generate all 9 images in parallel (3 names × 3 image types)
   const imageResults = await Promise.all(
-    stageNames.map(async (sn) => {
-      const images = await imageGenerationProvider.generateAll(sn.name, selfieUrl, { genre, vibe, subjectAnalysis: subjectAnalysis ?? undefined });
+    stageNames.map(async (sn, index) => {
+      const images = await imageGenerationProvider.generateAll(sn.name, selfieUrl, { genre, vibe, subjectAnalysis: subjectAnalysis ?? undefined, variantIndex: index });
       return { name: sn.name, images };
     })
   );

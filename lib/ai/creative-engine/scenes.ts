@@ -95,17 +95,18 @@ export const ALL_SCENES: ScenePreset[] = [
   PENTHOUSE,
 ];
 
-export function getSceneForArchetype(archetypeId: string): ScenePreset {
-  const mapping: Record<string, ScenePreset> = {
-    "dark-luxury": LUXURY_STUDIO,
-    "luxury-rap": PENTHOUSE,
-    "street-avant": GRAFFITI_ALLEY,
-    "minimal-pop": ROOFTOP,
-    "retro-soul": VININTAGE_LOUNGE,
-    "cyber-future": RAINY_STREET,
-    "experimental-editorial": WOODS,
-    "roots-ridim": DESERT,
-    "desert-noir": DESERT,
+export function getSceneForArchetype(archetypeId: string, variantIndex: number = 0): ScenePreset {
+  const mapping: Record<string, ScenePreset[]> = {
+    "dark-luxury": [LUXURY_STUDIO, VININTAGE_LOUNGE, RAINY_STREET],
+    "luxury-rap": [PENTHOUSE, LUXURY_STUDIO, GRAFFITI_ALLEY],
+    "street-avant": [GRAFFITI_ALLEY, WOODS, ROOFTOP],
+    "minimal-pop": [ROOFTOP, PENTHOUSE, VININTAGE_LOUNGE],
+    "retro-soul": [VININTAGE_LOUNGE, WOODS, ROOFTOP],
+    "cyber-future": [RAINY_STREET, LUXURY_STUDIO, PENTHOUSE],
+    "experimental-editorial": [WOODS, LUXURY_STUDIO, GRAFFITI_ALLEY],
+    "roots-ridim": [DESERT, GRAFFITI_ALLEY, ROOFTOP],
+    "desert-noir": [DESERT, VININTAGE_LOUNGE, LUXURY_STUDIO],
   };
-  return mapping[archetypeId] ?? LUXURY_STUDIO;
+  const scenes = mapping[archetypeId] ?? [LUXURY_STUDIO];
+  return scenes[variantIndex % scenes.length]!;
 }

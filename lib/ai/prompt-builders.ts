@@ -147,6 +147,7 @@ export interface ImagePromptParams {
   genre?: string;
   vibe?: string;
   subjectAnalysis?: SubjectAnalysis;
+  variantIndex?: number;
 }
 
 export function buildLogoPrompt(stageName: string, genre?: string): string {
@@ -165,7 +166,7 @@ export function buildLogoPrompt(stageName: string, genre?: string): string {
 
 export function buildStudioPhotoPrompt(params: ImagePromptParams): string {
   if (params.subjectAnalysis && params.genre) {
-    const direction = buildCreativeDirection(params.subjectAnalysis, params.genre);
+    const direction = buildCreativeDirection(params.subjectAnalysis, params.genre, params.variantIndex ?? 0);
     return composeStudioPrompt(direction, params.stageName);
   }
   return buildStudioPhotoFallback(params);
@@ -173,7 +174,7 @@ export function buildStudioPhotoPrompt(params: ImagePromptParams): string {
 
 export function buildPortraitPrompt(params: ImagePromptParams): string {
   if (params.subjectAnalysis && params.genre) {
-    const direction = buildCreativeDirection(params.subjectAnalysis, params.genre);
+    const direction = buildCreativeDirection(params.subjectAnalysis, params.genre, params.variantIndex ?? 0);
     return composePortraitPrompt(direction, params.stageName);
   }
   return buildPortraitFallback(params);

@@ -325,3 +325,72 @@ describe("JSON cleaning for Gemini output", () => {
     expect(parsed.vibe.confidence).toBe(0.7);
   });
 });
+
+// ============================================================
+// Variant Index — Different looks per name
+// ============================================================
+
+describe("variantIndex produces different prompts", () => {
+  const baseParams: ImagePromptParams = {
+    stageName: "TEST",
+    genre: "Hip-Hop",
+    subjectAnalysis: mockSubject,
+  };
+
+  it("different variantIndex produces different portrait prompts", () => {
+    const prompt0 = buildPortraitPrompt({ ...baseParams, variantIndex: 0 });
+    const prompt1 = buildPortraitPrompt({ ...baseParams, variantIndex: 1 });
+    const prompt2 = buildPortraitPrompt({ ...baseParams, variantIndex: 2 });
+
+    expect(prompt0).not.toBe(prompt1);
+    expect(prompt1).not.toBe(prompt2);
+    expect(prompt0).not.toBe(prompt2);
+  });
+
+  it("different variantIndex produces different studio prompts", () => {
+    const prompt0 = buildStudioPhotoPrompt({ ...baseParams, variantIndex: 0 });
+    const prompt1 = buildStudioPhotoPrompt({ ...baseParams, variantIndex: 1 });
+    const prompt2 = buildStudioPhotoPrompt({ ...baseParams, variantIndex: 2 });
+
+    expect(prompt0).not.toBe(prompt1);
+    expect(prompt1).not.toBe(prompt2);
+  });
+
+  it("all variants share the same archetype", () => {
+    const prompt0 = buildPortraitPrompt({ ...baseParams, variantIndex: 0 });
+    const prompt1 = buildPortraitPrompt({ ...baseParams, variantIndex: 1 });
+    const prompt2 = buildPortraitPrompt({ ...baseParams, variantIndex: 2 });
+
+    expect(prompt0).toContain("Luxury Rap");
+    expect(prompt1).toContain("Luxury Rap");
+    expect(prompt2).toContain("Luxury Rap");
+  });
+
+  it("variants use different scenes (Environment/Scene keyword)", () => {
+    const prompt0 = buildPortraitPrompt({ ...baseParams, variantIndex: 0 });
+    const prompt1 = buildPortraitPrompt({ ...baseParams, variantIndex: 1 });
+
+    // Extract environment text after "Environment:"
+    const env0 = prompt0.split("Environment:")[1]?.split(".")[0] ?? "";
+    const env1 = prompt1.split("Environment:")[1]?.split(".")[0] ?? "";
+
+    expect(env0.trim()).not.toBe(env1.trim());
+  });
+
+  it("variants use different fashion", () => {
+    const prompt0 = buildPortraitPrompt({ ...baseParams, variantIndex: 0 });
+    const prompt1 = buildPortraitPrompt({ ...baseParams, variantIndex: 1 });
+
+    const wearing0 = prompt0.split("Wearing:")[1]?.split(".")[0] ?? "";
+    const wearing1 = prompt1.split("Wearing:")[1]?.split(".")[0] ?? "";
+
+    expect(wearing0.trim()).not.toBe(wearing1.trim());
+  });
+
+  it("undefined variantIndex defaults to 0", () => {
+    const promptDefault = buildPortraitPrompt(baseParams);
+    const promptExplicit = buildPortraitPrompt({ ...baseParams, variantIndex: 0 });
+
+    expect(promptDefault).toBe(promptExplicit);
+  });
+});

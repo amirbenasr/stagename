@@ -67,19 +67,20 @@ export const ALL_POSES: PosePreset[] = [
   POWER_STANCE,
 ];
 
-export function getPoseForArchetype(archetypeId: string): PosePreset {
-  const mapping: Record<string, PosePreset> = {
-    "dark-luxury": EDITORIAL_LEAN,
-    "luxury-rap": POWER_STANCE,
-    "street-avant": EDITORIAL_LEAN,
-    "minimal-pop": CONFIDENT_STANDING,
-    "retro-soul": SEATED_RELAXED,
-    "cyber-future": DYNAMIC_WALK,
-    "experimental-editorial": CONTEMPLATIVE,
-    "roots-ridim": CONFIDENT_STANDING,
-    "desert-noir": CONTEMPLATIVE,
+export function getPoseForArchetype(archetypeId: string, variantIndex: number = 0): PosePreset {
+  const mapping: Record<string, PosePreset[]> = {
+    "dark-luxury": [EDITORIAL_LEAN, CONTEMPLATIVE, CONFIDENT_STANDING],
+    "luxury-rap": [POWER_STANCE, SEATED_RELAXED, CONFIDENT_STANDING],
+    "street-avant": [EDITORIAL_LEAN, DYNAMIC_WALK, CONTEMPLATIVE],
+    "minimal-pop": [CONFIDENT_STANDING, DYNAMIC_WALK, SEATED_RELAXED],
+    "retro-soul": [SEATED_RELAXED, CONTEMPLATIVE, CONFIDENT_STANDING],
+    "cyber-future": [DYNAMIC_WALK, EDITORIAL_LEAN, POWER_STANCE],
+    "experimental-editorial": [CONTEMPLATIVE, EDITORIAL_LEAN, DYNAMIC_WALK],
+    "roots-ridim": [CONFIDENT_STANDING, DYNAMIC_WALK, EDITORIAL_LEAN],
+    "desert-noir": [CONTEMPLATIVE, EDITORIAL_LEAN, CONFIDENT_STANDING],
   };
-  return mapping[archetypeId] ?? CONFIDENT_STANDING;
+  const poses = mapping[archetypeId] ?? [CONFIDENT_STANDING];
+  return poses[variantIndex % poses.length]!;
 }
 
 export function poseToPromptText(pose: PosePreset): string {

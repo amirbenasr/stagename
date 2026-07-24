@@ -34,12 +34,13 @@ import type { CreativeDirection } from "./types";
 
 export function buildCreativeDirection(
   subject: SubjectAnalysis,
-  genre: string
+  genre: string,
+  variantIndex: number = 0
 ): CreativeDirection {
   const archetype = getArchetypeForGenre(genre);
-  const scene = getSceneForArchetype(archetype.id);
-  const fashion = determineFashion(subject, archetype);
-  const pose = getPoseForArchetype(archetype.id);
+  const scene = getSceneForArchetype(archetype.id, variantIndex);
+  const fashion = determineFashion(subject, archetype, variantIndex);
+  const pose = getPoseForArchetype(archetype.id, variantIndex);
   const photographer = getPhotographerForScene(scene.name);
   const lighting = getLightingForScene(scene.name);
 
@@ -53,4 +54,14 @@ export function buildCreativeDirection(
     lighting,
     quality: [],
   };
+}
+
+export function buildCreativeDirections(
+  subject: SubjectAnalysis,
+  genre: string,
+  count: number = 3
+): CreativeDirection[] {
+  return Array.from({ length: count }, (_, i) =>
+    buildCreativeDirection(subject, genre, i)
+  );
 }
