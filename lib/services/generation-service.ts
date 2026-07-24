@@ -52,8 +52,10 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
   // Step 2: Generate 3 Stage Names (parallel via Strategy pattern)
   const stageNames = await generateStageNamesStep(ctx, imageAnalysisText);
 
+  //only 1 for testing
+  let stageNamesLimited = stageNames.slice(0, 1);
   // Step 3: Generate images for ALL 3 names in parallel
-  const nameAssetSets = await generateAllNameAssets(stageNames, selfieUrl, submissionId, genre, vibe, subjectAnalysis);
+  const nameAssetSets = await generateAllNameAssets(stageNamesLimited, selfieUrl, submissionId, genre, vibe, subjectAnalysis);
 
   // Step 4: Save Brand Kit to Firestore
   const slug = generateSlug();
