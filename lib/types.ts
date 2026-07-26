@@ -101,6 +101,11 @@ export interface NameAssetSet {
   availability: NameAvailability;
 }
 
+export interface InterviewLine {
+  speaker: "host" | "artist";
+  text: string;
+}
+
 export interface BrandKitData {
   submissionId: string;
   slug: string;
@@ -108,6 +113,8 @@ export interface BrandKitData {
   genre: string;
   vibe: string;
   musicUrl?: string;
+  videoUrl?: string;
+  interviewScript?: InterviewLine[];
   status: BrandKitStatus;
   createdAt: string;
 }

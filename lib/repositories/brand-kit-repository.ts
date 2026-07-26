@@ -9,6 +9,8 @@ export interface SaveBrandKitInput {
   genre: string;
   vibe: string;
   musicUrl?: string;
+  videoUrl?: string;
+  interviewScript?: import("../types").InterviewLine[];
 }
 
 function toBrandKitData(data: Record<string, unknown>): BrandKitData {
@@ -19,6 +21,8 @@ function toBrandKitData(data: Record<string, unknown>): BrandKitData {
     genre: (data.genre as string) ?? "",
     vibe: (data.vibe as string) ?? "",
     musicUrl: (data.musicUrl as string) || undefined,
+    videoUrl: (data.videoUrl as string) || undefined,
+    interviewScript: (data.interviewScript as import("../types").InterviewLine[]) || undefined,
     status: (data.status as BrandKitData["status"]) ?? "complete",
     createdAt: (data.createdAt as string) ?? "",
   };

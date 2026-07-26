@@ -16,6 +16,7 @@ import {
 import Logo from "../../components/Logo";
 import SpeakButton from "../../components/SpeakButton";
 import PodcastPlayer from "../../components/PodcastPlayer";
+import InterviewVideoPlayer from "../../components/InterviewVideoPlayer";
 import type { BrandKitData, NameAssetSet } from "../../../lib/types";
 import { PLATFORM_LABELS } from "../../../lib/types";
 
@@ -281,15 +282,28 @@ export default function BrandKitPage() {
         </div>
       </div>
 
-      {/* ===== PODCAST INTERVIEW ===== */}
+      {/* ===== PODCAST INTERVIEW — temporarily hidden ===== */}
+      {brandKit && (false) && (
+        <div className="max-w-4xl mx-auto px-6 py-8 print:hidden">
+          <PodcastPlayer
+            slug={slug}
+            artistName={brandKit.names[0]?.name || ""}
+            nameReason={brandKit.names[0]?.reason || ""}
+            genre={brandKit.genre}
+            vibe={brandKit.vibe}
+            musicUrl={brandKit.musicUrl}
+          />
+        </div>
+      )}
+
+      {/* ===== BREAKFAST CLUB INTERVIEW VIDEO ===== */}
       <div className="max-w-4xl mx-auto px-6 py-8 print:hidden">
-        <PodcastPlayer
-          slug={slug}
+        <InterviewVideoPlayer
+          videoUrl={brandKit.videoUrl}
+          interviewScript={brandKit.interviewScript}
           artistName={brandKit.names[0]?.name || ""}
-          nameReason={brandKit.names[0]?.reason || ""}
           genre={brandKit.genre}
           vibe={brandKit.vibe}
-          musicUrl={brandKit.musicUrl}
         />
       </div>
 

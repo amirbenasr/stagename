@@ -76,3 +76,35 @@ export async function persistAllImagesForName(
 
   return { logo: logoImageUrl, studio: studioPhotoUrl, portrait: portraitImageUrl };
 }
+
+export async function persistVideo(
+  videoUrl: string,
+  submissionId: string,
+  filename: string = "interview-video.mp4"
+): Promise<string> {
+  if (!videoUrl) return "";
+  if (!adminStorage) {
+    console.error("adminStorage is null — cannot save video. Falling back to source URL.");
+    return videoUrl;
+  }
+
+  try {
+    const response = await fetch(videoUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to download video: HTTP ${response.status}`);
+    }
+    const buffer = Buffer.from(await response.arrayBuffer());
+
+    const storage = requireStorage();
+    const file = storage
+      .bucket(FIREBASE_STORAGE_BUCKET)
+      .file(`brandkits/${submissionId}/${filename}`);
+
+    await file.save(buffer, { contentType: "video/mp4", public: true });
+
+    return buildPublicUrl(submissionId, filename);
+  } catch (err) {
+    console.error("Failed to save video to storage:", err);
+    return videoUrl;
+  }
+}

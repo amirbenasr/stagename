@@ -1,8 +1,8 @@
-import type { BrandKitData, NameAssetSet } from "../types";
+import type { BrandKitData, NameAssetSet, InterviewLine } from "../types";
 import type { SubjectAnalysis } from "../ai/creative-engine/types";
-import { analyzeSelfieImage, generateAllStageNames, subjectAnalysisToText } from "../ai/openrouter-client";
+import { analyzeSelfieImage, generateAllStageNames, subjectAnalysisToText, generateInterviewScript } from "../ai/openrouter-client";
 import { imageGenerationProvider } from "../ai/image-provider";
-import { persistAllImagesForName } from "./storage-service";
+import { persistAllImagesForName, persistVideo } from "./storage-service";
 import { checkAvailability } from "../utils/availability";
 import { generateSlug } from "../utils/text-utils";
 import { submissionRepository } from "../repositories/submission-repository";
@@ -56,7 +56,16 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
   // Step 3: Generate images for ALL 3 names in parallel
   const nameAssetSets = await generateAllNameAssets(stageNames, selfieUrl, submissionId, genre, vibe, subjectAnalysis);
 
-  // Step 4: Save Brand Kit to Firestore
+  // Step 4: Generate interview video for top pick + interview script
+  const { videoUrl, interviewScript } = await generateInterviewAssets(
+    nameAssetSets[0],
+    stageNames[0].name,
+    genre,
+    vibe,
+    submissionId
+  );
+
+  // Step 5: Save Brand Kit to Firestore
   const slug = generateSlug();
   await brandKitRepository.save({
     submissionId,
@@ -65,6 +74,8 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
     genre,
     vibe,
     musicUrl: musicUrl || undefined,
+    videoUrl,
+    interviewScript,
   });
 
   await submissionRepository.update(submissionId, {
@@ -72,7 +83,7 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
     brandKitSlug: slug,
   });
 
-  // Step 5: Send email (non-fatal)
+  // Step 6: Send email (non-fatal)
   if (email) {
     try {
       await sendBrandKitReadyEmail(email, slug);
@@ -178,6 +189,47 @@ async function generateStageNamesStep(
   imageAnalysis: string
 ) {
   return generateAllStageNames(ctx.artistContext, imageAnalysis, ctx.realName, ctx.culturePreference);
+}
+
+async function generateInterviewAssets(
+  topPickName: NameAssetSet,
+  stageName: string,
+  genre: string,
+  vibe: string,
+  submissionId: string
+): Promise<{ videoUrl: string | undefined; interviewScript: InterviewLine[] | undefined }> {
+  // Generate video and script in parallel
+  const [videoResult, script] = await Promise.all([
+    (async () => {
+      try {
+        const result = await imageGenerationProvider.generateInterviewVideo(
+          topPickName.portraitImageUrl,
+          stageName,
+          genre,
+          vibe
+        );
+        if (!result.url) return undefined;
+        return await persistVideo(result.url, submissionId);
+      } catch (err) {
+        console.error("Video generation failed, continuing without it:", err);
+        return undefined;
+      }
+    })(),
+    (async () => {
+      try {
+        return await generateInterviewScript({
+          stageName,
+          genre,
+          vibe,
+        });
+      } catch (err) {
+        console.error("Interview script generation failed, continuing without it:", err);
+        return undefined;
+      }
+    })(),
+  ]);
+
+  return { videoUrl: videoResult, interviewScript: script };
 }
 
 // ============================================================

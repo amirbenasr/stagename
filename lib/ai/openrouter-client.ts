@@ -258,3 +258,62 @@ export async function generatePodcastScript(
 
   return segments as PodcastSegment[];
 }
+
+// ============================================================
+// Interview Script Generation — Breakfast Club Style (short)
+// ============================================================
+
+export interface InterviewScriptContext {
+  stageName: string;
+  genre: string;
+  vibe: string;
+}
+
+const INTERVIEW_SYSTEM_PROMPT = `You are Charlamagne tha God from The Breakfast Club radio show. You are interviewing a brand-new artist for the very first time. Write a VERY short interview exchange — exactly 4 lines total:
+
+1. HOST (Charlamagne): An opening question — hype but real, specific to this artist
+2. ARTIST: A short, confident response (1 sentence max)
+3. HOST: A follow-up reaction or second question
+4. ARTIST: A closing line (1 sentence max)
+
+RULES:
+- Charlamagne speaks in his real voice: direct, no-nonsense, but supportive of new talent
+- The artist is cool, humble, confident
+- Reference the artist's genre and vibe specifically
+- Keep it SHORT — this is a 15-second video clip
+- No stage directions, no emojis, no markdown
+- Return ONLY a JSON array
+
+OUTPUT FORMAT:
+[
+  {"speaker": "host", "text": "..."},
+  {"speaker": "artist", "text": "..."},
+  {"speaker": "host", "text": "..."},
+  {"speaker": "artist", "text": "..."}
+]
+
+Return ONLY the JSON array, no explanation.`;
+
+function buildInterviewUserPrompt(ctx: InterviewScriptContext): string {
+  return `Write a 4-line Breakfast Club interview for this artist:\n- Stage name: ${ctx.stageName}\n- Genre: ${ctx.genre}\n- Vibe: ${ctx.vibe}`;
+}
+
+export async function generateInterviewScript(
+  ctx: InterviewScriptContext
+): Promise<import("../types").InterviewLine[]> {
+  const output = await callOpenRouter(
+    "google/gemini-3-flash-preview",
+    INTERVIEW_SYSTEM_PROMPT,
+    buildInterviewUserPrompt(ctx),
+  );
+
+  const cleaned = output.trim().replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "");
+  const parsed = JSON.parse(cleaned);
+
+  const lines = Array.isArray(parsed) ? parsed : parsed.lines;
+  if (!Array.isArray(lines) || lines.length === 0) {
+    throw new Error("Invalid interview script format");
+  }
+
+  return lines as import("../types").InterviewLine[];
+}

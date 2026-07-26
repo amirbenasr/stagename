@@ -21,11 +21,27 @@ interface FalImageResult {
   images?: Array<{ url?: string }>;
 }
 
+interface FalVideoResult {
+  data?: { video?: { url?: string } };
+  video?: { url?: string };
+  output?: Array<{ url?: string }>;
+}
+
 function extractImageUrl(result: unknown): string {
   const falResult = result as FalImageResult;
   return (
     falResult?.data?.images?.[0]?.url ??
     falResult?.images?.[0]?.url ??
+    ""
+  );
+}
+
+function extractVideoUrl(result: unknown): string {
+  const falResult = result as FalVideoResult;
+  return (
+    falResult?.data?.video?.url ??
+    falResult?.video?.url ??
+    falResult?.output?.[0]?.url ??
     ""
   );
 }
@@ -116,6 +132,54 @@ export interface ImageGenerationParams {
   variantIndex?: number;
 }
 
+const BREAKFAST_CLUB_STUDIO_URL =
+  "https://firebasestorage.googleapis.com/v0/b/stagenameclub.firebasestorage.app/o/references%2F23breakfastclub1-videoSixteenByNine3000.jpg?alt=media&token=fc2f22e0-269c-41cd-9d12-8521d6550701";
+
+function buildVideoPrompt(stageName: string, genre: string, vibe: string): string {
+  const genreModifier = genre
+    ? `, ${genre} artist aesthetic`
+    : "";
+  const vibeModifier = vibe
+    ? `, ${vibe} energy`
+    : "";
+
+  return (
+    `A ${stageName}${genreModifier}${vibeModifier} sitting as a guest on The Breakfast Club radio show, ` +
+    `wearing large over-ear headphones, leaning slightly forward toward a broadcast microphone on a boom arm. ` +
+    `The setting must match @Image2 exactly — the same Breakfast Club radio studio with its iconic backdrop, ` +
+    `neon signage, and warm broadcast lighting. ` +
+    `The artist has a natural, engaged expression as if mid-conversation during a live radio interview. ` +
+    `Cinematic shallow depth of field, realistic photography style.`
+  );
+}
+
+export interface VideoGenerationResult {
+  url: string;
+}
+
+async function generateVideo(
+  portraitUrl: string,
+  stageName: string,
+  genre: string,
+  vibe: string
+): Promise<VideoGenerationResult> {
+  const prompt = buildVideoPrompt(stageName, genre, vibe);
+
+  const result = await fal.subscribe("xai/grok-imagine-video/reference-to-video", {
+    input: {
+      prompt: `${prompt} @Image1`,
+      reference_image_urls: [portraitUrl, BREAKFAST_CLUB_STUDIO_URL],
+      duration: 10,
+      aspect_ratio: "16:9",
+      resolution: "720p",
+    },
+  });
+
+  return {
+    url: extractVideoUrl(result),
+  };
+}
+
 export const imageGenerationProvider = {
   async generateLogo(stageName: string, params?: ImageGenerationParams): Promise<ImageGenerationResult> {
     return generateSingleImage(buildImageRequest("logo", { stageName, ...params }));
@@ -153,5 +217,14 @@ export const imageGenerationProvider = {
     ]);
 
     return { logo, studio, portrait };
+  },
+
+  async generateInterviewVideo(
+    portraitUrl: string,
+    stageName: string,
+    genre: string,
+    vibe: string
+  ): Promise<VideoGenerationResult> {
+    return generateVideo(portraitUrl, stageName, genre, vibe);
   },
 };
