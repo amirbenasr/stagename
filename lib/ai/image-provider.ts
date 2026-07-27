@@ -133,7 +133,7 @@ export interface ImageGenerationParams {
 }
 
 const BREAKFAST_CLUB_STUDIO_URL =
-  "https://firebasestorage.googleapis.com/v0/b/stagenameclub.firebasestorage.app/o/references%2FbKM8sIIpc_cpN6c9k66wp_rjE7iROS.jpg?alt=media&token=341d9eac-be69-4760-97b2-e62a4a85031";
+  "https://firebasestorage.googleapis.com/v0/b/stagenameclub.firebasestorage.app/o/references%2FbKM8sIIpc_cpN6c9k66wp_rjE7iROS.jpg?alt=media&token=341d9eac-be69-4760-97b2-e62a4a85031d";
 
 function buildVideoPrompt(stageName: string, genre: string, vibe: string): string {
   const genreModifier = genre
