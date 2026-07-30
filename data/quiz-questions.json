@@ -4,13 +4,13 @@
     "type": "text",
     "question": "What's your full real name?",
     "placeholder": "e.g., Amir Ben Nasr",
-    "description": "We'll use this as raw material for your stage name"
+    "description": "The raw material we'll transform into your identity"
   },
   {
     "id": 2,
     "type": "single",
     "question": "How do you want your culture in your name?",
-    "description": "This shapes how we weave your roots into your identity",
+    "description": "How deep do your roots go in your sound?",
     "options": [
       { "label": "Deep — weave my heritage into the DNA of my name", "emoji": "🏛️" },
       { "label": "Subtle — a nod to my roots, but globally fluent", "emoji": "🌍" },
@@ -22,7 +22,7 @@
     "id": 3,
     "type": "single",
     "question": "What genre best describes your music?",
-    "description": "Pick the one that feels most like home",
+    "description": "The sonic world you belong to",
     "options": [
       { "label": "Hip-Hop", "emoji": "🎤" },
       { "label": "R&B", "emoji": "💜" },
@@ -47,7 +47,7 @@
     "id": 5,
     "type": "single",
     "question": "Where are you from?",
-    "description": "Your roots shape your name",
+    "description": "Where your sound comes from",
     "options": [
       { "label": "US — East Coast" },
       { "label": "US — West Coast" },
@@ -65,7 +65,7 @@
     "id": 6,
     "type": "single",
     "question": "What energy does your music give people?",
-    "description": "The vibe your name needs to match",
+    "description": "What people feel when they hear you for the first time",
     "options": [
       { "label": "Chill & Dreamy", "emoji": "🌙" },
       { "label": "Bold & Unapologetic", "emoji": "🔥" },
@@ -111,13 +111,13 @@
     "id": "selfie",
     "type": "selfie",
     "question": "Drop a selfie for your brand kit",
-    "description": "This will power your visual brand identity"
+    "description": "We'll show you what you look like as an artist"
   },
   {
     "id": "music",
     "type": "music",
     "question": "Drop a snippet of your music",
-    "description": "Optional — helps us match your name to your sound",
+    "description": "Optional — so we can hear the artist behind the name",
     "optional": true
   }
 ]

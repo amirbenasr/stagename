@@ -21,7 +21,7 @@ export { getPhotographerForScene, ALL_PHOTOGRAPHERS, photographerToPromptText } 
 export { getLightingForScene, ALL_LIGHTING, lightingToPromptText } from "./lighting";
 export { QUALITY_TOKENS, qualityToPromptText } from "./quality";
 export { IDENTITY_DIRECTIVE } from "./identity";
-export { PromptComposer, composePortraitPrompt, composeStudioPrompt } from "./prompt-composer";
+export { PromptComposer, composePortraitPrompt, composeStudioPrompt, composeArenaPrompt } from "./prompt-composer";
 
 import type { SubjectAnalysis } from "./types";
 import { getArchetypeForGenre } from "./archetypes";

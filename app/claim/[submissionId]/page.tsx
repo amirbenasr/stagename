@@ -106,15 +106,14 @@ export default function ClaimPage() {
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-pink-accent/10 text-pink-accent rounded-full px-4 py-1.5 text-xs font-serif uppercase tracking-wider mb-6">
               <Lock size={12} />
-              Your Kit is Locked
+              Your Identity is Waiting
             </div>
             <h1 className="text-3xl sm:text-4xl font-serif font-semibold mb-3">
-              We found 3 available identities for you
+              3 versions of you are ready to be revealed
             </h1>
             <p className="font-serif text-foreground/50 text-sm leading-relaxed">
-              Our AI analyzed your vibe, your look, and cross-referenced global
-              platform availability. Your personalized Brand Kit is ready to
-              unlock.
+              Based on your vibe, your look, and your sound — we&apos;ve created a
+              visual identity you&apos;ve never seen before.
             </p>
           </div>
 
@@ -124,8 +123,8 @@ export default function ClaimPage() {
             </p>
             <div className="flex flex-col gap-3">
               {[
-                { icon: "✨", label: "3 AI-generated stage names with reasons" },
-                { icon: "🎨", label: "Custom studio portrait + logo" },
+                { icon: "✨", label: "3 stage names — each a version of you" },
+                { icon: "🎨", label: "See your face as an artist — portrait + logo" },
                 { icon: "🔍", label: "Platform availability report" },
                 { icon: "📄", label: "Downloadable Brand Kit PDF" },
               ].map((item) => (
@@ -146,10 +145,10 @@ export default function ClaimPage() {
                 className="bg-white/60 border border-foreground/10 rounded-xl p-4"
               >
                 <p className="font-serif text-lg font-semibold text-foreground">
-                  Identity {n}
+                  Your Artist Self
                 </p>
                 <p className="font-serif text-xs text-foreground/50">
-                  AI-generated reason for this name...
+                  A version of you, waiting to be revealed...
                 </p>
               </div>
             ))}
@@ -172,7 +171,7 @@ export default function ClaimPage() {
             ) : (
               <>
                 <Sparkles size={16} />
-                Pay $14.99 to Reveal My Kit
+                Reveal My Artist Self — $14.99
                 <ArrowRight size={16} />
               </>
             )}
@@ -185,7 +184,7 @@ export default function ClaimPage() {
           )}
 
           <p className="text-center font-serif text-xs text-foreground/30 mt-6">
-            Secure payment. One-time charge. Instant delivery.
+            Secure payment. One-time charge. Your future self, delivered instantly.
           </p>
         </div>
       </div>

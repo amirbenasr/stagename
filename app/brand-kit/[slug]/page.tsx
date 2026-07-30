@@ -149,7 +149,7 @@ export default function BrandKitPage() {
             Generating Your Brand Kit
           </h1>
           <p className="font-serif text-foreground/60 mb-6">
-            Our AI is crafting 3 stage names, each with a custom logo, portrait, and studio photo.
+            Your artist identity is being born. 3 names, 3 portraits, 3 logos — each a version of you.
             This can take a few minutes.
           </p>
           <p className="font-serif text-sm text-foreground/40 mb-6">
@@ -207,14 +207,14 @@ export default function BrandKitPage() {
       <div className="max-w-4xl mx-auto px-6 pt-12 pb-8 print:pt-0 print:pb-4">
         <div className="text-center">
           <p className="text-xs font-serif uppercase tracking-[0.3em] text-pink-accent mb-4 print:hidden">
-            Your Artist Debut Kit
+            Your Artist Identity
           </p>
           <h1 className="text-4xl sm:text-5xl font-serif font-bold text-foreground mb-4">
-            Three Names. Nine Assets.{" "}
-            <span className="holographic-text">Your Launch.</span>
+            Three Names. Three Portraits.{" "}
+            <span className="holographic-text">Your Manifestation.</span>
           </h1>
           <p className="font-serif text-foreground/50 max-w-md mx-auto">
-            Each stage name comes with its own studio portrait, logo, and platform availability report.
+            Each version of you comes with a portrait, a logo, and a platform report. This is who you are now.
           </p>
           {(brandKit.genre || brandKit.vibe) && (
             <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
@@ -434,8 +434,8 @@ function NameSection({
           </p>
         </div>
 
-        {/* Image Gallery — Studio + Portrait */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        {/* Image Gallery — Studio + Portrait + Arena */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {/* Studio Photo */}
           <button
             type="button"
@@ -487,6 +487,33 @@ function NameSection({
             <div className="p-3 text-left">
               <p className="text-[10px] uppercase tracking-[0.3em] text-foreground/40">Portrait</p>
               <p className="text-xs font-serif font-semibold text-foreground">Artist portrait</p>
+            </div>
+          </button>
+
+          {/* Arena — Live Performance */}
+          <button
+            type="button"
+            onClick={() => onPreview(nameData.arenaImageUrl, `Live — ${nameData.name}`)}
+            className="group overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/5 transition-all hover:border-pink-accent/30"
+          >
+            <div className="aspect-[4/3] relative">
+              {nameData.arenaImageUrl ? (
+                <Image
+                  src={nameData.arenaImageUrl}
+                  alt="Arena live performance"
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-foreground/5">
+                  <Loader2 size={24} className="text-foreground/30 animate-spin" />
+                </div>
+              )}
+            </div>
+            <div className="p-3 text-left">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-foreground/40">Live</p>
+              <p className="text-xs font-serif font-semibold text-foreground">Arena performance</p>
             </div>
           </button>
         </div>

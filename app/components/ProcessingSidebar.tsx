@@ -11,12 +11,12 @@ interface ProcessingSidebarProps {
 
 const STAGES = [
   {
-    label: "Analyzing 4.2M linguistic variations...",
+    label: "Mapping your artistic DNA...",
     duration: 4000,
     icon: "🧬",
   },
   {
-    label: "Cross-referencing global social availability handles...",
+    label: "Visualizing your artist self...",
     duration: 4000,
     icon: "🌐",
   },
@@ -148,21 +148,21 @@ export default function ProcessingSidebar({
                   <Terminal size={12} />
                   <span>stagename.club — analysis engine</span>
                 </div>
-                <p className="text-foreground/30">$ scanning linguistic database...</p>
+                <p className="text-foreground/30">$ decoding artistic identity...</p>
                 <p className="text-green-400">
-                  &gt; 4,217,893 name patterns indexed
+                  &gt; identity patterns matched to your vibe
                 </p>
                 <p className="text-foreground/30 mt-1">
-                  $ matching against social platforms...
+                  $ generating visual identity...
                 </p>
                 <p className="text-cyan-400">
-                  &gt; checking spotify, apple music, instagram...
+                  &gt; projecting your stage presence...
                 </p>
                 <p className="text-foreground/30 mt-1">
-                  $ running vibe analysis on profile...
+                  $ manifesting your artist portrait...
                 </p>
                 <p className="text-yellow-400">
-                  &gt; {currentStage === 0 ? "analyzing" : "cross-referencing"}...
+                  &gt; {currentStage === 0 ? "mapping your DNA" : "visualizing your future self"}...
                   <span className="animate-pulse">█</span>
                 </p>
               </div>
@@ -218,7 +218,7 @@ export default function ProcessingSidebar({
                   Analysis Complete
                 </div>
                 <h3 className="text-xl font-serif font-semibold text-foreground">
-                  We have found 3 available identities for you
+                  3 versions of you — ready to meet
                 </h3>
                 <p className="text-sm font-serif text-foreground/50 mt-1">
                   Where should we send your Kit?
@@ -239,7 +239,7 @@ export default function ProcessingSidebar({
                       </p>
                     </div>
                     <p className="font-serif text-xs text-foreground/50">
-                      AI-generated reason for this name...
+                      Your future artist identity...
                     </p>
                   </div>
                 ))}
@@ -268,12 +268,11 @@ export default function ProcessingSidebar({
                 <div className="flex items-center gap-2 mb-3">
                   <Mail size={16} className="text-pink-accent" />
                   <h3 className="font-serif text-sm font-semibold text-foreground">
-                    Enter your email to receive your Kit
+                    Where should we send your artist identity?
                   </h3>
                 </div>
                 <p className="font-serif text-xs text-foreground/50 mb-4">
-                  We&apos;ll send a secure link to unlock and pay for your brand
-                  kit
+                  We&apos;ll send a link to reveal your brand kit
                 </p>
                 <div className="flex gap-2">
                   <input
@@ -328,7 +327,7 @@ export default function ProcessingSidebar({
                   <span className="font-semibold text-foreground/70">
                     {email}
                   </span>
-                  . Click the link to unlock and pay for your Brand Kit.
+                  . Click the link to reveal your artist identity.
                 </p>
               </div>
             </div>

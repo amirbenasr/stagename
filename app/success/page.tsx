@@ -77,10 +77,10 @@ function SuccessPageContent() {
           </div>
           <div className="text-center">
             <h1 className="text-2xl font-serif font-semibold text-foreground mb-2">
-              Payment confirmed ✨
+              You&apos;re in ✨
             </h1>
             <p className="font-serif text-sm text-foreground/50">
-              Crafting your brand kit... this may take a minute.
+              Revealing your artist identity... this may take a minute.
             </p>
           </div>
         </div>
@@ -140,10 +140,10 @@ function SuccessPageContent() {
 
         <div>
           <h1 className="text-3xl sm:text-4xl font-serif font-bold text-foreground mb-3">
-            Your identity is unlocked ✨
+            Meet yourself ✨
           </h1>
           <p className="font-serif text-foreground/50">
-            Your Artist Debut Kit has been crafted. View it online or download as PDF.
+            Your artist identity is ready. See who you&apos;ve become.
           </p>
         </div>
 

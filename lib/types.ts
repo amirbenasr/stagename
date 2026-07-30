@@ -98,6 +98,7 @@ export interface NameAssetSet {
   portraitImageUrl: string;
   logoImageUrl: string;
   studioPhotoUrl: string;
+  arenaImageUrl: string;
   availability: NameAvailability;
 }
 
@@ -156,7 +157,7 @@ export interface GenerateRequest {
 
 // --- Image Generation ---
 
-export type ImageGenerationType = "logo" | "studio" | "portrait";
+export type ImageGenerationType = "logo" | "studio" | "portrait" | "arena";
 
 export interface ImagePromptParams {
   stageName: string;

@@ -52,6 +52,7 @@ export interface PersistedImageUrls {
   logo: string;
   studio: string;
   portrait: string;
+  arena: string;
 }
 
 function sanitizeName(name: string): string {
@@ -63,18 +64,20 @@ export async function persistAllImagesForName(
     logo: ImageGenerationResult;
     studio: ImageGenerationResult;
     portrait: ImageGenerationResult;
+    arena: ImageGenerationResult;
   },
   submissionId: string,
   stageName: string
 ): Promise<PersistedImageUrls> {
   const prefix = sanitizeName(stageName);
-  const [logoImageUrl, studioPhotoUrl, portraitImageUrl] = await Promise.all([
+  const [logoImageUrl, studioPhotoUrl, portraitImageUrl, arenaImageUrl] = await Promise.all([
     persistImage(images.logo.url, submissionId, `${prefix}-logo.jpg`),
     persistImage(images.studio.url, submissionId, `${prefix}-studio.jpg`),
     persistImage(images.portrait.url, submissionId, `${prefix}-portrait.jpg`),
+    persistImage(images.arena.url, submissionId, `${prefix}-arena.jpg`),
   ]);
 
-  return { logo: logoImageUrl, studio: studioPhotoUrl, portrait: portraitImageUrl };
+  return { logo: logoImageUrl, studio: studioPhotoUrl, portrait: portraitImageUrl, arena: arenaImageUrl };
 }
 
 export async function persistVideo(

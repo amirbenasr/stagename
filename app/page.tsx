@@ -120,22 +120,20 @@ export default function Home() {
             href="/quiz"
             className="border-2 border-foreground rounded-full px-5 py-1.5 text-sm font-serif uppercase tracking-wider hover:bg-foreground hover:text-beige transition-all duration-300"
           >
-            Get My Name
+            See My Artist Self
           </Link>
         </div>
       </nav>
 
       {/* ===== HERO SECTION ===== */}
       <section className="max-w-5xl mx-auto px-6 pt-16 sm:pt-24 pb-12">
-        {/* Headline: YOUR PERFECT ARTIST NAME IS WAITING */}
-        <h1 className="text-center text-4xl sm:text-5xl lg:text-6xl font-serif leading-tight mb-4">
-          <span className="uppercase tracking-wider">YOUR </span>
-          <span className="font-script text-pink-accent text-5xl sm:text-6xl lg:text-7xl lowercase">perfect</span>
-          <span className="uppercase tracking-wider"> ARTIST NAME IS </span>
-          <span className="font-script text-pink-accent text-5xl sm:text-6xl lg:text-7xl lowercase">waiting</span>
+        <h1 className="text-center text-3xl sm:text-4xl lg:text-5xl font-serif leading-tight mb-4">
+          <span className="uppercase tracking-wider">You already have a stage name.</span>
+          <br />
+          <span className="font-script text-pink-accent text-4xl sm:text-5xl lg:text-6xl lowercase">you just can&apos;t see it yet</span>
         </h1>
         <p className="text-center text-lg text-foreground/60 font-serif mb-8 max-w-xl mx-auto">
-          Stop struggling with your identity. Start building your legacy.
+          Every time you change your artist name, you&apos;re not indecisive — you&apos;re searching. We&apos;ll show you who you&apos;ve been looking for.
         </p>
 
         {/* Input Field + Button */}
@@ -147,14 +145,14 @@ export default function Home() {
             onClick={(e) =>  {
               window.location.href = "/quiz";
             }}
-            placeholder="e.g., Dimitri..."
+            placeholder="What's your real name?"
             className="w-64 sm:w-80 rounded-full border-2 border-foreground/20 bg-white px-6 py-3 text-foreground font-serif placeholder:text-foreground/40 focus:outline-none focus:border-pink-accent/50 transition"
           />
           <Link
             href="/quiz"
             className="holographic-shadow rounded-full px-6 py-3 text-white font-serif uppercase tracking-wider text-sm font-bold holographic transition-all duration-300 hover:scale-105"
           >
-            FIND MY STAGE NAME
+            SEE MY ARTIST SELF
           </Link>
         </div>
 
@@ -165,7 +163,7 @@ export default function Home() {
       {/* ===== FEATURES — Three Columns ===== */}
       <section id="how" className="max-w-5xl mx-auto px-6 py-12 sm:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-          {/* Tell Us Who You Are */}
+          {/* Share Your Vibe */}
           <div className="bg-white/60 border border-foreground/10 rounded-3xl p-8 text-center shadow-sm hover:shadow-md transition">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl holographic/10 bg-beige-dark flex items-center justify-center">
               <svg viewBox="0 0 24 24" className="w-8 h-8 text-pink-accent" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -175,11 +173,11 @@ export default function Home() {
                 <path d="M13 13h4M13 15h4M13 17h2" />
               </svg>
             </div>
-            <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-foreground/70 mb-2">TELL US WHO YOU ARE</h3>
-            <p className="text-sm font-serif text-foreground/50">Tell us about your sound and your story.</p>
+            <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-foreground/70 mb-2">SHARE YOUR VIBE</h3>
+            <p className="text-sm font-serif text-foreground/50">Your genre, your roots, your energy — we listen before we create.</p>
           </div>
 
-          {/* Our Algorithms Work */}
+          {/* We Manifest Your Identity */}
           <div className="bg-white/60 border border-foreground/10 rounded-3xl p-8 text-center shadow-sm hover:shadow-md transition">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-beige-dark flex items-center justify-center">
               <svg viewBox="0 0 24 24" className="w-8 h-8 text-cyan-accent" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -188,11 +186,11 @@ export default function Home() {
                 <path d="M9 6L8 4M15 6l1-2M9 14l-1 2M15 14l1 2" />
               </svg>
             </div>
-            <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-foreground/70 mb-2">OUR ALGORITHMS WORK</h3>
-            <p className="text-sm font-serif text-foreground/50">We analyze millions of names and meanings.</p>
+            <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-foreground/70 mb-2">WE MANIFEST YOUR IDENTITY</h3>
+            <p className="text-sm font-serif text-foreground/50">AI generates 3 versions of you — the one the world hasn&apos;t met yet.</p>
           </div>
 
-          {/* Claim Your New Identity */}
+          {/* See Yourself As An Artist */}
           <div className="bg-white/60 border border-foreground/10 rounded-3xl p-8 text-center shadow-sm hover:shadow-md transition">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-beige-dark flex items-center justify-center">
               <svg viewBox="0 0 24 24" className="w-8 h-8 text-pink-accent" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -203,8 +201,8 @@ export default function Home() {
                 <circle cx="16" cy="19" r="1.5" fill="currentColor" />
               </svg>
             </div>
-            <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-foreground/70 mb-2">CLAIM YOUR NEW IDENTITY</h3>
-            <p className="text-sm font-serif text-foreground/50">Secure your name and dominate the charts.</p>
+            <h3 className="text-sm font-serif uppercase tracking-[0.3em] text-foreground/70 mb-2">SEE YOURSELF AS AN ARTIST</h3>
+            <p className="text-sm font-serif text-foreground/50">Professional portraits, logos, and platform availability. Your future, visualized.</p>
           </div>
         </div>
       </section>
@@ -214,10 +212,10 @@ export default function Home() {
         <div className="relative bg-white/60 border border-foreground/10 rounded-3xl p-8 sm:p-10 shadow-lg">
           <div className="text-center mb-6">
             <h2 className="text-2xl sm:text-3xl font-serif uppercase tracking-wider">
-              Unlock Your <span className="font-script text-pink-accent lowercase text-3xl sm:text-4xl">Debut Artist Kit</span>
+              Manifest Your <span className="font-script text-pink-accent lowercase text-3xl sm:text-4xl">Artist Identity</span>
             </h2>
             <p className="text-sm font-serif text-foreground/50 mt-2 max-w-lg mx-auto">
-              Get 3 personalized brand names, cultural analysis, and sonic branding guidelines
+              See your face on a stage. Your name on a poster. Your logo on a playlist cover.
             </p>
           </div>
 
@@ -233,7 +231,7 @@ export default function Home() {
             disabled={isLoading}
             className="w-full max-w-md mx-auto holographic holographic-shadow rounded-full py-3 text-white font-serif uppercase tracking-wider text-sm font-bold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:scale-100"
           >
-            {isLoading ? "Processing..." : "Find my stagename"}
+            {isLoading ? "Processing..." : "See Who I Am"}
           </button>
 
           <p className="text-xs text-foreground/40 text-center mt-4 font-serif">
@@ -293,7 +291,7 @@ export default function Home() {
             href="/quiz"
             className="border-2 border-foreground rounded-full px-5 py-1.5 text-sm font-serif uppercase tracking-wider hover:bg-foreground hover:text-beige transition-all duration-300"
           >
-            JOIN THE CLUB
+            SEE MY ARTIST SELF
           </Link>
         </div>
       </footer>

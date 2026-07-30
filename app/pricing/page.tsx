@@ -26,7 +26,7 @@ export default function PricingPage() {
             href="/quiz"
             className="border-2 border-foreground rounded-full px-5 py-1.5 text-sm font-serif uppercase tracking-wider hover:bg-foreground hover:text-beige transition-all duration-300"
           >
-            Get My Name
+            See My Artist Self
           </Link>
         </div>
       </nav>
@@ -37,10 +37,10 @@ export default function PricingPage() {
           <p className="mb-4 text-sm font-serif uppercase tracking-[0.3em] text-coral">Simple pricing</p>
           <h1 className="text-4xl sm:text-5xl font-serif font-bold uppercase tracking-wider text-foreground">
             One price.{" "}
-            <span className="font-script text-coral lowercase">one shot.</span>
+            <span className="font-script text-coral lowercase">one identity.</span>
           </h1>
           <p className="mt-4 text-lg font-serif text-foreground/50 max-w-2xl mx-auto">
-            Get a complete brand naming experience with a single one-time payment.
+            See yourself as an artist. 3 names, 3 portraits, 3 logos — everything you need to become who you already are.
           </p>
         </div>
 
@@ -54,10 +54,10 @@ export default function PricingPage() {
 
             <ul className="space-y-4 mb-8">
               {[
-                "3 AI-generated stage names with reasoning",
-                "Studio portrait & logo visuals",
-                "Platform availability report",
-                "Instant delivery to your email",
+                "3 stage names — each a version of you, with reasoning",
+                "See your face as an artist — portrait + logo",
+                "Know your name is available everywhere",
+                "Delivered to your inbox in minutes",
               ].map((feature) => (
                 <li key={feature} className="flex gap-3 text-sm font-serif text-foreground/70">
                   <span className="text-coral font-bold">✓</span>
@@ -77,8 +77,8 @@ export default function PricingPage() {
           {/* Why section */}
           <div className="mt-8 grid gap-6 sm:grid-cols-3">
             {[
-              { title: "Fast & focused", desc: "No subscriptions, no upsells. One clear package." },
-              { title: "Built for launch", desc: "Everything you need to start your artist identity." },
+              { title: "Built for belief", desc: "Less than a therapy session. More clarity than a year of overthinking." },
+              { title: "Your future, visualized", desc: "See your face on a poster. Your name on a playlist. Your logo on a stage." },
               { title: "Secure checkout", desc: "Payments processed safely and securely." },
             ].map((item) => (
               <div key={item.title} className="bg-white/60 border border-foreground/10 rounded-3xl p-6 text-center">
@@ -103,7 +103,7 @@ export default function PricingPage() {
             href="/quiz"
             className="border-2 border-foreground rounded-full px-5 py-1.5 text-sm font-serif uppercase tracking-wider hover:bg-foreground hover:text-beige transition-all duration-300"
           >
-            JOIN THE CLUB
+            SEE MY ARTIST SELF
           </Link>
         </div>
       </footer>

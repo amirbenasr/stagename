@@ -58,7 +58,7 @@ function buildEmailWrapper(innerHtml: string): string {
 
   <!-- Preheader (hidden preview text) -->
   <div style="display: none; font-size: 1px; color: #EDEAE5; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
-    Your personalized Artist Brand Kit is ready — 3 unique stage names, studio portrait, logo &amp; more.
+    Your artist identity has been generated. Come see yourself.
   </div>
 
   <!-- Spacer top -->
@@ -163,17 +163,17 @@ function buildClaimEmailBody(claimUrl: string): string {
   return `
     <!-- Headline -->
     <h1 class="hero-title" style="font-family: Georgia, serif; font-size: 30px; font-weight: 400; color: ${BRAND_FOREGROUND}; margin: 0 0 4px; line-height: 1.3;">
-      We found <strong style="font-weight: 700;">3</strong> available identities for you
+      <strong style="font-weight: 700;">3</strong> versions of you
     </h1>
 
     <!-- Script accent word -->
     <p class="hero-script" style="font-family: 'Dancing Script', cursive; font-size: 36px; color: ${BRAND_CORAL}; margin: 0 0 16px; line-height: 1.2;">
-      just for you
+      ready to reveal
     </p>
 
     <!-- Subtitle -->
     <p style="font-family: Georgia, serif; font-size: 15px; color: ${BRAND_SLATE}; line-height: 1.7; margin: 0 0 32px; max-width: 440px; margin-left: auto; margin-right: auto;">
-      Our AI analyzed your vibe, your look, and cross-referenced global platform availability. Your personalized Brand Kit is locked and ready.
+      Based on who you are and how you sound, we&apos;ve created a visual identity you&apos;ve never seen. Your future self, waiting behind a click.
     </p>
 
     <!-- Blurred Cards Container -->
@@ -218,7 +218,7 @@ function buildClaimEmailBody(claimUrl: string): string {
       <tr>
         <td style="text-align: center; padding-bottom: 12px;">
           <a href="${claimUrl}" class="cta-button" style="display: inline-block; background: linear-gradient(135deg, ${BRAND_CORAL} 0%, ${BRAND_CORAL_LIGHT} 50%, ${BRAND_CORAL_DARK} 100%); color: ${BRAND_WHITE}; text-decoration: none; padding: 16px 44px; border-radius: 50px; font-family: Georgia, serif; font-size: 14px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; box-shadow: 0 4px 20px rgba(241,90,56,0.3), 0 0 40px rgba(241,90,56,0.1);">
-            Unlock Your Brand Kit — $14.99
+            Reveal My Artist Self — $14.99
           </a>
         </td>
       </tr>
@@ -252,17 +252,17 @@ function buildBrandKitReadyBody(kitUrl: string): string {
 
     <!-- Headline -->
     <h1 class="hero-title" style="font-family: Georgia, serif; font-size: 30px; font-weight: 400; color: ${BRAND_FOREGROUND}; margin: 0 0 4px; line-height: 1.3;">
-      Your Brand Kit is <strong style="font-weight: 700;">Live</strong>
+      Your artist identity is <strong style="font-weight: 700;">live</strong>
     </h1>
 
     <!-- Script accent -->
     <p class="hero-script" style="font-family: 'Dancing Script', cursive; font-size: 36px; color: ${BRAND_CORAL}; margin: 0 0 16px; line-height: 1.2;">
-      welcome to the club
+      meet yourself
     </p>
 
     <!-- Subtitle -->
     <p style="font-family: Georgia, serif; font-size: 15px; color: ${BRAND_SLATE}; line-height: 1.7; margin: 0 0 32px; max-width: 440px; margin-left: auto; margin-right: auto;">
-      Your personalized Artist Debut Kit has been generated — 3 stage names, each with a studio portrait, custom logo, and platform availability report. 9 unique assets, all yours.
+      3 stage names. 3 portraits. 3 logos. Every platform checked. This is the artist you&apos;ve been searching for.
     </p>
 
     <!-- Asset Preview Grid -->
@@ -302,7 +302,7 @@ function buildBrandKitReadyBody(kitUrl: string): string {
       <tr>
         <td style="text-align: center; padding-bottom: 12px;">
           <a href="${kitUrl}" class="cta-button" style="display: inline-block; background: linear-gradient(135deg, ${BRAND_CORAL} 0%, ${BRAND_CORAL_LIGHT} 50%, ${BRAND_CORAL_DARK} 100%); color: ${BRAND_WHITE}; text-decoration: none; padding: 16px 44px; border-radius: 50px; font-family: Georgia, serif; font-size: 14px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; box-shadow: 0 4px 20px rgba(241,90,56,0.3), 0 0 40px rgba(241,90,56,0.1);">
-            View Your Brand Kit
+            See Who I Am
           </a>
         </td>
       </tr>
@@ -327,7 +327,7 @@ export async function sendClaimEmail(email: string, submissionId: string): Promi
   await getResend().emails.send({
     from: `stagename.club <${getFromEmail()}>`,
     to: email,
-    subject: "Your 3 identities are waiting to be revealed",
+    subject: "3 versions of you are waiting",
     html: buildEmailWrapper(buildClaimEmailBody(claimUrl)),
   });
 }
@@ -338,7 +338,7 @@ export async function sendBrandKitReadyEmail(email: string, brandKitSlug: string
   await getResend().emails.send({
     from: `stagename.club <${getFromEmail()}>`,
     to: email,
-    subject: "Your Artist Brand Kit is ready ✦",
+    subject: "This is who you are ✦",
     html: buildEmailWrapper(buildBrandKitReadyBody(kitUrl)),
   });
 }

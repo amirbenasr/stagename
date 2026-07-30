@@ -137,6 +137,7 @@ async function generateAllNameAssets(
       portraitImageUrl: persisted.portrait,
       logoImageUrl: persisted.logo,
       studioPhotoUrl: persisted.studio,
+      arenaImageUrl: persisted.arena,
       availability: await checkAvailability(sn.name),
     };
   }));

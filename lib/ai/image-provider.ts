@@ -5,6 +5,7 @@ import {
   buildLogoPrompt,
   buildPortraitPrompt,
   buildStudioPhotoPrompt,
+  buildArenaPhotoPrompt,
   type ImagePromptParams,
 } from "./prompt-builders";
 
@@ -69,6 +70,11 @@ const ENDPOINT_CONFIG: Record<ImageGenerationType, EndpointConfig> = {
     endpoint: "bytedance/seedream/v5/pro/edit",
     selfieRefRequired: true,
     promptBuilder: buildPortraitPrompt,
+  },
+  arena: {
+    endpoint: "bytedance/seedream/v5/pro/edit",
+    selfieRefRequired: true,
+    promptBuilder: buildArenaPhotoPrompt,
   },
 };
 
@@ -247,6 +253,14 @@ export const imageGenerationProvider = {
     return generateSingleImage(buildImageRequest("portrait", { stageName, ...params }, selfieUrl));
   },
 
+  async generateArenaPhoto(
+    stageName: string,
+    selfieUrl: string,
+    params?: ImageGenerationParams
+  ): Promise<ImageGenerationResult> {
+    return generateSingleImage(buildImageRequest("arena", { stageName, ...params }, selfieUrl));
+  },
+
   async generateAll(
     stageName: string,
     selfieUrl: string,
@@ -255,14 +269,16 @@ export const imageGenerationProvider = {
     logo: ImageGenerationResult;
     studio: ImageGenerationResult;
     portrait: ImageGenerationResult;
+    arena: ImageGenerationResult;
   }> {
-    const [logo, studio, portrait] = await Promise.all([
+    const [logo, studio, portrait, arena] = await Promise.all([
       this.generateLogo(stageName, params),
       this.generateStudioPhoto(stageName, selfieUrl, params),
       this.generatePortrait(stageName, selfieUrl, params),
+      this.generateArenaPhoto(stageName, selfieUrl, params),
     ]);
 
-    return { logo, studio, portrait };
+    return { logo, studio, portrait, arena };
   },
 
   async generateInterviewVideo(

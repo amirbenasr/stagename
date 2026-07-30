@@ -3,7 +3,7 @@
 // ============================================================
 
 import type { SubjectAnalysis } from "./creative-engine/types";
-import { buildCreativeDirection, composePortraitPrompt, composeStudioPrompt } from "./creative-engine";
+import { buildCreativeDirection, composePortraitPrompt, composeStudioPrompt, composeArenaPrompt } from "./creative-engine";
 
 export function buildImageAnalysisSystemPrompt(): string {
   return (
@@ -180,6 +180,14 @@ export function buildPortraitPrompt(params: ImagePromptParams): string {
   return buildPortraitFallback(params);
 }
 
+export function buildArenaPhotoPrompt(params: ImagePromptParams): string {
+  if (params.subjectAnalysis && params.genre) {
+    const direction = buildCreativeDirection(params.subjectAnalysis, params.genre, params.variantIndex ?? 0);
+    return composeArenaPrompt(direction, params.stageName);
+  }
+  return buildArenaPhotoFallback(params);
+}
+
 function buildStudioPhotoFallback({ stageName, genre, vibe }: ImagePromptParams): string {
   const genreDirection = genre ? genreGenreDirection(genre) : "";
   const vibeDirection = vibe ? ` mood: ${vibe}` : "";
@@ -207,6 +215,26 @@ function buildPortraitFallback({ stageName, genre, vibe }: ImagePromptParams): s
     `Rembrandt lighting with subtle fill light, cinematic color grading, ` +
     `stylish atmospheric composition suitable for Spotify Apple Music profile artwork, ` +
     `high-end music artist branding${genreDirection}${vibeDirection}, ` +
+    `photorealistic, ultra-detailed, 8k resolution, ` +
+    `CRITICAL: preserve the exact facial features and physical appearance from the reference image, "${stageName}"`
+  );
+}
+
+function buildArenaPhotoFallback({ stageName, genre, vibe }: ImagePromptParams): string {
+  const genreDirection = genre ? genreGenreDirection(genre) : "";
+  const vibeDirection = vibe ? ` mood: ${vibe}` : "";
+
+  return (
+    `Ultra-realistic concert photograph of this exact same person performing live in a massive sold-out arena stadium — ` +
+    `DO NOT alter face shape, facial features, skin tone, or body structure. ` +
+    `The person must be visually identical to the reference photo. ` +
+    `The artist is on a huge stage holding a microphone, singing passionately mid-song with mouth open, ` +
+    `dynamic body movement, arms reaching toward a sea of tens of thousands of fans. ` +
+    `The crowd has raised hands, glowing phone lights, and is going wild. ` +
+    `Enormous LED screens, pyrotechnics, and dramatic concert lighting with laser beams cutting through volumetric haze. ` +
+    `Shot from the photo pit with a 24mm wide-angle lens, f/2.8, capturing the epic scale of the venue. ` +
+    `Intense spotlights, colored LED wash in blue and magenta, strobe effects, lens flare from stage lights, HDR. ` +
+    `High-end concert photography${genreDirection}${vibeDirection}, ` +
     `photorealistic, ultra-detailed, 8k resolution, ` +
     `CRITICAL: preserve the exact facial features and physical appearance from the reference image, "${stageName}"`
   );
