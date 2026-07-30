@@ -135,22 +135,68 @@ export interface ImageGenerationParams {
 const BREAKFAST_CLUB_STUDIO_URL =
   "https://firebasestorage.googleapis.com/v0/b/stagenameclub.firebasestorage.app/o/references%2FbKM8sIIpc_cpN6c9k66wp_rjE7iROS.jpg?alt=media&token=341d9eac-be69-4760-97b2-e62a4a85031d";
 
-function buildVideoPrompt(stageName: string, genre: string, vibe: string): string {
+function buildVideoPrompt(
+  stageName: string,
+  genre: string,
+  vibe: string
+): string {
   const genreModifier = genre
-    ? `, ${genre} artist aesthetic`
-    : "";
-  const vibeModifier = vibe
-    ? `, ${vibe} energy`
-    : "";
+    ? `${genre} artist aesthetic`
+    : "music artist aesthetic";
 
-  return (
-    `A ${stageName}${genreModifier}${vibeModifier} sitting as a guest on The Breakfast Club radio show, ` +
-    `wearing large over-ear headphones, leaning slightly forward toward a broadcast microphone on a boom arm. ` +
-    `The setting must match @Image2 exactly — the same Breakfast Club radio studio with its iconic backdrop, ` +
-    `neon signage, and warm broadcast lighting. ` +
-    `The artist has a natural, engaged expression as if mid-conversation during a live radio interview. ` +
-    `Cinematic shallow depth of field, realistic photography style.`
-  );
+  const vibeModifier = vibe
+    ? `${vibe} energy`
+    : "confident energy";
+
+  return `
+Reference Subject: @Image1
+Reference Environment: @Image2
+
+Create a 10-second ultra-realistic cinematic interview video featuring the person from @Image1 as "${stageName}", a ${genreModifier} with ${vibeModifier}.
+
+The environment must match @Image2 exactly. Recreate The Breakfast Club radio studio with its iconic backdrop, neon signage, professional broadcast microphones, mixing desk, warm studio lighting, and authentic podcast atmosphere. Maintain the same framing, lighting direction, camera angle, and production quality as the reference image.
+
+${stageName} is seated comfortably as a guest wearing premium black over-ear studio headphones, dressed in a stylish all-black outfit with subtle luxury accessories. The artist leans slightly toward the suspended broadcast microphone while maintaining relaxed, confident body language.
+
+Facial animation should be highly realistic with natural blinking, subtle eye movement, gentle head nods, expressive eyebrows, realistic breathing, and perfectly synchronized lip movements. Include small conversational hand gestures and natural posture adjustments throughout the scene.
+
+Camera:
+- Medium close-up
+- 85mm cinematic lens
+- Shallow depth of field
+- Soft background bokeh
+- Smooth handheld micro-movements
+- Professional podcast framing
+
+Lighting:
+- Warm broadcast lighting
+- Soft cinematic key light
+- Subtle rim light
+- HDR
+- Realistic skin texture
+- Film-quality color grading
+
+Mood:
+Dark, mysterious, charismatic, premium, authentic, confident.
+
+Dialogue (perfect lip sync):
+
+Host (off-camera):
+"${stageName}, people say your sound doesn't follow trends. Where does that energy come from?"
+
+${stageName}:
+"I never make music to fit in. Every record comes from real life, real emotions, and real experiences. If people connect with it, that's because they feel the truth behind every beat."
+
+Audio:
+- Host voice comes naturally from off-camera.
+- ${stageName}'s voice is calm, confident, and expressive.
+- Professional radio interview audio.
+- Subtle studio ambience.
+- low volume background music.
+
+Style:
+Ultra-photorealistic, cinematic documentary realism, natural human motion, realistic lip sync, premium podcast aesthetic, 4K, high detail, film quality.
+`.trim();
 }
 
 export interface VideoGenerationResult {
