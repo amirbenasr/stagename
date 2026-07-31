@@ -108,7 +108,7 @@ export default function Home() {
       <nav className="border-b border-black/10 bg-beige/90 backdrop-blur-sm sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/">
-            <Logo className="h-8 w-auto" showTagline={false} />
+            <Logo className="h-12 w-auto" showTagline={false} />
           </Link>
           <div className="hidden sm:flex items-center gap-6 text-sm text-foreground/70 font-serif">
             <Link href="#how" className="hover:text-foreground transition">How it Works</Link>

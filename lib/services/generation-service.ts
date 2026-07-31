@@ -8,6 +8,7 @@ import { generateSlug } from "../utils/text-utils";
 import { submissionRepository } from "../repositories/submission-repository";
 import { brandKitRepository } from "../repositories/brand-kit-repository";
 import { sendBrandKitReadyEmail } from "../email";
+import { existsInMusicBrainz, makeUnique } from "../utils/musicbrainz";
 
 // ============================================================
 // Generation Service — Pipeline Orchestrator
@@ -189,7 +190,18 @@ async function generateStageNamesStep(
   ctx: GenerationPipelineContext,
   imageAnalysis: string
 ) {
-  return generateAllStageNames(ctx.artistContext, imageAnalysis, ctx.realName, ctx.culturePreference);
+  const names = await generateAllStageNames(ctx.artistContext, imageAnalysis, ctx.realName, ctx.culturePreference);
+
+  const deduped = await Promise.all(
+    names.map(async (n) => {
+      const exists = await existsInMusicBrainz(n.name);
+      if (!exists) return n;
+      const uniqueName = await makeUnique(n.name);
+      return { ...n, name: uniqueName };
+    })
+  );
+
+  return deduped;
 }
 
 async function generateInterviewAssets(

@@ -26,8 +26,8 @@ export default function LegalPageLayout({
           <div className="hidden sm:flex items-center gap-6 text-sm text-foreground/70 font-serif">
             <Link href="/#how" className="hover:text-foreground transition">How it Works</Link>
             <Link href="/pricing" className="hover:text-foreground transition">Pricing</Link>
-            <span className="hover:text-foreground transition cursor-pointer">Blog</span>
-            <span className="hover:text-foreground transition cursor-pointer">Log In</span>
+            {/* <span className="hover:text-foreground transition cursor-pointer">Blog</span>
+            <span className="hover:text-foreground transition cursor-pointer">Log In</span> */}
           </div>
           <Link
             href="/quiz"
