@@ -15,6 +15,7 @@
     "@paddle/paddle-js": "^1.6.4",
     "@paddle/paddle-node-sdk": "^3.8.0",
     "@stripe/stripe-js": "^9.9.0",
+    "@vercel/analytics": "^2.0.1",
     "firebase": "^12.15.0",
     "firebase-admin": "^14.1.0",
     "lucide-react": "^1.23.0",
