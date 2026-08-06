@@ -7,11 +7,10 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const brandKitSlug = request.nextUrl.searchParams.get("slug");
-    if (!brandKitSlug) {
-      return NextResponse.json({ error: "Missing slug parameter" }, { status: 400 });
-    }
+    const reviews = brandKitSlug
+      ? await reviewRepository.findByBrandKit(brandKitSlug)
+      : await reviewRepository.findAll();
 
-    const reviews = await reviewRepository.findByBrandKit(brandKitSlug);
     return NextResponse.json({ reviews }, { status: 200 });
   } catch (error) {
     console.error("Reviews fetch error:", error);

@@ -113,6 +113,7 @@ export default function Home() {
           <div className="hidden sm:flex items-center gap-6 text-sm text-foreground/70 font-serif">
             <Link href="#how" className="hover:text-foreground transition">How it Works</Link>
             <Link href="/pricing" className="hover:text-foreground transition">Pricing</Link>
+            <Link href="/reviews" className="hover:text-foreground transition">Reviews</Link>
             {/* <span className="hover:text-foreground transition cursor-pointer">Blog</span>
             <span className="hover:text-foreground transition cursor-pointer">Log In</span> */}
           </div>
@@ -258,6 +259,26 @@ export default function Home() {
           <div>
             <div className="text-2xl font-serif font-bold holographic-text">75+</div>
             <div className="text-xs font-serif text-foreground/50 uppercase tracking-wider">Names Generated</div>
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-5xl mx-auto px-6 py-12">
+        <div className="rounded-[2rem] bg-white/80 border border-foreground/10 p-8 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.12)]">
+          <div className="grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-foreground/50 mb-2">From artists like you</p>
+              <h2 className="text-3xl font-serif font-bold text-foreground">See real reviews from creators who built their stage identity.</h2>
+              <p className="mt-3 text-sm text-foreground/60 max-w-xl">
+                Browse public reviews, hear what other artists loved, and see why StageName Club is the creative spark your project needs.
+              </p>
+            </div>
+            <Link
+              href="/reviews"
+              className="inline-flex items-center justify-center rounded-full bg-pink-accent px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white hover:bg-pink-accent/90 transition"
+            >
+              View Reviews
+            </Link>
           </div>
         </div>
       </section>

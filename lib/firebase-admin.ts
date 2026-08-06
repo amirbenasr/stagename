@@ -46,7 +46,7 @@ function initializeFirebaseAdmin(): App | null {
     "Firebase Admin: Initializing with project ID only — relying on Application Default Credentials. " +
       "Set FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY for production."
   );
-  return initializeApp({ projectId: config.projectId });
+  return initializeApp({ projectId: config.projectId, });
 }
 
 const adminApp: App | null = initializeFirebaseAdmin();

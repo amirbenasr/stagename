@@ -51,6 +51,18 @@ export const reviewRepository = {
     return !snapshot.empty;
   },
 
+  async findAll(): Promise<Review[]> {
+    const { requireDb } = await import("../firebase-admin");
+    const db = requireDb();
+
+    const snapshot = await db
+      .collection(COLLECTION)
+      .orderBy("createdAt", "desc")
+      .get();
+
+    return snapshot.docs.map((doc) => toReview(doc.id, doc.data() as Record<string, unknown>));
+  },
+
   async create(input: {
     brandKitSlug: string;
     email: string;
