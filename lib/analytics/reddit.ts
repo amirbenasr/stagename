@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 
 const REDDIT_TOKEN = process.env.REDDIT_CONVERSION_TOKEN;
 const REDDIT_URL = process.env.REDDIT_CONVERSION_URL; // e.g. https://<reddit-endpoint>/conversions
