@@ -21,6 +21,18 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Reviews — public read, writes only via server Admin SDK
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Rebrand votes — public read, writes only via server Admin SDK
+    match /rebrandVotes/{voteId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Deny everything else
     match /{document=**} {
       allow read, write: if false;

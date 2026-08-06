@@ -244,7 +244,7 @@ export default function Home() {
       <section className="max-w-5xl mx-auto px-6 py-12 border-t border-foreground/10">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           <div>
-            <div className="text-2xl font-serif font-bold holographic-text">204+</div>
+            <div className="text-2xl font-serif font-bold holographic-text">10+</div>
             <div className="text-xs font-serif text-foreground/50 uppercase tracking-wider">Artists Rebranded</div>
           </div>
           <div>
@@ -256,7 +256,7 @@ export default function Home() {
             <div className="text-xs font-serif text-foreground/50 uppercase tracking-wider">5-Star Rating</div>
           </div>
           <div>
-            <div className="text-2xl font-serif font-bold holographic-text">1k+</div>
+            <div className="text-2xl font-serif font-bold holographic-text">75+</div>
             <div className="text-xs font-serif text-foreground/50 uppercase tracking-wider">Names Generated</div>
           </div>
         </div>

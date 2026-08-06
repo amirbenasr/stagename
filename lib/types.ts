@@ -120,6 +120,39 @@ export interface BrandKitData {
   createdAt: string;
 }
 
+// --- Reviews ---
+
+export interface Review {
+  id: string;
+  brandKitSlug: string;
+  email: string;
+  maskedEmail: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+export interface ReviewPostRequest {
+  brandKitSlug: string;
+  email: string;
+  rating: number;
+  comment: string;
+}
+
+export interface ReviewPostResponse {
+  review?: Review;
+  error?: string;
+}
+
+// --- Rebrand Votes ---
+
+export interface RebrandVote {
+  brandKitSlug: string;
+  nameIndex: number;
+  stageName: string;
+  count: number;
+}
+
 // --- API DTOs ---
 
 export interface CheckoutRequest {

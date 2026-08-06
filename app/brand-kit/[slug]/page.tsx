@@ -17,6 +17,8 @@ import Logo from "../../components/Logo";
 import SpeakButton from "../../components/SpeakButton";
 import PodcastPlayer from "../../components/PodcastPlayer";
 import InterviewVideoPlayer from "../../components/InterviewVideoPlayer";
+import ReviewsSection from "../../components/ReviewsSection";
+import RebrandButton from "../../components/RebrandButton";
 import type { BrandKitData, NameAssetSet } from "../../../lib/types";
 import { PLATFORM_LABELS } from "../../../lib/types";
 
@@ -237,14 +239,16 @@ export default function BrandKitPage() {
       <div className="max-w-5xl mx-auto px-6 pb-8 print:pb-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {brandKit.names.map((nameData, i) => (
-            <a
+            <div
               key={i}
-              href={`#name-${i}`}
-              className={`group text-left rounded-3xl border p-5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-accent/40 ${
+              className={`group text-left rounded-3xl border p-5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-accent/40 cursor-pointer ${
                 i === 0
                   ? "border-pink-accent/30 bg-pink-accent/5 shadow-[0_20px_60px_-28px_rgba(236,72,153,0.6)]"
                   : "border-foreground/10 bg-white/70 hover:border-pink-accent/20 hover:shadow-lg"
               }`}
+              onClick={() => {
+                document.getElementById(`name-${i}`)?.scrollIntoView({ behavior: "smooth" });
+              }}
             >
               <div className="flex items-center justify-between gap-3 mb-3">
                 <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-serif font-bold text-white bg-foreground/90">
@@ -277,7 +281,14 @@ export default function BrandKitPage() {
               <p className="text-sm font-serif leading-relaxed text-foreground/60 line-clamp-3">
                 {nameData.reason}
               </p>
-            </a>
+              <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+                <RebrandButton
+                  brandKitSlug={slug}
+                  nameIndex={i}
+                  stageName={nameData.name}
+                />
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -313,9 +324,13 @@ export default function BrandKitPage() {
           key={nameIndex}
           nameData={nameData}
           index={nameIndex}
+          brandKitSlug={slug}
           onPreview={handlePreview}
         />
       ))}
+
+      {/* ===== REVIEWS ===== */}
+      <ReviewsSection brandKitSlug={slug} />
 
       {/* ===== FOOTER ===== */}
       <div className="max-w-5xl mx-auto px-6 py-12 print:hidden">
@@ -383,10 +398,12 @@ export default function BrandKitPage() {
 function NameSection({
   nameData,
   index,
+  brandKitSlug,
   onPreview,
 }: {
   nameData: NameAssetSet;
   index: number;
+  brandKitSlug: string;
   onPreview: (url: string, label: string) => void;
 }) {
   return (
@@ -407,11 +424,16 @@ function NameSection({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-foreground">
               {nameData.name}
             </h2>
             <SpeakButton text={nameData.name} size={20} />
+            <RebrandButton
+              brandKitSlug={brandKitSlug}
+              nameIndex={index}
+              stageName={nameData.name}
+            />
             {nameData.logoImageUrl && (
               <button
                 type="button"
