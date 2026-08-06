@@ -9,6 +9,7 @@ import { submissionRepository } from "../repositories/submission-repository";
 import { brandKitRepository } from "../repositories/brand-kit-repository";
 import { sendBrandKitReadyEmail } from "../email";
 import { existsInMusicBrainz, makeUnique } from "../utils/musicbrainz";
+import { sendRedditConversion } from "../analytics/reddit";
 
 // ============================================================
 // Generation Service — Pipeline Orchestrator
@@ -83,6 +84,13 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
     status: "complete",
     brandKitSlug: slug,
   });
+
+  // Server-side conversion: notify Reddit that brand kit generation completed
+  try {
+    await sendRedditConversion("BrandKitGenerated", { submissionId, slug, names: nameAssetSets.length });
+  } catch (err) {
+    console.error("Failed to send Reddit BrandKitGenerated conversion:", err);
+  }
 
   // Step 6: Send email (non-fatal)
   if (email) {

@@ -66,6 +66,19 @@ export default function BrandKitPage() {
     fetchBrandKit();
   }, [slug]);
 
+    // Track when the generated brand kit is first viewed
+    useEffect(() => {
+      if (!brandKit) return;
+      try {
+        const namesCount = brandKit.names?.length || 0;
+        if (namesCount > 0 && (window as any).rdt) {
+          (window as any).rdt("track", "BrandKitGenerated", { slug, names: namesCount });
+        }
+      } catch (_) {
+        // ignore
+      }
+    }, [brandKit, slug]);
+
   // Poll for generation status if brand kit exists but has no names yet
   useEffect(() => {
     if (!slug || loading || brandKit?.names.length) return;

@@ -26,6 +26,13 @@ export default function QuizPage() {
   const handleSubmit = async () => {
     const id = await quiz.handleSubmit();
     if (id) {
+      try {
+        if ((window as any).rdt) {
+          (window as any).rdt("track", "QuizSubmit", { submissionId: id });
+        }
+      } catch (_) {
+        // ignore
+      }
       setSubmissionId(id);
       setSidebarOpen(true);
     }

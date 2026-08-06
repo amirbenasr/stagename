@@ -1,5 +1,6 @@
 import { submissionRepository } from "../repositories/submission-repository";
 import { queueService } from "./queue-service";
+import { sendRedditConversion } from "../analytics/reddit";
 
 export const paymentService = {
   async processSuccessfulPayment(submissionId: string, sessionId: string): Promise<void> {
@@ -9,6 +10,12 @@ export const paymentService = {
     });
 
     console.log(`✓ Submission ${submissionId} marked as paid (session ${sessionId})`);
+
+    try {
+      await sendRedditConversion("Purchase", { submissionId, sessionId });
+    } catch (err) {
+      console.error("Failed to send Reddit Purchase conversion:", err);
+    }
   },
 
   async triggerGenerationPipeline(submissionId: string): Promise<void> {

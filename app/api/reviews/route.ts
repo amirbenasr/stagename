@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { reviewRepository } from "../../../lib/repositories/review-repository";
 import type { ReviewPostRequest, ReviewPostResponse } from "../../../lib/types";
+import { sendRedditConversion } from "../../../lib/analytics/reddit";
 
 export async function GET(
   request: NextRequest
@@ -54,6 +55,15 @@ export async function POST(
       rating: body.rating,
       comment: body.comment,
     });
+
+    // Server-side conversion: notify Reddit about review submission (non-fatal)
+    (async () => {
+      try {
+        await sendRedditConversion("ReviewSubmit", { brandKitSlug: body.brandKitSlug, rating: body.rating });
+      } catch (err) {
+        console.error("Failed to send Reddit ReviewSubmit conversion:", err);
+      }
+    })();
 
     return NextResponse.json({ review }, { status: 201 });
   } catch (error) {

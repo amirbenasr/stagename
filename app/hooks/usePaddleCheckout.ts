@@ -16,6 +16,13 @@ function getPaddle(): Promise<Paddle | undefined> {
         if (event.name === "checkout.completed") {
           const transactionId = event.data?.transaction_id;
           if (transactionId) {
+            try {
+              if ((window as any).rdt) {
+                (window as any).rdt("track", "Purchase", { transactionId });
+              }
+            } catch (_) {
+              // ignore
+            }
             window.location.href = `/success?_ptxn=${transactionId}`;
           }
         }

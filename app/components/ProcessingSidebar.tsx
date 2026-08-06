@@ -98,6 +98,14 @@ export default function ProcessingSidebar({
 
       if (res.ok) {
         setEmailSent(true);
+        setSending(false);
+        try {
+          if ((window as any).rdt) {
+            (window as any).rdt("track", "ClaimLinkSent", { submissionId, email: email.trim() });
+          }
+        } catch (_) {
+          // ignore
+        }
       } else {
         const json = await res.json();
         setError(json.error || "Failed to send email");

@@ -51,6 +51,13 @@ export default function ClaimPage() {
     setPaying(true);
 
     try {
+      try {
+        if ((window as any).rdt) {
+          (window as any).rdt("track", "InitiateCheckout", { submissionId });
+        }
+      } catch (_) {
+        // ignore
+      }
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

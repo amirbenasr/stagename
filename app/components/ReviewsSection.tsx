@@ -67,6 +67,18 @@ export default function ReviewsSection({ brandKitSlug }: ReviewsSectionProps) {
       if (data.review) {
         setReviews((prev) => [data.review, ...prev]);
       }
+      try {
+        if ((window as any).rdt) {
+          (window as any).rdt("track", "ReviewSubmit", {
+            brandKitSlug,
+            rating,
+          });
+        }
+      } catch (_) {
+        // ignore
+        console.log("ERROR");
+        
+      }
       setSubmitted(true);
       setShowForm(false);
       setEmail("");

@@ -44,7 +44,7 @@ export default function RootLayout({
         {redditPixelId ? (
           <>
             <Script id="reddit-pixel" strategy="afterInteractive">
-              {`!function(w,d){var r=w.rdt=w.rdt||[];if(!w.rdt.init){w.rdt.init=function(i){r.push(["init",i])};var s=d.createElement("script");s.async=1;s.src="https://www.redditstatic.com/ads/pixel.js";var e=d.getElementsByTagName("script")[0];e.parentNode.insertBefore(s,e)}}(window,document); rdt.init("${redditPixelId}");`}
+              {`!function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js?pixel_id=${redditPixelId}";t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document); rdt('init','${redditPixelId}'); rdt('track','PageVisit');`}
             </Script>
             <noscript>
               <img
