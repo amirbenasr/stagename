@@ -83,7 +83,7 @@ export async function persistAllImagesForName(
 export async function persistVideo(
   videoUrl: string,
   submissionId: string,
-  filename: string = "interview-video.mp4"
+  filename: string = "first-take.mp4"
 ): Promise<string> {
   if (!videoUrl) return "";
   if (!adminStorage) {
@@ -110,4 +110,30 @@ export async function persistVideo(
     console.error("Failed to save video to storage:", err);
     return videoUrl;
   }
+}
+
+export interface PersistedVideoAssets {
+  videoUrl: string;
+  posterUrl: string;
+}
+
+/**
+ * Persists the First Take MP4 and its poster frame. Both calls degrade to the
+ * source URL on failure, so a storage hiccup never blocks delivery.
+ */
+export async function persistVideoAssets(input: {
+  videoUrl: string;
+  posterUrl?: string;
+  submissionId: string;
+}): Promise<PersistedVideoAssets> {
+  const { videoUrl, posterUrl, submissionId } = input;
+
+  const [persistedVideo, persistedPoster] = await Promise.all([
+    persistVideo(videoUrl, submissionId, "first-take.mp4"),
+    posterUrl
+      ? persistImage(posterUrl, submissionId, "first-take-poster.jpg")
+      : Promise.resolve(""),
+  ]);
+
+  return { videoUrl: persistedVideo, posterUrl: persistedPoster };
 }

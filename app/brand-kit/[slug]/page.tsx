@@ -16,7 +16,7 @@ import {
 import Logo from "../../components/Logo";
 import SpeakButton from "../../components/SpeakButton";
 import PodcastPlayer from "../../components/PodcastPlayer";
-import InterviewVideoPlayer from "../../components/InterviewVideoPlayer";
+import FirstTakePlayer from "../../components/FirstTakePlayer";
 import ReviewsSection from "../../components/ReviewsSection";
 import RebrandButton from "../../components/RebrandButton";
 import type { BrandKitData, NameAssetSet } from "../../../lib/types";
@@ -34,6 +34,7 @@ export default function BrandKitPage() {
     label: string;
   } | null>(null);
   const pollRef = useRef(0);
+  const videoPollRef = useRef(0);
 
   useEffect(() => {
     if (!slug) {
@@ -106,6 +107,36 @@ export default function BrandKitPage() {
 
     return () => clearInterval(interval);
   }, [slug, loading, brandKit?.names?.length]);
+
+  // The First Take is rendered after the kit is saved. Poll until it lands
+  // (or fails) so the video slot updates without a manual refresh.
+  useEffect(() => {
+    if (!slug) return;
+    if (brandKit?.video?.status !== "rendering") return;
+
+    const interval = setInterval(async () => {
+      videoPollRef.current += 1;
+      if (videoPollRef.current > 75) {
+        clearInterval(interval);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/brand-kit/${slug}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.video && data.video.status !== "rendering") {
+            setBrandKit(data);
+            clearInterval(interval);
+          }
+        }
+      } catch {
+        // silent
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [slug, brandKit?.video?.status]);
 
   const handleDownloadPDF = () => {
     window.print();
@@ -320,16 +351,20 @@ export default function BrandKitPage() {
         </div>
       )}
 
-      {/* ===== BREAKFAST CLUB INTERVIEW VIDEO ===== */}
-      <div className="max-w-4xl mx-auto px-6 py-8 print:hidden">
-        <InterviewVideoPlayer
-          videoUrl={brandKit.videoUrl}
-          interviewScript={brandKit.interviewScript}
-          artistName={brandKit.names[0]?.name || ""}
-          genre={brandKit.genre}
-          vibe={brandKit.vibe}
-        />
-      </div>
+      {/* ===== THE FIRST TAKE ===== */}
+      {(brandKit.video || brandKit.videoUrl) && (
+        <div className="max-w-4xl mx-auto px-6 py-8 print:hidden">
+          <FirstTakePlayer
+            video={brandKit.video}
+            legacyVideoUrl={brandKit.videoUrl}
+            stageName={brandKit.names[0]?.name || ""}
+            genre={brandKit.genre}
+            vibe={brandKit.vibe}
+            fallbackPoster={brandKit.names[0]?.portraitImageUrl}
+            slug={slug}
+          />
+        </div>
+      )}
 
       {/* ===== VERTICAL SECTIONS — One per name ===== */}
       {brandKit.names.map((nameData, nameIndex) => (
