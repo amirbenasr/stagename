@@ -25,8 +25,7 @@ export default async function Image({
     kit?.video?.posterUrl ||
       top?.portraitImageUrl ||
       top?.arenaImageUrl ||
-      top?.studioPhotoUrl,
-    { width: 900, height: 1200 }
+      top?.studioPhotoUrl
   );
 
   return new ImageResponse(

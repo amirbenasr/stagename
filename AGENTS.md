@@ -138,10 +138,10 @@ Generated on demand with `next/og` (Satori). No binary assets to maintain.
 | `app/brand-kit/[slug]/layout.tsx` | Per-kit `<title>` / description / OG metadata |
 | `app/api/share-card/[slug]/route.tsx?format=story|profile` | Downloadable 1080×1920 story card / 1080×1080 post card |
 
-- `lib/media/kit-image.ts` fetches the chosen image, resizes it with **sharp** and returns a compressed data URI for Satori. Any failure returns `null` and the card renders typographically.
+- `lib/media/kit-image.ts` fetches the chosen image and embeds it as a data URI for Satori. Any failure returns `null` and the card renders typographically.
 - `FirstTakePlayer` links to both share cards and offers copy-link / native share.
-- `sharp` must stay in `serverExternalPackages` (`next.config.ts`).
-- Images are compressed before embedding so the OG route stays fast; the 500KB Satori bundle limit applies to code/fonts, not runtime images.
+- Do **not** import `sharp` in `next/og` routes: its libvips binary is not reliably present in the Vercel function, and an import-time failure takes the whole route down with a 500.
+- Images are size-capped (4 MB) before embedding; the 500KB Satori bundle limit applies to code/fonts, not runtime images.
 
 ### Firebase Storage for Generated Images
 All generated images are downloaded from fal.ai and saved to Firebase Storage:

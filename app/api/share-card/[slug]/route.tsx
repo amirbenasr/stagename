@@ -37,8 +37,7 @@ export async function GET(
     kit?.video?.posterUrl ||
       top?.portraitImageUrl ||
       top?.arenaImageUrl ||
-      top?.studioPhotoUrl,
-    { width, height }
+      top?.studioPhotoUrl
   );
 
   return new ImageResponse(
