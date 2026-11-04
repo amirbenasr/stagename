@@ -1,12 +1,14 @@
-import type { BrandKitData, NameAssetSet, InterviewLine } from "../types";
+import type { BrandKitData, BrandKitVideo, NameAssetSet } from "../types";
 import type { SubjectAnalysis } from "../ai/creative-engine/types";
-import { analyzeSelfieImage, generateAllStageNames, subjectAnalysisToText, generateInterviewScript } from "../ai/openrouter-client";
+import { analyzeSelfieImage, generateAllStageNames, subjectAnalysisToText } from "../ai/openrouter-client";
 import { imageGenerationProvider } from "../ai/image-provider";
-import { persistAllImagesForName, persistVideo } from "./storage-service";
+import { generatePerformanceVideo } from "../ai/video";
+import { persistAllImagesForName } from "./storage-service";
 import { checkAvailability } from "../utils/availability";
 import { generateSlug } from "../utils/text-utils";
 import { submissionRepository } from "../repositories/submission-repository";
 import { brandKitRepository } from "../repositories/brand-kit-repository";
+import { queueService } from "./queue-service";
 import { sendBrandKitReadyEmail } from "../email";
 import { existsInMusicBrainz, makeUnique } from "../utils/musicbrainz";
 import { sendRedditConversion } from "../analytics/reddit";
@@ -53,22 +55,28 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
 
   // Step 2: Generate 3 Stage Names (parallel via Strategy pattern)
   const stageNames = await generateStageNamesStep(ctx, imageAnalysisText);
+  const slug = generateSlug();
+  const startedAt = new Date().toISOString();
 
-  //only 1 for testing
-  // Step 3: Generate images for ALL 3 names in parallel
-  const nameAssetSets = await generateAllNameAssets(stageNames, selfieUrl, submissionId, genre, vibe, subjectAnalysis);
-
-  // Step 4: Generate interview video for top pick + interview script
-  const { videoUrl, interviewScript } = await generateInterviewAssets(
-    nameAssetSets[0],
-    stageNames[0].name,
+  // Step 3: Generate images for all 3 names in parallel
+  const nameAssetSets = await generateAllNameAssets(
+    stageNames,
+    selfieUrl,
+    submissionId,
     genre,
     vibe,
-    submissionId
+    subjectAnalysis
   );
 
-  // Step 5: Save Brand Kit to Firestore
-  const slug = generateSlug();
+  // Step 4: Save the kit as soon as the images exist, with the First Take
+  // marked as rendering. The video is a separate queue job so a slow render
+  // can never time out the kit or block delivery.
+  const renderingVideo: BrandKitVideo = {
+    status: "rendering",
+    startedAt,
+    updatedAt: startedAt,
+  };
+
   await brandKitRepository.save({
     submissionId,
     slug,
@@ -76,8 +84,7 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
     genre,
     vibe,
     musicUrl: musicUrl || undefined,
-    videoUrl,
-    interviewScript,
+    video: renderingVideo,
   });
 
   await submissionRepository.update(submissionId, {
@@ -92,7 +99,7 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
     console.error("Failed to send Reddit BrandKitGenerated conversion:", err);
   }
 
-  // Step 6: Send email (non-fatal)
+  // Step 5: Send email (non-fatal) — the core kit is already live.
   if (email) {
     try {
       await sendBrandKitReadyEmail(email, slug);
@@ -101,15 +108,98 @@ export async function executeGenerationPipeline(input: GenerationPipelineInput):
     }
   }
 
+  // Step 6: Queue the First Take. Its own worker invocation renders the frame,
+  // animates it, mixes audio and attaches it to the saved kit.
+  try {
+    await queueService.enqueue(submissionId, "video");
+  } catch (err) {
+    console.error("Failed to enqueue First Take video job:", err);
+    await brandKitRepository
+      .updateVideo(slug, {
+        status: "failed",
+        error: "Could not queue the video render",
+        startedAt,
+        updatedAt: new Date().toISOString(),
+      })
+      .catch(() => {});
+  }
+
   return {
     submissionId,
     slug,
     names: nameAssetSets,
     genre,
     vibe,
+    video: renderingVideo,
     status: "complete",
-    createdAt: new Date().toISOString(),
+    createdAt: startedAt,
   };
+}
+
+/**
+ * Renders and attaches the First Take for an already-saved kit.
+ * Runs in its own queue job (own serverless invocation / time budget).
+ */
+export async function executeVideoPipeline(submissionId: string): Promise<BrandKitVideo> {
+  const submission = await submissionRepository.findById(submissionId);
+  if (!submission) throw new SubmissionNotFoundError(submissionId);
+
+  const slug = submission.brandKitSlug;
+  if (!slug) throw new Error(`Submission ${submissionId} has no brand kit yet`);
+
+  const kit = await brandKitRepository.findBySlug(slug);
+  const topPick = kit?.names?.[0];
+  if (!kit || !topPick) throw new Error(`Brand kit ${slug} is not ready for a video`);
+
+  const startedAt = kit.video?.startedAt ?? new Date().toISOString();
+
+  try {
+    let subjectAnalysis: SubjectAnalysis | null = null;
+    try {
+      if (submission.selfieUrl) {
+        subjectAnalysis = await analyzeSelfieImage(submission.selfieUrl);
+      }
+    } catch (err) {
+      console.error("Video image analysis failed, continuing without it:", err);
+    }
+
+    const result = await generatePerformanceVideo({
+      submissionId,
+      stageName: topPick.name,
+      selfieUrl: submission.selfieUrl,
+      genre: kit.genre,
+      vibe: kit.vibe,
+      subjectAnalysis,
+      uploadedMusicUrl: submission.musicUrl || undefined,
+    });
+
+    const video: BrandKitVideo = {
+      status: "ready",
+      url: result.url,
+      posterUrl: result.posterUrl,
+      musicUrl: result.musicUrl,
+      musicSource: result.musicSource,
+      musicMuxed: result.musicMuxed,
+      durationSeconds: result.durationSeconds,
+      aspectRatio: result.aspectRatio,
+      model: result.model,
+      startedAt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await brandKitRepository.updateVideo(slug, video);
+    return video;
+  } catch (error) {
+    const failed: BrandKitVideo = {
+      status: "failed",
+      error: error instanceof Error ? error.message : "Video generation failed",
+      startedAt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await brandKitRepository.updateVideo(slug, failed).catch(() => {});
+    throw error;
+  }
 }
 
 async function generateAllNameAssets(
@@ -120,7 +210,7 @@ async function generateAllNameAssets(
   vibe: string,
   subjectAnalysis: SubjectAnalysis | null
 ): Promise<NameAssetSet[]> {
-  // Generate all 9 images in parallel (3 names × 3 image types)
+  // Generate all 12 images in parallel (3 names × logo/studio/portrait/arena)
   const imageResults = await Promise.all(
     stageNames.map(async (sn, index) => {
       const images = await imageGenerationProvider.generateAll(sn.name, selfieUrl, { genre, vibe, subjectAnalysis: subjectAnalysis ?? undefined, variantIndex: index });
@@ -212,46 +302,6 @@ async function generateStageNamesStep(
   return deduped;
 }
 
-async function generateInterviewAssets(
-  topPickName: NameAssetSet,
-  stageName: string,
-  genre: string,
-  vibe: string,
-  submissionId: string
-): Promise<{ videoUrl: string | undefined; interviewScript: InterviewLine[] | undefined }> {
-  // Generate video and script in parallel
-  const [videoResult, script] = await Promise.all([
-    (async () => {
-      try {
-        const result = await imageGenerationProvider.generateInterviewVideo(
-          topPickName.portraitImageUrl,
-          stageName,
-          genre,
-          vibe
-        );
-        if (!result.url) return undefined;
-        return await persistVideo(result.url, submissionId);
-      } catch (err) {
-        console.error("Video generation failed, continuing without it:", err);
-        return undefined;
-      }
-    })(),
-    (async () => {
-      try {
-        return await generateInterviewScript({
-          stageName,
-          genre,
-          vibe,
-        });
-      } catch (err) {
-        console.error("Interview script generation failed, continuing without it:", err);
-        return undefined;
-      }
-    })(),
-  ]);
-
-  return { videoUrl: videoResult, interviewScript: script };
-}
 
 // ============================================================
 // Error Types

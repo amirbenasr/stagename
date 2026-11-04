@@ -1,4 +1,4 @@
-import type { BrandKitData, NameAssetSet } from "../types";
+import type { BrandKitData, BrandKitVideo, NameAssetSet } from "../types";
 
 const COLLECTION = "brandKits";
 
@@ -9,8 +9,18 @@ export interface SaveBrandKitInput {
   genre: string;
   vibe: string;
   musicUrl?: string;
+  video?: BrandKitVideo;
   videoUrl?: string;
   interviewScript?: import("../types").InterviewLine[];
+}
+
+/** Firestore rejects `undefined` values inside nested maps. */
+function stripUndefined<T extends object>(value: T): T {
+  const out: Record<string, unknown> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (entry !== undefined && entry !== null) out[key] = entry;
+  }
+  return out as T;
 }
 
 function toBrandKitData(data: Record<string, unknown>): BrandKitData {
@@ -21,6 +31,7 @@ function toBrandKitData(data: Record<string, unknown>): BrandKitData {
     genre: (data.genre as string) ?? "",
     vibe: (data.vibe as string) ?? "",
     musicUrl: (data.musicUrl as string) || undefined,
+    video: (data.video as BrandKitVideo) || undefined,
     videoUrl: (data.videoUrl as string) || undefined,
     interviewScript: (data.interviewScript as import("../types").InterviewLine[]) || undefined,
     status: (data.status as BrandKitData["status"]) ?? "complete",
@@ -45,10 +56,21 @@ export const brandKitRepository = {
 
     const brandKitData: BrandKitData = {
       ...input,
+      video: input.video ? stripUndefined(input.video) : undefined,
       status: "complete",
       createdAt: new Date().toISOString(),
     };
 
     await db.collection(COLLECTION).doc(input.slug).set(brandKitData);
+  },
+
+  async updateVideo(slug: string, video: BrandKitVideo): Promise<void> {
+    const { requireDb } = await import("../firebase-admin");
+    const db = requireDb();
+
+    await db
+      .collection(COLLECTION)
+      .doc(slug)
+      .update({ video: stripUndefined(video) });
   },
 };

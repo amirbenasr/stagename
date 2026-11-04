@@ -262,14 +262,14 @@ function buildBrandKitReadyBody(kitUrl: string): string {
 
     <!-- Subtitle -->
     <p style="font-family: Georgia, serif; font-size: 15px; color: ${BRAND_SLATE}; line-height: 1.7; margin: 0 0 32px; max-width: 440px; margin-left: auto; margin-right: auto;">
-      3 stage names. 3 portraits. 3 logos. Every platform checked. This is the artist you&apos;ve been searching for.
+      3 stage names. 12 images. A First Take performance clip. Every platform checked. This is the artist you&apos;ve been searching for.
     </p>
 
     <!-- Asset Preview Grid -->
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px;">
       <tr>
         <td style="text-align: center; padding-bottom: 16px;">
-          <div style="font-family: Georgia, serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: ${BRAND_SLATE};">9 assets generated</div>
+          <div style="font-family: Georgia, serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: ${BRAND_SLATE};">13 assets generated</div>
         </td>
       </tr>
       <tr>
@@ -280,11 +280,12 @@ function buildBrandKitReadyBody(kitUrl: string): string {
                 { icon: "✦", label: "3 Stage Names" },
                 { icon: "◉", label: "Studio Portrait" },
                 { icon: "◆", label: "Custom Logo" },
+                { icon: "▶", label: "First Take Clip" },
               ]
                 .map(
                   (item) => `
-                <td style="text-align: center; padding: 0 8px; width: 33.33%;">
-                  <div style="background: ${BRAND_WHITE}; border-radius: 14px; padding: 18px 10px; border: 1px solid rgba(28,29,31,0.06);">
+                <td style="text-align: center; padding: 0 6px; width: 25%;">
+                  <div style="background: ${BRAND_WHITE}; border-radius: 14px; padding: 18px 8px; border: 1px solid rgba(28,29,31,0.06);">
                     <div style="font-size: 22px; margin-bottom: 8px; color: ${BRAND_CORAL};">${item.icon}</div>
                     <div style="font-family: Georgia, serif; font-size: 11px; color: ${BRAND_FOREGROUND}; font-weight: bold; line-height: 1.4;">${item.label}</div>
                   </div>

@@ -21,8 +21,25 @@ const dancingScript = Dancing_Script({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://stagename.club"
+  ),
   title: "StageName.Club — Find Your Perfect Artist Name",
   description: "Stop struggling with your identity. Start building your legacy.",
+  openGraph: {
+    title: "StageName.Club — Find Your Perfect Artist Name",
+    description:
+      "3 stage names, 12 images and a First Take performance clip — one-time.",
+    url: "/",
+    siteName: "stagename.club",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "StageName.Club — Find Your Perfect Artist Name",
+    description:
+      "3 stage names, 12 images and a First Take performance clip — one-time.",
+  },
   icons: {
     icon: "/icon.svg",
   },

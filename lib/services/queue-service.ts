@@ -1,12 +1,14 @@
-import type { SubmissionStatus } from "../types";
-
 const COLLECTION = "generationJobs";
 
 export type JobStatus = "pending" | "processing" | "complete" | "failed";
 
+/** "kit" builds the brand kit, "video" renders the First Take afterwards. */
+export type JobType = "kit" | "video";
+
 export interface GenerationJob {
   id: string;
   submissionId: string;
+  type: JobType;
   status: JobStatus;
   attempts: number;
   error?: string;
@@ -24,6 +26,7 @@ function jobFromDoc(data: Record<string, unknown>, docId: string): GenerationJob
   return {
     id: docId,
     submissionId: (data.submissionId as string) ?? "",
+    type: (data.type as JobType) ?? "kit",
     status: (data.status as JobStatus) ?? "pending",
     attempts: (data.attempts as number) ?? 0,
     error: data.error as string | undefined,
@@ -34,11 +37,12 @@ function jobFromDoc(data: Record<string, unknown>, docId: string): GenerationJob
 }
 
 export const queueService = {
-  async enqueue(submissionId: string): Promise<GenerationJob> {
+  async enqueue(submissionId: string, type: JobType = "kit"): Promise<GenerationJob> {
     const db = await getDb();
     const now = new Date().toISOString();
     const doc = {
       submissionId,
+      type,
       status: "pending" as const,
       attempts: 0,
       createdAt: now,
@@ -78,13 +82,16 @@ export const queueService = {
     });
   },
 
-  async complete(jobId: string, brandKitSlug: string): Promise<void> {
+  async complete(jobId: string, brandKitSlug?: string): Promise<void> {
     const db = await getDb();
-    await db.collection(COLLECTION).doc(jobId).update({
-      status: "complete",
-      brandKitSlug,
-      updatedAt: new Date().toISOString(),
-    });
+    await db
+      .collection(COLLECTION)
+      .doc(jobId)
+      .update({
+        status: "complete",
+        ...(brandKitSlug ? { brandKitSlug } : {}),
+        updatedAt: new Date().toISOString(),
+      });
   },
 
   async fail(jobId: string, error: string): Promise<void> {

@@ -188,6 +188,12 @@ body {
   opacity: 1;
 }
 
+/* First Take — rendering indicator */
+@keyframes ft-slide {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(420%); }
+}
+
 /* Spinner for AI processing */
 .ai-spinner {
   animation: aiSpin 1.2s linear infinite;

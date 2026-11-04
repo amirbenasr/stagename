@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: ["firebase-admin", "firebase-admin/firestore", "firebase-admin/storage"],
+  serverExternalPackages: ["firebase-admin", "firebase-admin/firestore", "firebase-admin/storage", "sharp"],
 };
 
 export default nextConfig;

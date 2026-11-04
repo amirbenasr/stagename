@@ -9,6 +9,10 @@ exports.onGenerationJobCreated = onDocumentWritten(
   {
     document: "generationJobs/{jobId}",
     region: "us-central1",
+    // The worker call is synchronous: kit generation takes ~1–2 min and the
+    // First Take can take 2–4 min. The default 60s timeout would cut it off.
+    timeoutSeconds: 540,
+    memory: "512MiB",
   },
   async (event) => {
     const data = event.data;

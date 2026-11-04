@@ -107,6 +107,31 @@ export interface InterviewLine {
   text: string;
 }
 
+// --- First Take Video ---
+
+export type BrandKitVideoStatus = "rendering" | "ready" | "failed";
+
+export type VideoMusicSource = "artist" | "library" | "none";
+
+export interface BrandKitVideo {
+  status: BrandKitVideoStatus;
+  /** Durable MP4 URL (Firebase Storage when persistence succeeds). */
+  url?: string;
+  /** Still frame used as the video poster. */
+  posterUrl?: string;
+  /** Audio that was chosen for the clip (uploaded track or library bed). */
+  musicUrl?: string;
+  musicSource?: VideoMusicSource;
+  /** True when the audio was muxed into the MP4 itself. */
+  musicMuxed?: boolean;
+  durationSeconds?: number;
+  aspectRatio?: string;
+  model?: string;
+  error?: string;
+  startedAt?: string;
+  updatedAt?: string;
+}
+
 export interface BrandKitData {
   submissionId: string;
   slug: string;
@@ -114,7 +139,11 @@ export interface BrandKitData {
   genre: string;
   vibe: string;
   musicUrl?: string;
+  /** First Take performance video. */
+  video?: BrandKitVideo;
+  /** @deprecated Legacy interview clip — kept for older kits. */
   videoUrl?: string;
+  /** @deprecated Legacy interview captions — kept for older kits. */
   interviewScript?: InterviewLine[];
   status: BrandKitStatus;
   createdAt: string;

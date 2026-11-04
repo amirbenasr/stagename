@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   description: "See what other artists say about StageName Club.",
 };
 
+// Reviews are read from Firestore. Rendering at request time keeps the build
+// independent of Admin credentials (preview deploys have no service account)
+// and means new reviews appear without a redeploy.
+export const dynamic = "force-dynamic";
+
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString(undefined, {
     year: "numeric",

@@ -11,7 +11,8 @@
 !.yarn/releases
 !.yarn/versions
 
-video/
+# root Remotion ad project only — do NOT ignore lib/ai/video/
+/video/
 
 # testing
 /coverage
