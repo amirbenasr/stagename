@@ -61,7 +61,12 @@ export const brandKitRepository = {
       createdAt: new Date().toISOString(),
     };
 
-    await db.collection(COLLECTION).doc(input.slug).set(brandKitData);
+    // Firestore rejects undefined values anywhere in the document (e.g. an
+    // omitted musicUrl when the artist skipped the upload), so strip them all.
+    await db
+      .collection(COLLECTION)
+      .doc(input.slug)
+      .set(stripUndefined(brandKitData));
   },
 
   async updateVideo(slug: string, video: BrandKitVideo): Promise<void> {

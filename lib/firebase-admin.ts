@@ -51,7 +51,15 @@ function initializeFirebaseAdmin(): App | null {
 
 const adminApp: App | null = initializeFirebaseAdmin();
 
-export const adminDb: Firestore | null = adminApp ? getFirestore(adminApp) : null;
+function createFirestore(app: App): Firestore {
+  const db = getFirestore(app);
+  // The generation pipeline legitimately omits optional fields (musicUrl,
+  // videoUrl…). Without this, Firestore throws when saving the brand kit.
+  db.settings({ ignoreUndefinedProperties: true });
+  return db;
+}
+
+export const adminDb: Firestore | null = adminApp ? createFirestore(adminApp) : null;
 export const adminStorage: Storage | null = adminApp ? getStorage(adminApp) : null;
 
 export function requireDb(): Firestore {
