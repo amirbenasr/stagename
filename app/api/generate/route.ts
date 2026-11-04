@@ -19,18 +19,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     console.error("Generation error:", error);
-
-    // Temporary diagnostic field — remove once the pipeline is green in prod.
-    const detail =
-      error instanceof Error
-        ? `${error.name}: ${error.message}`
-        : typeof error === "string"
-          ? error
-          : JSON.stringify(error);
-
-    return NextResponse.json(
-      { error: "Internal server error", detail },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

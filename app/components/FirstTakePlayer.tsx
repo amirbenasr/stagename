@@ -388,7 +388,7 @@ export default function FirstTakePlayer({
             </span>
 
             <a
-              href={`/api/share-card/${slug}?format=story`}
+              href={`/api/share-card/${slug}?format=story&v=${encodeURIComponent(video?.updatedAt ?? "")}`}
               download={`${slug}-story.png`}
               className="flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 font-serif text-xs text-white/55 transition hover:border-white/30 hover:text-white"
             >
@@ -397,7 +397,7 @@ export default function FirstTakePlayer({
             </a>
 
             <a
-              href={`/api/share-card/${slug}?format=profile`}
+              href={`/api/share-card/${slug}?format=profile&v=${encodeURIComponent(video?.updatedAt ?? "")}`}
               download={`${slug}-post.png`}
               className="flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 font-serif text-xs text-white/55 transition hover:border-white/30 hover:text-white"
             >
